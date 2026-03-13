@@ -10,6 +10,8 @@
     "settings": "Жөндөөлөр",
     "bookings": "Жазылуулар",
     "admin": "Администратор",
+    "catalog": "Каталог",
+    "forMasters": "Мастерлер үчүн",
     "signIn": "Кирүү",
     "signOut": "Чыгуу",
     "profile": "Профиль"
@@ -92,5 +94,11 @@
   "language": {
     "ru": "Русский",
     "ky": "Кыргызча"
+  },
+  "footer": {
+    "about": "Биз жөнүндө",
+    "contacts": "Байланыш",
+    "forMasters": "Мастерлер үчүн",
+    "copyright": "© 2026 BeautyBook. Бардык укуктар корголгон."
   }
 }
