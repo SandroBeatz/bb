@@ -1,0 +1,57 @@
+export default defineEventHandler(async (event) => {
+  const bookingId = getRouterParam(event, 'id')
+  const { userId } = useAuth()
+  const masterId = userId?.value
+
+  if (!masterId) {
+    throw createError({ statusCode: 401, message: 'Authentication required' })
+  }
+
+  if (!bookingId) {
+    throw createError({ statusCode: 400, message: 'Booking ID is required' })
+  }
+
+  const body = await readBody<{
+    payment_type_id: string
+    amount: number
+  }>(event)
+
+  if (!body?.payment_type_id || body?.amount == null) {
+    throw createError({ statusCode: 400, message: 'payment_type_id and amount are required' })
+  }
+
+  const supabase = useServerSupabase()
+
+  const { data: booking } = await supabase
+    .from('bookings')
+    .select('id, status')
+    .eq('id', bookingId)
+    .eq('master_id', masterId)
+    .single()
+
+  if (!booking) {
+    throw createError({ statusCode: 404, message: 'Booking not found' })
+  }
+
+  const { data, error } = await supabase
+    .from('payment_records')
+    .upsert({
+      booking_id: bookingId,
+      master_id: masterId,
+      payment_type_id: body.payment_type_id,
+      amount: body.amount,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    throw createError({ statusCode: 500, message: error.message })
+  }
+
+  await supabase
+    .from('bookings')
+    .update({ status: 'completed' })
+    .eq('id', bookingId)
+
+  return data
+})
