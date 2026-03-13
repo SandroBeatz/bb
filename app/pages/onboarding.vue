@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center bg-(--ui-bg) px-4 py-16">
+  <div class="flex-1 flex flex-col items-center justify-center bg-(--ui-bg) px-4 py-16">
     <div class="w-full max-w-2xl">
       <!-- Header -->
       <div class="mb-12 text-center">
@@ -22,7 +22,7 @@
         <!-- Master card -->
         <button
           type="button"
-          class="role-card group flex flex-col items-center rounded-2xl border-2 bg-white p-8 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          class="role-card group flex flex-col items-center rounded-2xl border-2 bg-(--ui-bg) p-8 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
           :class="
             selectedRole === 'master'
               ? 'border-primary ring-2 ring-primary/20'
@@ -52,7 +52,7 @@
         <!-- Client card -->
         <button
           type="button"
-          class="role-card group flex flex-col items-center rounded-2xl border-2 bg-white p-8 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          class="role-card group flex flex-col items-center rounded-2xl border-2 bg-(--ui-bg) p-8 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
           :class="
             selectedRole === 'client'
               ? 'border-primary ring-2 ring-primary/20'

@@ -1,11 +1,6 @@
 export default defineEventHandler(async (event) => {
   const paymentTypeId = getRouterParam(event, 'id')
-  const { userId } = useAuth()
-  const masterId = userId?.value
-
-  if (!masterId) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  const masterId = requireAuth(event)
 
   if (!paymentTypeId) {
     throw createError({ statusCode: 400, message: 'Payment type ID is required' })

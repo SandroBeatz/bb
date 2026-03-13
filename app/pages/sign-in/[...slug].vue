@@ -10,9 +10,9 @@
     </div>
     <SignIn
       routing="path"
-      path="/sign-in"
+      :path="localePath('/sign-in')"
       :sign-up-url="localePath('/sign-up')"
-      fallback-redirect-url="/dashboard"
+      :fallback-redirect-url="localePath('/dashboard')"
     />
   </div>
 </template>

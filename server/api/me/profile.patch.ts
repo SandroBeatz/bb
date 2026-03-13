@@ -1,9 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { userId } = useAuth()
-
-  if (!userId?.value) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  const userId = requireAuth(event)
 
   const body = await readBody<Partial<{
     full_name: string
@@ -16,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await supabase
     .from('profiles')
     .update(body)
-    .eq('id', userId.value)
+    .eq('id', userId)
     .select()
     .single()
 

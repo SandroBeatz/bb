@@ -1,9 +1,7 @@
-export default defineEventHandler(async (event) => {
-  const { userId } = useAuth()
+import { clerkClient } from '@clerk/nuxt/server'
 
-  if (!userId?.value) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+export default defineEventHandler(async (event) => {
+  const userId = requireAuth(event)
 
   const body = await readBody<{ role: string }>(event)
 
@@ -11,34 +9,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Invalid role. Must be "master" or "client".' })
   }
 
+  // Get user data directly from Clerk — no webhook needed
+  const clerkUser = await clerkClient(event).users.getUser(userId)
+  const fullName = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ')
+  const avatarUrl = clerkUser.imageUrl ?? null
+
   const supabase = useServerSupabase()
 
-  // Update role only (preserves full_name set by the Clerk webhook)
-  const { data: updated, error: updateError } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
-    .update({ role: body.role })
-    .eq('id', userId.value)
+    .upsert(
+      { id: userId, role: body.role, full_name: fullName, avatar_url: avatarUrl },
+      { onConflict: 'id' },
+    )
     .select()
-    .maybeSingle()
+    .single()
 
-  if (updateError) {
-    throw createError({ statusCode: 500, message: updateError.message })
+  if (error) {
+    throw createError({ statusCode: 500, message: error.message })
   }
 
-  // Profile didn't exist yet (webhook hasn't fired) — create it with the selected role
-  if (!updated) {
-    const { data: inserted, error: insertError } = await supabase
-      .from('profiles')
-      .insert({ id: userId.value, role: body.role, full_name: '' })
-      .select()
-      .single()
-
-    if (insertError) {
-      throw createError({ statusCode: 500, message: insertError.message })
-    }
-
-    return inserted
-  }
-
-  return updated
+  return data
 })

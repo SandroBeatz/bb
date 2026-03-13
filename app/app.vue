@@ -1,11 +1,20 @@
 <template>
-  <UApp>
+  <UApp class="flex flex-col min-h-screen">
     <NuxtRouteAnnouncer />
     <AppHeader />
-    <main class="min-h-screen pb-16 md:pb-0">
+    <main class="flex-1 flex flex-col">
       <NuxtPage />
     </main>
     <AppFooter />
     <BottomNav />
   </UApp>
 </template>
+
+<script setup lang="ts">
+const { isSignedIn } = useAuth()
+const { fetch } = useProfile()
+
+watch(isSignedIn, (signed) => {
+  if (signed) fetch()
+}, { immediate: true })
+</script>

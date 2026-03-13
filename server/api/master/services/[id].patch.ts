@@ -1,11 +1,6 @@
 export default defineEventHandler(async (event) => {
   const serviceId = getRouterParam(event, 'id')
-  const { userId } = useAuth()
-  const masterId = userId?.value
-
-  if (!masterId) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  const masterId = requireAuth(event)
 
   if (!serviceId) {
     throw createError({ statusCode: 400, message: 'Service ID is required' })

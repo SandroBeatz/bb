@@ -42,6 +42,8 @@ export default defineNuxtConfig({
   },
 
   clerk: {
+    signInUrl: '/sign-in',
+    signUpUrl: '/sign-up',
     appearance: {
       variables: {
         colorPrimary: '#C85C82',

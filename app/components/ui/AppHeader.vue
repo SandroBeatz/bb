@@ -47,8 +47,11 @@
           </button>
         </div>
 
-        <!-- Signed in: avatar + dropdown -->
-        <template v-if="isSignedIn && user">
+        <!-- Auth state: skeleton while loading, avatar or sign-in once ready -->
+        <template v-if="!isLoaded">
+          <div class="size-8 animate-pulse rounded-full bg-muted" />
+        </template>
+        <template v-else-if="isSignedIn && user">
           <UDropdownMenu :items="userMenuItems">
             <UButton variant="ghost" size="sm" class="size-10 rounded-full p-0">
               <UAvatar
@@ -59,8 +62,6 @@
             </UButton>
           </UDropdownMenu>
         </template>
-
-        <!-- Not signed in: Sign In -->
         <template v-else>
           <NuxtLink :to="localePath('/sign-in')" class="hidden sm:block">
             <UButton variant="outline" size="sm" class="font-sans font-medium">
@@ -102,7 +103,7 @@
 
               <!-- Auth + language -->
               <div class="mt-2 space-y-3 border-t border-default pt-4">
-                <template v-if="isSignedIn && user">
+                <template v-if="isLoaded && isSignedIn && user">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                       <UAvatar
@@ -160,8 +161,9 @@
 <script setup lang="ts">
 const { t, locale, locales, setLocale } = useI18n()
 const localePath = useLocalePath()
-const { isSignedIn, signOut } = useAuth()
+const { isSignedIn, isLoaded } = useAuth()
 const { user } = useUser()
+const { signOut } = useClerk()
 
 const mobileMenuOpen = ref(false)
 
