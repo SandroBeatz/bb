@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "bun@1.2.9",
   "dependencies": {
     "@clerk/nuxt": "^2.0.4",
     "@nuxt/ui": "^2.22.3",

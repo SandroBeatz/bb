@@ -16,15 +16,15 @@ export default defineNuxtConfig({
     strict: true,
   },
   runtimeConfig: {
-    clerkSecretKey: '',
-    supabaseServiceRoleKey: '',
-    telegramBotToken: '',
-    resendApiKey: '',
+    clerkSecretKey: process.env.NUXT_CLERK_SECRET_KEY,
+    supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY,
+    telegramBotToken: process.env.NUXT_TELEGRAM_BOT_TOKEN,
+    resendApiKey: process.env.NUXT_RESEND_API_KEY,
     public: {
-      clerkPublishableKey: '',
-      supabaseUrl: '',
-      supabaseAnonKey: '',
-      telegramBotUsername: '',
+      clerkPublishableKey: process.env.NUXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      telegramBotUsername: process.env.NUXT_PUBLIC_TELEGRAM_BOT_USERNAME,
     },
   },
 })
