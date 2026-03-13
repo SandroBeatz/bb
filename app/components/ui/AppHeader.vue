@@ -8,6 +8,9 @@
     <UNavigationMenu :items="navItems" variant="link" color="neutral" />
 
     <template #right>
+      <!-- Dark / light mode toggle -->
+      <UColorModeButton size="sm" />
+
       <!-- Locale switcher — two UButtons as segmented control -->
       <div class="hidden sm:flex items-center gap-px rounded-lg bg-elevated p-0.5">
         <UButton

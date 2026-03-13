@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   ],
 
   modules: [
+    '@nuxtjs/color-mode',
     '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
@@ -23,6 +24,13 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default', // Russian (default) uses no prefix, Kyrgyz uses /ky/
     langDir: '../app/locales/',
     lazy: true,
+  },
+
+  colorMode: {
+    classSuffix: '',
+    preference: 'system',
+    fallback: 'light',
+    storageKey: 'bb-color-mode',
   },
 
   ui: {
