@@ -1,5 +1,5 @@
 <template>
-  <footer class="border-t border-default bg-(--ui-bg)">
+  <footer class="hidden border-t border-default bg-(--ui-bg) md:block">
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div class="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
         <!-- Brand -->

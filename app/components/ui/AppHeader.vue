@@ -72,9 +72,8 @@
         <!-- Mobile burger (UDrawer trigger) -->
         <UDrawer
           v-model:open="mobileMenuOpen"
-          direction="left"
+          direction="bottom"
           class="md:hidden"
-          :ui="{ content: 'w-72 rounded-r-2xl' }"
         >
           <UButton
             variant="ghost"
@@ -86,38 +85,23 @@
           </UButton>
 
           <template #content>
-            <div class="flex h-full flex-col">
-              <!-- Drawer header -->
-              <div class="flex items-center justify-between border-b border-default px-4 py-4">
-                <span class="font-serif font-light text-xl text-highlighted">BeautyBook</span>
-                <UButton
-                  variant="ghost"
-                  size="sm"
-                  class="min-h-[44px] min-w-[44px]"
-                  aria-label="Закрыть"
-                  @click="mobileMenuOpen = false"
-                >
-                  <UIcon name="i-heroicons-x-mark" class="size-5" />
-                </UButton>
-              </div>
-
-              <!-- Nav links -->
-              <nav class="flex flex-col gap-1 p-3">
+            <div class="px-4 pb-safe pt-4">
+              <!-- Mobile menu links -->
+              <nav class="flex flex-col gap-1">
                 <NuxtLink
-                  v-for="link in mobileNavLinks"
+                  v-for="link in mobileMenuLinks"
                   :key="link.to"
                   :to="link.to"
-                  class="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 font-sans font-medium text-sm text-default transition-colors hover:bg-muted"
-                  active-class="bg-primary-50 text-primary dark:bg-primary-950/30"
+                  class="flex min-h-[44px] items-center rounded-lg px-3 py-2 font-sans font-medium text-sm text-default transition-colors hover:bg-muted"
+                  active-class="text-primary"
                   @click="mobileMenuOpen = false"
                 >
-                  <UIcon :name="link.icon" class="size-5 shrink-0" />
                   {{ link.label }}
                 </NuxtLink>
               </nav>
 
-              <!-- Auth + language — pinned to bottom -->
-              <div class="mt-auto space-y-3 border-t border-default p-4">
+              <!-- Auth + language -->
+              <div class="mt-2 space-y-3 border-t border-default pt-4">
                 <template v-if="isSignedIn && user">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -190,18 +174,10 @@ watch(
   },
 )
 
-const mobileNavLinks = computed(() => [
-  { to: localePath('/'), icon: 'i-heroicons-home', label: t('nav.home') },
-  {
-    to: localePath('/catalog'),
-    icon: 'i-heroicons-magnifying-glass',
-    label: t('nav.catalog'),
-  },
-  {
-    to: localePath('/for-masters'),
-    icon: 'i-heroicons-sparkles',
-    label: t('nav.forMasters'),
-  },
+const mobileMenuLinks = computed(() => [
+  { to: localePath('/about'), label: t('footer.about') },
+  { to: localePath('/contacts'), label: t('footer.contacts') },
+  { to: localePath('/for-masters'), label: t('footer.forMasters') },
 ])
 
 const userMenuItems = computed(() => [
