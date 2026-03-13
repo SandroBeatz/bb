@@ -1,5 +1,5 @@
 <template>
   <main class="p-8">
-    <h1 class="text-2xl font-bold">portfolio</h1>
+    <h1 class="text-2xl font-bold">{{ $t('nav.portfolio') }}</h1>
   </main>
 </template>

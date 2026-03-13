@@ -3,11 +3,23 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/ui',
+    '@nuxtjs/i18n',
     '@pinia/nuxt',
     '@nuxtjs/supabase',
     '@clerk/nuxt',
     '@samk-dev/nuxt-vcalendar',
   ],
+
+  i18n: {
+    locales: [
+      { code: 'ru', language: 'ru-RU', name: 'Русский', file: 'ru.json' },
+      { code: 'ky', language: 'ky-KG', name: 'Кыргызча', file: 'ky.json' },
+    ],
+    defaultLocale: 'ru',
+    strategy: 'prefix_except_default', // Russian (default) uses no prefix, Kyrgyz uses /ky/
+    langDir: 'locales/',
+    lazy: true,
+  },
 
   ui: {
     theme: {
