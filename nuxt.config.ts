@@ -9,6 +9,13 @@ export default defineNuxtConfig({
     '@samk-dev/nuxt-vcalendar',
   ],
 
+  ui: {
+    theme: {
+      // Semantic color roles available on all Nuxt UI components
+      colors: ['primary', 'secondary', 'neutral', 'success', 'warning', 'error', 'info'],
+    },
+  },
+
   css: ['~/assets/css/main.css'],
 
   supabase: {

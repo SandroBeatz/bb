@@ -1,2 +1,193 @@
+/* ============================================================
+   BeautyBook — Main CSS
+   Stack: Tailwind CSS v4 + Nuxt UI v3
+   Design System: docs/DESIGN_SPEC.md
+   ============================================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* ============================================================
+   TYPOGRAPHY TOKENS
+   ============================================================ */
+@theme {
+  --font-sans:    'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif:   'Cormorant Garamond', Georgia, serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ============================================================
+   PRIMARY COLOR PALETTE — Dusty Rose / Mauve
+   Overrides Tailwind's built-in `rose` with a more muted,
+   sophisticated palette suited for a premium beauty brand.
+   ============================================================ */
+@theme static {
+  --color-rose-50:  #FDF5F7;
+  --color-rose-100: #FAE8EE;
+  --color-rose-200: #F4CEDB;
+  --color-rose-300: #EAAABF;
+  --color-rose-400: #DD7FA0;
+  --color-rose-500: #C85C82;
+  --color-rose-600: #AD4068;
+  --color-rose-700: #913153;
+  --color-rose-800: #782A46;
+  --color-rose-900: #65263D;
+  --color-rose-950: #3C0F21;
+}
+
+/* ============================================================
+   SEMANTIC TOKENS — Light & Dark
+   Overrides Nuxt UI's default neutral variables with warm
+   stone/cream tones instead of cold greys.
+   ============================================================ */
+@layer theme {
+  /* ── Light mode (:root) ── */
+  :root {
+    /* Background surfaces */
+    --ui-bg:           #FAF8F5;   /* warm cream — page background */
+    --ui-bg-muted:     #F5EFE8;   /* warm beige — secondary sections */
+    --ui-bg-elevated:  #EEE8E0;   /* for hover states, tooltips */
+    --ui-bg-accented:  #E5DDD4;   /* highlighted blocks */
+
+    /* Borders */
+    --ui-border:         #DDD5CB;
+    --ui-border-muted:   #E8E0D8;
+    --ui-border-accented: #CFC5B9;
+
+    /* Global radius */
+    --ui-radius: 0.5rem;   /* 8px — soft but not bubble */
+  }
+
+  /* ── Dark mode (.dark) ── */
+  .dark {
+    /* Background surfaces */
+    --ui-bg:           #1A1612;   /* warm dark coffee — page background */
+    --ui-bg-muted:     #231D18;   /* slightly lighter */
+    --ui-bg-elevated:  #2C2420;   /* cards, elevated surfaces */
+    --ui-bg-accented:  #38302A;   /* highlighted blocks in dark */
+
+    /* Borders */
+    --ui-border:         #3D342C;
+    --ui-border-muted:   #352D26;
+    --ui-border-accented: #4A3F36;
+  }
+}
+
+/* ============================================================
+   ANIMATIONS & TRANSITIONS
+   ============================================================ */
+
+/* Page transitions */
+.page-enter-active {
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.page-leave-active {
+  transition: opacity 150ms ease-in;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Shimmer skeleton loading — use class="skeleton" */
+@keyframes bb-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ui-bg-muted)    25%,
+    var(--ui-bg-elevated) 50%,
+    var(--ui-bg-muted)    75%
+  );
+  background-size: 200% 100%;
+  animation: bb-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Master card hover lift */
+.master-card {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 200ms ease-out;
+}
+.master-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   SAFE AREA INSETS — iOS notch / home indicator
+   ============================================================ */
+.pb-safe  { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.pt-safe  { padding-top:    env(safe-area-inset-top,    0px); }
+.pl-safe  { padding-left:   env(safe-area-inset-left,   0px); }
+.pr-safe  { padding-right:  env(safe-area-inset-right,  0px); }
+
+/* ============================================================
+   CALENDAR — nuxt-vcalendar (v-calendar) overrides
+   Apply class="bb-calendar" to <VCalendar>
+   ============================================================ */
+.bb-calendar {
+  --vc-bg:    transparent;
+  --vc-border: transparent;
+  --vc-rounded: 8px;
+
+  /* Navigation header */
+  --vc-header-arrow-color:       var(--ui-text);
+  --vc-header-title-color:       var(--ui-text-highlighted);
+  --vc-header-title-font-weight: 600;
+  --vc-header-title-font-size:   0.9375rem;
+
+  /* Weekday labels */
+  --vc-weekday-color:     var(--ui-text-muted);
+  --vc-weekday-font-size: 0.75rem;
+
+  /* Day numbers */
+  --vc-day-content-color:       var(--ui-text);
+  --vc-day-content-font-size:   0.875rem;
+  --vc-day-content-font-weight: 400;
+
+  /* Today */
+  --vc-today-bg-color: var(--ui-bg-muted);
+  --vc-today-color:    var(--ui-text-highlighted);
+
+  /* Accent (selected date) — maps to our dusty rose */
+  --vc-accent-50:  #FDF5F7;
+  --vc-accent-100: #FAE8EE;
+  --vc-accent-200: #F4CEDB;
+  --vc-accent-300: #EAAABF;
+  --vc-accent-400: #DD7FA0;
+  --vc-accent-500: #C85C82;
+  --vc-accent-600: #AD4068;
+  --vc-accent-700: #913153;
+  --vc-accent-800: #782A46;
+  --vc-accent-900: #65263D;
+}
+
+/* Minimum 44px touch targets for date cells */
+.bb-calendar .vc-day-content {
+  min-height: 44px;
+  min-width:  44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+/* Out-of-month days */
+.bb-calendar .vc-day.is-not-in-month .vc-day-content {
+  opacity: 0.3;
+}
