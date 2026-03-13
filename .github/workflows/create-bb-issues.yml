@@ -1,0 +1,81 @@
+name: Создать задачи  для BB
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Создать метки
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: 'фаза-0', color: '0075ca', description: 'Подготовка роутов и заглушек' }
+            ];
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description,
+                });
+                console.log(`✅ Метка создана: ${label.name}`);
+              } catch (e) {
+                if (e.status === 422) {
+                  console.log(`⚠️ Метка уже существует: ${label.name}`);
+                } else {
+                  console.error(`❌ Ошибка при создании метки ${label.name}: ${e.message}`);
+                }
+              }
+            }
+
+      - name: Создать задачи
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = [
+              {
+                title: '[Фаза 0.1] Главный экран — базовая оболочка',
+                labels: ['фаза-0', 'sprint-1'],
+                body: `## Цель
+            Создать базовую оболочку главного экрана, чтобы навигация на него работала.
+
+            ## Задачи
+            - [ ] Создать \`src/pages/home/ui/HomePage.tsx\`
+            - [ ] Создать \`src/pages/home/index.ts\`
+            - [ ] Обновить роут \`src/routes/(tabs)/index.tsx\` — подключить \`HomePage\`
+            - [ ] Показать заглушку с текстом «Привет, {name}!»
+            - [ ] Подключить \`useCurrentProfile()\` для имени
+            - [ ] Использовать \`Page\` compound component как корень экрана
+
+            ## Принадлежность
+            **Фаза 0 — Подготовка роутов и заглушек**
+            **Sprint 1 (Делать сейчас)**
+
+            ## Оценка
+            0.5 дня (в составе всей Фазы 0)`,
+              },
+            ];
+
+            for (const issue of issues) {
+              try {
+                const result = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issue.title,
+                  body: issue.body,
+                  labels: issue.labels,
+                });
+                console.log(`✅ Создан: #${result.data.number} — ${issue.title}`);
+              } catch (e) {
+                console.error(`❌ Ошибка при создании "${issue.title}": ${e.message}`);
+              }
+            }
+            console.log('🎉 Все задачи созданы!');
