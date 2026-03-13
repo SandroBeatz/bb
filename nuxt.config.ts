@@ -1,6 +1,10 @@
 export default defineNuxtConfig({
   srcDir: 'app',
 
+  components: [
+    { path: '~/components', pathPrefix: false },
+  ],
+
   modules: [
     '@nuxt/ui',
     '@nuxtjs/i18n',
