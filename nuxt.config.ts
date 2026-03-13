@@ -42,7 +42,19 @@ export default defineNuxtConfig({
   },
 
   clerk: {
-    appearance: {},
+    appearance: {
+      variables: {
+        colorPrimary: '#C85C82',
+        colorBackground: '#FAF8F5',
+        colorInputBackground: '#FFFFFF',
+        colorText: '#1C1917',
+        colorTextSecondary: '#78716C',
+        colorNeutral: '#78716C',
+        borderRadius: '0.75rem',
+        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        fontFamilyButtons: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+      },
+    },
   },
 
   vite: {
@@ -61,6 +73,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     clerkSecretKey: process.env.NUXT_CLERK_SECRET_KEY,
+    clerkWebhookSecret: process.env.NUXT_CLERK_WEBHOOK_SECRET,
     supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY,
     telegramBotToken: process.env.NUXT_TELEGRAM_BOT_TOKEN,
     resendApiKey: process.env.NUXT_RESEND_API_KEY,
