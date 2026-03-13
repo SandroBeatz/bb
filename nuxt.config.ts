@@ -17,7 +17,7 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'ru',
     strategy: 'prefix_except_default', // Russian (default) uses no prefix, Kyrgyz uses /ky/
-    langDir: 'locales/',
+    langDir: 'app/locales/',
     lazy: true,
   },
 
