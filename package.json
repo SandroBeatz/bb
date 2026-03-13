@@ -16,6 +16,7 @@
   "dependencies": {
     "@clerk/nuxt": "^2.0.4",
     "@nuxt/ui": "^4.5.1",
+    "@nuxtjs/i18n": "^10.2.3",
     "@nuxtjs/supabase": "^2.0.4",
     "@pinia/nuxt": "^0.11.3",
     "@samk-dev/nuxt-vcalendar": "^1.0.4",

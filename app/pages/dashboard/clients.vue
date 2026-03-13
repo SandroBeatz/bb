@@ -1,5 +1,5 @@
 <template>
   <main class="p-8">
-    <h1 class="text-2xl font-bold">clients</h1>
+    <h1 class="text-2xl font-bold">{{ $t('nav.clients') }}</h1>
   </main>
 </template>
