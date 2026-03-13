@@ -1,12 +1,9 @@
 <template>
-  <UApp class="flex flex-col min-h-screen">
+  <UApp>
     <NuxtRouteAnnouncer />
-    <AppHeader />
-    <main class="flex-1 flex flex-col">
+    <NuxtLayout>
       <NuxtPage />
-    </main>
-    <AppFooter />
-    <BottomNav />
+    </NuxtLayout>
   </UApp>
 </template>
 

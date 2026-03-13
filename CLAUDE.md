@@ -93,6 +93,50 @@ Zod schemas with `vee-validate` + `@vee-validate/zod`. Define schemas with `z.ob
 
 `@nuxt/ui` v3 with Tailwind CSS v4. Styles are CSS-first — configure via `@theme` in `app/assets/css/main.css`. All pages are wrapped in `<UApp>` in `app/app.vue`.
 
+**CRITICAL: Always use Nuxt UI components — never write raw HTML alternatives.**
+
+#### Layout components (mandatory)
+- **`UHeader`** — sticky top header with `#title`, `#left`, `#right`, `#body` (mobile) slots. Use `UNavigationMenu` in center slot for nav links.
+- **`UMain`** — main content wrapper (auto-sized relative to `--ui-header-height`). Use in `default` layout.
+- **`UFooter`** — footer with `#left`, `#right` slots. Use `UNavigationMenu` in center for links.
+- **`UDashboardGroup`** — root wrapper for dashboard. Uses `fixed inset-0`. Must contain `UDashboardSidebar` + content.
+- **`UDashboardSidebar`** — resizable/collapsible sidebar with `#header`, `#footer` slots. Always use `resizable collapsible` props.
+- **`UDashboardPanel`** — main dashboard content area with `#header` slot for `UDashboardNavbar`.
+- **`UDashboardNavbar`** — top navbar inside `UDashboardPanel`. Use `title` and `icon` props.
+
+#### Layout files
+- `app/layouts/default.vue` — public pages: `AppHeader` + `UMain` + `AppFooter` + `BottomNav`
+- `app/layouts/dashboard.vue` — master workspace: `UDashboardGroup` + `UDashboardSidebar`
+
+#### Dashboard pages pattern
+```vue
+<template>
+  <UDashboardPanel>
+    <template #header>
+      <UDashboardNavbar title="Page Title" icon="i-heroicons-..." />
+    </template>
+    <div class="p-6"><!-- content --></div>
+  </UDashboardPanel>
+</template>
+<script setup lang="ts">
+definePageMeta({ middleware: 'auth', layout: 'dashboard' })
+</script>
+```
+
+#### Key components
+- **`UNavigationMenu`** — use for all nav lists (horizontal in header, vertical in sidebar with `orientation="vertical"`)
+- **`UButton`** — all buttons; use `variant`, `color`, `size` props instead of custom CSS classes
+- **`USkeleton`** — loading states (not custom `animate-pulse` divs)
+- **`UEmpty`** — empty states
+- **`UUser`** — user display with avatar + name
+- **`UDropdownMenu`** — contextual menus
+- **`UCard`** — content cards
+- **`UTable`** — data tables
+- **`UModal`** / **`USlideover`** — overlays
+- **`UForm`** + **`UFormField`** — forms with validation
+
+Use the MCP server `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs when needed.
+
 ### Code quality
 
 Biome v2 handles linting and formatting (`biome.json` at root). Vue file support is experimental (`html.experimentalFullSupportEnabled`). Run `bun run check` before committing.
