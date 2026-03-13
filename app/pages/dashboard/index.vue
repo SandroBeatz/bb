@@ -1,11 +1,15 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('nav.services')" icon="i-heroicons-scissors" />
+      <UDashboardNavbar :title="$t('nav.dashboard')" />
     </template>
 
     <div class="p-6">
-      <UEmpty icon="i-heroicons-scissors" :title="$t('nav.services')" description="" />
+      <UEmpty
+        icon="i-heroicons-squares-2x2"
+        :title="$t('nav.dashboard')"
+        description=""
+      />
     </div>
   </UDashboardPanel>
 </template>

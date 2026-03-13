@@ -1,10 +1,5 @@
-export default defineEventHandler(async () => {
-  const { userId } = useAuth()
-  const masterId = userId?.value
-
-  if (!masterId) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+export default defineEventHandler(async (event) => {
+  const masterId = requireAuth(event)
 
   const supabase = useServerSupabase()
 

@@ -1,190 +1,142 @@
 <template>
-  <header class="sticky top-0 z-50 border-b border-default bg-(--ui-bg)/95 backdrop-blur-md">
-    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-      <!-- Logo -->
-      <NuxtLink
-        :to="localePath('/')"
-        class="shrink-0 font-serif font-light text-2xl text-highlighted transition-opacity hover:opacity-75"
-      >
-        BeautyBook
-      </NuxtLink>
+  <UHeader :to="localePath('/')" :title="t('app.name', 'BeautyBook')">
+    <template #title>
+      <span class="font-serif font-light text-2xl text-highlighted">BeautyBook</span>
+    </template>
 
-      <!-- Desktop Navigation -->
-      <nav class="hidden items-center gap-6 md:flex">
-        <NuxtLink
-          :to="localePath('/catalog')"
-          class="font-sans font-medium text-sm text-default transition-colors hover:text-primary"
-          active-class="text-primary"
+    <!-- Desktop center nav -->
+    <UNavigationMenu :items="navItems" variant="link" color="neutral" />
+
+    <template #right>
+      <!-- Dark / light mode toggle -->
+      <UColorModeButton size="sm" />
+
+      <!-- Locale switcher — two UButtons as segmented control -->
+      <div class="hidden sm:flex items-center gap-px rounded-lg bg-elevated p-0.5">
+        <UButton
+          v-for="l in locales"
+          :key="l.code"
+          size="xs"
+          :variant="locale === l.code ? 'soft' : 'ghost'"
+          :color="locale === l.code ? 'primary' : 'neutral'"
+          class="min-w-9 uppercase"
+          @click="setLocale(l.code as 'ru' | 'ky')"
         >
-          {{ t('nav.catalog') }}
-        </NuxtLink>
-        <NuxtLink
-          :to="localePath('/for-masters')"
-          class="font-sans font-medium text-sm text-default transition-colors hover:text-primary"
-          active-class="text-primary"
-        >
-          {{ t('nav.forMasters') }}
-        </NuxtLink>
-      </nav>
-
-      <!-- Right actions -->
-      <div class="flex items-center gap-2">
-        <!-- Language switcher pill -->
-        <div class="hidden items-center gap-0.5 rounded-md bg-muted p-0.5 sm:flex">
-          <button
-            v-for="l in locales"
-            :key="l.code"
-            type="button"
-            :class="[
-              'min-h-[28px] min-w-[28px] rounded px-2 py-0.5 font-sans text-xs font-medium uppercase transition-all',
-              locale === l.code
-                ? 'bg-(--ui-bg) text-highlighted shadow-sm'
-                : 'text-muted hover:text-default',
-            ]"
-            @click="setLocale(l.code as 'ru' | 'ky')"
-          >
-            {{ l.code }}
-          </button>
-        </div>
-
-        <!-- Signed in: avatar + dropdown -->
-        <template v-if="isSignedIn && user">
-          <UDropdownMenu :items="userMenuItems">
-            <UButton variant="ghost" size="sm" class="size-10 rounded-full p-0">
-              <UAvatar
-                :src="user.imageUrl"
-                :alt="user.fullName ?? user.firstName ?? ''"
-                size="sm"
-              />
-            </UButton>
-          </UDropdownMenu>
-        </template>
-
-        <!-- Not signed in: Sign In -->
-        <template v-else>
-          <NuxtLink :to="localePath('/sign-in')" class="hidden sm:block">
-            <UButton variant="outline" size="sm" class="font-sans font-medium">
-              {{ t('nav.signIn') }}
-            </UButton>
-          </NuxtLink>
-        </template>
-
-        <!-- Mobile burger (UDrawer trigger) -->
-        <UDrawer
-          v-model:open="mobileMenuOpen"
-          direction="bottom"
-          class="md:hidden"
-        >
-          <UButton
-            variant="ghost"
-            size="sm"
-            class="min-h-[44px] min-w-[44px]"
-            aria-label="Меню"
-          >
-            <UIcon name="i-heroicons-bars-3" class="size-6" />
-          </UButton>
-
-          <template #content>
-            <div class="px-4 pb-safe pt-4">
-              <!-- Mobile menu links -->
-              <nav class="flex flex-col gap-1">
-                <NuxtLink
-                  v-for="link in mobileMenuLinks"
-                  :key="link.to"
-                  :to="link.to"
-                  class="flex min-h-[44px] items-center rounded-lg px-3 py-2 font-sans font-medium text-sm text-default transition-colors hover:bg-muted"
-                  active-class="text-primary"
-                  @click="mobileMenuOpen = false"
-                >
-                  {{ link.label }}
-                </NuxtLink>
-              </nav>
-
-              <!-- Auth + language -->
-              <div class="mt-2 space-y-3 border-t border-default pt-4">
-                <template v-if="isSignedIn && user">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <UAvatar
-                        :src="user.imageUrl"
-                        :alt="user.fullName ?? user.firstName ?? ''"
-                        size="sm"
-                      />
-                      <p class="font-sans font-medium text-sm text-highlighted">
-                        {{ user.firstName }}
-                      </p>
-                    </div>
-                    <UButton variant="ghost" size="sm" @click="handleSignOut">
-                      {{ t('nav.signOut') }}
-                    </UButton>
-                  </div>
-                </template>
-                <template v-else>
-                  <NuxtLink
-                    :to="localePath('/sign-in')"
-                    class="block"
-                    @click="mobileMenuOpen = false"
-                  >
-                    <UButton variant="solid" size="md" class="w-full font-sans font-medium">
-                      {{ t('nav.signIn') }}
-                    </UButton>
-                  </NuxtLink>
-                </template>
-
-                <!-- Language switcher -->
-                <div class="flex items-center gap-2">
-                  <button
-                    v-for="l in locales"
-                    :key="l.code"
-                    type="button"
-                    :class="[
-                      'min-h-[44px] flex-1 rounded-lg border px-3 py-2 font-sans text-sm font-medium transition-colors',
-                      locale === l.code
-                        ? 'border-primary bg-primary-50 text-primary dark:bg-primary-950/30'
-                        : 'border-default text-muted hover:text-default',
-                    ]"
-                    @click="setLocale(l.code as 'ru' | 'ky')"
-                  >
-                    {{ t(`language.${l.code}`) }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </template>
-        </UDrawer>
+          {{ l.code }}
+        </UButton>
       </div>
-    </div>
-  </header>
+
+      <!-- Auth: cachedUser from cookie → no hydration flash -->
+      <template v-if="cachedUser">
+        <UDropdownMenu :items="userMenuItems">
+          <UButton variant="ghost" size="sm" class="size-10 rounded-full p-0" aria-label="User menu">
+            <UAvatar :src="cachedUser.imageUrl" :alt="cachedUser.name" size="sm" />
+          </UButton>
+        </UDropdownMenu>
+      </template>
+      <template v-else>
+        <UButton :to="localePath('/sign-in')" variant="outline" size="sm" class="hidden sm:flex">
+          {{ t('nav.signIn') }}
+        </UButton>
+      </template>
+    </template>
+
+    <!-- Mobile menu body -->
+    <template #body>
+      <UNavigationMenu :items="mobileNavItems" orientation="vertical" class="-mx-2.5" />
+
+      <USeparator class="my-4" />
+
+      <!-- Auth section -->
+      <template v-if="cachedUser">
+        <div class="flex items-center justify-between">
+          <UUser
+            :name="cachedUser.name"
+            :avatar="{ src: cachedUser.imageUrl }"
+            size="sm"
+          />
+          <UButton variant="ghost" size="sm" color="neutral" @click="handleSignOut">
+            {{ t('nav.signOut') }}
+          </UButton>
+        </div>
+      </template>
+      <template v-else>
+        <UButton :to="localePath('/sign-in')" variant="solid" size="md" class="w-full">
+          {{ t('nav.signIn') }}
+        </UButton>
+      </template>
+
+      <!-- Locale switcher -->
+      <div class="mt-3 flex gap-2">
+        <UButton
+          v-for="l in locales"
+          :key="l.code"
+          :variant="locale === l.code ? 'soft' : 'outline'"
+          :color="locale === l.code ? 'primary' : 'neutral'"
+          size="sm"
+          class="flex-1"
+          @click="setLocale(l.code as 'ru' | 'ky')"
+        >
+          {{ t(`language.${l.code}`) }}
+        </UButton>
+      </div>
+    </template>
+  </UHeader>
 </template>
 
 <script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
+
 const { t, locale, locales, setLocale } = useI18n()
 const localePath = useLocalePath()
-const { isSignedIn, signOut } = useAuth()
+const { isSignedIn, isLoaded } = useAuth()
 const { user } = useUser()
+const clerk = useClerk()
 
-const mobileMenuOpen = ref(false)
+// Cache user data in cookie — survives page refresh, eliminates auth flash
+const userCookie = useCookie<{ imageUrl: string; name: string } | null>('bb_u', {
+  default: () => null,
+  maxAge: 60 * 60 * 24 * 7, // 1 week
+  sameSite: 'lax',
+})
 
-// Close mobile menu on navigation
-const route = useRoute()
-watch(
-  () => route.fullPath,
-  () => {
-    mobileMenuOpen.value = false
-  },
+// Fill cookie as soon as user data is available
+watch(() => user.value, (u) => {
+  if (u) {
+    userCookie.value = { imageUrl: u.imageUrl, name: u.fullName ?? u.firstName ?? '' }
+  }
+}, { immediate: true })
+
+// Clear cookie ONLY when Clerk explicitly confirms signed-out (isSignedIn === false)
+// undefined = still loading → don't touch cache
+watch(isSignedIn, (signed) => {
+  if (signed === false) userCookie.value = null
+}, { immediate: true })
+
+// Single source of truth: live user data first, cookie as SSR/hydration fallback
+const cachedUser = computed(() =>
+  user.value
+    ? { imageUrl: user.value.imageUrl, name: user.value.fullName ?? user.value.firstName ?? '' }
+    : userCookie.value,
 )
 
-const mobileMenuLinks = computed(() => [
-  { to: localePath('/about'), label: t('footer.about') },
-  { to: localePath('/contacts'), label: t('footer.contacts') },
-  { to: localePath('/for-masters'), label: t('footer.forMasters') },
+const navItems = computed<NavigationMenuItem[]>(() => [
+  { label: t('nav.catalog'), to: localePath('/catalog') },
+  { label: t('nav.forMasters'), to: localePath('/for-masters') },
+])
+
+const mobileNavItems = computed<NavigationMenuItem[]>(() => [
+  { label: t('nav.catalog'), icon: 'i-heroicons-magnifying-glass', to: localePath('/catalog') },
+  { label: t('nav.forMasters'), icon: 'i-heroicons-star', to: localePath('/for-masters') },
+  { label: t('footer.about'), icon: 'i-heroicons-information-circle', to: localePath('/about') },
+  { label: t('footer.contacts'), icon: 'i-heroicons-envelope', to: localePath('/contacts') },
 ])
 
 const userMenuItems = computed(() => [
   [
     {
-      label: t('nav.profile'),
-      icon: 'i-heroicons-user',
+      label: t('nav.dashboard'),
+      icon: 'i-heroicons-squares-2x2',
       to: localePath('/dashboard'),
     },
     {
@@ -203,8 +155,8 @@ const userMenuItems = computed(() => [
 ])
 
 async function handleSignOut() {
-  await signOut()
-  mobileMenuOpen.value = false
+  userCookie.value = null
+  await clerk.value?.signOut()
   await navigateTo(localePath('/'))
 }
 </script>

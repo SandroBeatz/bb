@@ -44,12 +44,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 409, message: 'Time slot is already booked' })
   }
 
-  const { userId } = useAuth()
-  const clientId = userId?.value ?? null
-
-  if (!clientId) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  const clientId = requireAuth(event)
 
   const { data: booking, error } = await supabase
     .from('bookings')

@@ -1,10 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { userId } = useAuth()
-  const masterId = userId?.value
-
-  if (!masterId) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+  const masterId = requireAuth(event)
 
   const body = await readBody<{
     name: string

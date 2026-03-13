@@ -1,11 +1,17 @@
 <template>
   <UApp>
     <NuxtRouteAnnouncer />
-    <AppHeader />
-    <main class="min-h-screen pb-16 md:pb-0">
+    <NuxtLayout>
       <NuxtPage />
-    </main>
-    <AppFooter />
-    <BottomNav />
+    </NuxtLayout>
   </UApp>
 </template>
+
+<script setup lang="ts">
+const { isSignedIn } = useAuth()
+const { fetch } = useProfile()
+
+watch(isSignedIn, (signed) => {
+  if (signed) fetch()
+}, { immediate: true })
+</script>

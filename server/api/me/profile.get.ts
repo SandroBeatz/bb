@@ -1,19 +1,15 @@
-export default defineEventHandler(async () => {
-  const { userId } = useAuth()
-
-  if (!userId?.value) {
-    throw createError({ statusCode: 401, message: 'Authentication required' })
-  }
+export default defineEventHandler(async (event) => {
+  const userId = requireAuth(event)
 
   const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('profiles')
     .select('*, master_profiles(*)')
-    .eq('id', userId.value)
-    .single()
+    .eq('id', userId)
+    .maybeSingle()
 
   if (error) {
-    throw createError({ statusCode: 404, message: 'Profile not found' })
+    throw createError({ statusCode: 500, message: error.message })
   }
 
   return data

@@ -23,7 +23,7 @@ export default defineAppConfig({
     // Buttons — warm, rounded, confident
     button: {
       slots: {
-        base: 'font-sans font-medium tracking-wide cursor-pointer transition-transform active:scale-[0.97]',
+        base: 'font-sans font-medium text-center justify-center tracking-wide cursor-pointer transition-transform active:scale-[0.97]',
       },
       defaultVariants: {
         size:    'md',
