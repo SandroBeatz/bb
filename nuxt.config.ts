@@ -8,6 +8,9 @@ export default defineNuxtConfig({
   ],
   supabase: {
     redirect: false,
+    url: process.env.NUXT_PUBLIC_SUPABASE_URL,
+    key: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+    serviceKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY,
   },
   clerk: {
     appearance: {},
