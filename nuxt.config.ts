@@ -1,4 +1,6 @@
 export default defineNuxtConfig({
+  srcDir: 'app',
+
   modules: [
     '@nuxt/ui',
     '@pinia/nuxt',
@@ -6,18 +8,34 @@ export default defineNuxtConfig({
     '@clerk/nuxt',
     '@samk-dev/nuxt-vcalendar',
   ],
+
+  css: ['~/assets/css/main.css'],
+
   supabase: {
     redirect: false,
     url: process.env.NUXT_PUBLIC_SUPABASE_URL,
     key: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
     serviceKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY,
   },
+
   clerk: {
     appearance: {},
   },
+
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@clerk/vue',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+      ],
+    },
+  },
+
   typescript: {
     strict: true,
   },
+
   runtimeConfig: {
     clerkSecretKey: process.env.NUXT_CLERK_SECRET_KEY,
     supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY,

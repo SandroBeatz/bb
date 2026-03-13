@@ -1,0 +1,99 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": ["app/**", "server/**", "bot/**", "*.ts"],
+    "ignore": ["**/node_modules", "**/.nuxt", "**/.output", "**/dist"]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "recommended": true,
+        "noUnusedVariables": "error",
+        "noUnusedImports": "error",
+        "noUnusedPrivateClassMembers": "error"
+      },
+      "suspicious": {
+        "recommended": true,
+        "noExplicitAny": "error",
+        "noConsole": "warn"
+      },
+      "complexity": {
+        "recommended": true,
+        "noExcessiveCognitiveComplexity": "warn"
+      },
+      "style": {
+        "recommended": true,
+        "useConst": "error",
+        "noNonNullAssertion": "warn",
+        "useTemplate": "error",
+        "useNumberNamespace": "error"
+      },
+      "performance": {
+        "recommended": true
+      },
+      "security": {
+        "recommended": true
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "all",
+      "semicolons": "asNeeded",
+      "arrowParentheses": "always",
+      "bracketSpacing": true
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.vue"],
+      "html": {
+        "experimentalFullSupportEnabled": true,
+        "formatter": {
+          "enabled": true,
+          "indentStyle": "space",
+          "indentWidth": 2
+        }
+      }
+    },
+    {
+      "includes": ["server/**/*.ts", "bot/**/*.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["nuxt.config.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
+}
