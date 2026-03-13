@@ -137,6 +137,38 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 Use the MCP server `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs when needed.
 
+#### Calendar — `nuxt-calendar` (mandatory)
+
+**Never use `@samk-dev/nuxt-vcalendar` or `<VCalendar>` — it's removed. Always use `<NuxtCalendar>`.**
+
+Docs: https://nuxtcalendar.com/docs/getting-started/installation
+
+```vue
+<template>
+  <div class="h-full">
+    <NuxtCalendar :events="events" />
+  </div>
+</template>
+
+<script setup lang="ts">
+const events = ref([
+  {
+    id: 1,
+    title: 'Appointment',
+    start: new Date(),
+    end: new Date(Date.now() + 3600000),
+    description: 'Client booking',
+  },
+])
+</script>
+```
+
+Event shape: `{ id, title, start: Date, end: Date, description?: string }`.
+Module config in `nuxt.config.ts`:
+```ts
+nuxtCalendar: { timeFormat: '24h', weekStartsOn: 1 }
+```
+
 ### Code quality
 
 Biome v2 handles linting and formatting (`biome.json` at root). Vue file support is experimental (`html.experimentalFullSupportEnabled`). Run `bun run check` before committing.
