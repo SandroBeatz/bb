@@ -69,101 +69,107 @@
           </NuxtLink>
         </template>
 
-        <!-- Mobile burger -->
-        <UButton
-          variant="ghost"
-          size="sm"
-          class="min-h-[44px] min-w-[44px] md:hidden"
-          aria-label="Меню"
-          @click="mobileMenuOpen = !mobileMenuOpen"
+        <!-- Mobile burger (UDrawer trigger) -->
+        <UDrawer
+          v-model:open="mobileMenuOpen"
+          direction="left"
+          class="md:hidden"
+          :ui="{ content: 'w-72 rounded-r-2xl' }"
         >
-          <UIcon
-            :name="mobileMenuOpen ? 'i-heroicons-x-mark' : 'i-heroicons-bars-3'"
-            class="size-6"
-          />
-        </UButton>
-      </div>
-    </div>
-
-    <!-- Mobile menu -->
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="-translate-y-2 opacity-0"
-      enter-to-class="translate-y-0 opacity-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="-translate-y-2 opacity-0"
-    >
-      <div
-        v-if="mobileMenuOpen"
-        class="border-t border-default bg-(--ui-bg) px-4 py-4 md:hidden"
-      >
-        <!-- Nav links -->
-        <nav class="flex flex-col gap-1">
-          <NuxtLink
-            v-for="link in mobileNavLinks"
-            :key="link.to"
-            :to="link.to"
-            class="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 font-sans font-medium text-sm text-default transition-colors hover:bg-muted"
-            active-class="bg-primary-50 text-primary dark:bg-primary-950/30"
-            @click="mobileMenuOpen = false"
+          <UButton
+            variant="ghost"
+            size="sm"
+            class="min-h-[44px] min-w-[44px]"
+            aria-label="Меню"
           >
-            <UIcon :name="link.icon" class="size-5 shrink-0" />
-            {{ link.label }}
-          </NuxtLink>
-        </nav>
+            <UIcon name="i-heroicons-bars-3" class="size-6" />
+          </UButton>
 
-        <!-- Auth + language row -->
-        <div class="mt-4 space-y-3 border-t border-default pt-4">
-          <template v-if="isSignedIn && user">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <UAvatar
-                  :src="user.imageUrl"
-                  :alt="user.fullName ?? user.firstName ?? ''"
+          <template #content>
+            <div class="flex h-full flex-col">
+              <!-- Drawer header -->
+              <div class="flex items-center justify-between border-b border-default px-4 py-4">
+                <span class="font-serif font-light text-xl text-highlighted">BeautyBook</span>
+                <UButton
+                  variant="ghost"
                   size="sm"
-                />
-                <p class="font-sans font-medium text-sm text-highlighted">
-                  {{ user.firstName }}
-                </p>
+                  class="min-h-[44px] min-w-[44px]"
+                  aria-label="Закрыть"
+                  @click="mobileMenuOpen = false"
+                >
+                  <UIcon name="i-heroicons-x-mark" class="size-5" />
+                </UButton>
               </div>
-              <UButton variant="ghost" size="sm" @click="handleSignOut">
-                {{ t('nav.signOut') }}
-              </UButton>
+
+              <!-- Nav links -->
+              <nav class="flex flex-col gap-1 p-3">
+                <NuxtLink
+                  v-for="link in mobileNavLinks"
+                  :key="link.to"
+                  :to="link.to"
+                  class="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 font-sans font-medium text-sm text-default transition-colors hover:bg-muted"
+                  active-class="bg-primary-50 text-primary dark:bg-primary-950/30"
+                  @click="mobileMenuOpen = false"
+                >
+                  <UIcon :name="link.icon" class="size-5 shrink-0" />
+                  {{ link.label }}
+                </NuxtLink>
+              </nav>
+
+              <!-- Auth + language — pinned to bottom -->
+              <div class="mt-auto space-y-3 border-t border-default p-4">
+                <template v-if="isSignedIn && user">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <UAvatar
+                        :src="user.imageUrl"
+                        :alt="user.fullName ?? user.firstName ?? ''"
+                        size="sm"
+                      />
+                      <p class="font-sans font-medium text-sm text-highlighted">
+                        {{ user.firstName }}
+                      </p>
+                    </div>
+                    <UButton variant="ghost" size="sm" @click="handleSignOut">
+                      {{ t('nav.signOut') }}
+                    </UButton>
+                  </div>
+                </template>
+                <template v-else>
+                  <NuxtLink
+                    :to="localePath('/sign-in')"
+                    class="block"
+                    @click="mobileMenuOpen = false"
+                  >
+                    <UButton variant="solid" size="md" class="w-full font-sans font-medium">
+                      {{ t('nav.signIn') }}
+                    </UButton>
+                  </NuxtLink>
+                </template>
+
+                <!-- Language switcher -->
+                <div class="flex items-center gap-2">
+                  <button
+                    v-for="l in locales"
+                    :key="l.code"
+                    type="button"
+                    :class="[
+                      'min-h-[44px] flex-1 rounded-lg border px-3 py-2 font-sans text-sm font-medium transition-colors',
+                      locale === l.code
+                        ? 'border-primary bg-primary-50 text-primary dark:bg-primary-950/30'
+                        : 'border-default text-muted hover:text-default',
+                    ]"
+                    @click="setLocale(l.code as 'ru' | 'ky')"
+                  >
+                    {{ t(`language.${l.code}`) }}
+                  </button>
+                </div>
+              </div>
             </div>
           </template>
-          <template v-else>
-            <NuxtLink
-              :to="localePath('/sign-in')"
-              class="block"
-              @click="mobileMenuOpen = false"
-            >
-              <UButton variant="solid" size="md" class="w-full font-sans font-medium">
-                {{ t('nav.signIn') }}
-              </UButton>
-            </NuxtLink>
-          </template>
-
-          <!-- Language switcher -->
-          <div class="flex items-center gap-2">
-            <button
-              v-for="l in locales"
-              :key="l.code"
-              type="button"
-              :class="[
-                'min-h-[44px] flex-1 rounded-lg border px-3 py-2 font-sans text-sm font-medium transition-colors',
-                locale === l.code
-                  ? 'border-primary bg-primary-50 text-primary dark:bg-primary-950/30'
-                  : 'border-default text-muted hover:text-default',
-              ]"
-              @click="setLocale(l.code as 'ru' | 'ky')"
-            >
-              {{ t(`language.${l.code}`) }}
-            </button>
-          </div>
-        </div>
+        </UDrawer>
       </div>
-    </Transition>
+    </div>
   </header>
 </template>
 
