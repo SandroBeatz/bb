@@ -1,8 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   const { isSignedIn, userId } = useAuth()
+  const localePath = useLocalePath()
 
   if (!isSignedIn.value) {
-    return navigateTo('/sign-in')
+    return navigateTo(localePath('/sign-in'))
   }
 
   // Onboarding page only requires authentication — skip role check to avoid redirect loop
@@ -19,6 +20,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
     .maybeSingle()
 
   if (!profile?.role) {
-    return navigateTo('/onboarding')
+    return navigateTo(localePath('/onboarding'))
   }
 })
