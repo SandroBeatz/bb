@@ -28,7 +28,7 @@ jobs:
               { name: 'фаза-11-отзывы', color: 'FEF2C0', description: 'Отзывы и рейтинги' },
               { name: 'фаза-12-аналитика', color: 'E99695', description: 'Аналитика мастера' },
               { name: 'фаза-13-telegram', color: '0088CC', description: 'Telegram Mini App + Bot' },
-              { name: 'фаза-14-уведомления', color: 'EDEDED', description: 'Email и Telegram уведомления' },
+              { name: 'фаза-14-уведомления', color: 'EDEDED', description: 'Email и Telegram уведомления.' },
               { name: 'фаза-15-админ', color: 'B60205', description: 'Админ-панель' },
               { name: 'фаза-16-qa', color: '006B75', description: 'QA, полировка, деплой' },
               { name: 'frontend', color: '61DAFB', description: 'Фронтенд задача' },
