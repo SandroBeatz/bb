@@ -283,6 +283,18 @@
       "deactivated": "Услуга деактивирована"
     }
   },
+  "clients": {
+    "emptyTitle": "У вас пока нет клиентов",
+    "emptyDescription": "Клиенты появятся после первой завершённой записи",
+    "searchPlaceholder": "Поиск по имени...",
+    "visits": "{count} визитов",
+    "visitsLabel": "Визитов",
+    "lastVisit": "Последний визит",
+    "totalAmount": "Итого",
+    "historyTitle": "История визитов",
+    "avgCheck": "Средний чек",
+    "preferredServices": "Услуги"
+  },
   "masterCard": {
     "priceFrom": "от {price} сом",
     "reviews": "{count} отзывов",
