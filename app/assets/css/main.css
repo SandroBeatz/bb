@@ -137,6 +137,52 @@
 .pr-safe  { padding-right:  env(safe-area-inset-right,  0px); }
 
 /* ============================================================
+   BOOKING CALENDAR — bb-calendar
+   Custom overrides for UCalendar used in the booking flow.
+   Targets reka-ui data-slot attributes from @nuxt/ui Calendar.
+   ============================================================ */
+
+/* Transparent background so the calendar blends into any surface */
+.bb-calendar {
+  background: transparent;
+  width: 100%;
+}
+
+/* Month/year heading */
+.bb-calendar [data-slot="heading"] {
+  font-weight: 600;
+  color: var(--ui-text-highlighted);
+}
+
+/* Weekday header cells */
+.bb-calendar [data-slot="headCell"] {
+  font-size: 0.75rem;
+  color: var(--ui-text-muted);
+}
+
+/* Date cells — ensure touch-friendly 44×44 min size */
+.bb-calendar [data-slot="cellTrigger"] {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+}
+
+/* Available dates — rose light highlight (not selected, not disabled) */
+.bb-calendar [data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
+  background-color: var(--color-rose-100);
+  color: var(--color-rose-700);
+}
+.dark .bb-calendar [data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
+  background-color: color-mix(in srgb, var(--color-rose-500) 15%, transparent);
+  color: var(--color-rose-300);
+}
+
+/* Unavailable / busy dates — add opacity on top of Nuxt UI's line-through */
+.bb-calendar [data-slot="cellTrigger"][data-unavailable] {
+  opacity: 0.3;
+}
+
+/* ============================================================
    DASHBOARD MOBILE — bottom nav spacing
    Adds padding to the scrollable panel content so it isn't
    hidden under the fixed bottom navigation bar on mobile.
