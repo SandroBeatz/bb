@@ -201,7 +201,7 @@ const sidebarItems = computed<NavigationMenuItem[][]>(() => [
     {
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',
-      to: localePath('/settings'),
+      to: localePath('/dashboard/settings'),
     },
   ],
 ])
@@ -211,7 +211,7 @@ const userMenuItems = computed(() => [
     {
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',
-      to: localePath('/settings'),
+      to: localePath('/dashboard/settings'),
     },
   ],
   [
