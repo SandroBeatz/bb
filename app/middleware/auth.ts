@@ -22,4 +22,21 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!profile?.role) {
     return navigateTo(localePath('/onboarding'))
   }
+
+  const routeName = String(to.name ?? '')
+
+  // Role-based route protection (route names are locale-independent)
+  if (profile.role === 'client') {
+    // Client trying to access master dashboard → redirect to client area
+    if (routeName.startsWith('dashboard')) {
+      return navigateTo(localePath('/client'))
+    }
+  }
+
+  if (profile.role === 'master') {
+    // Master trying to access client-specific pages → redirect to master dashboard
+    if (routeName.startsWith('client')) {
+      return navigateTo(localePath('/dashboard'))
+    }
+  }
 })

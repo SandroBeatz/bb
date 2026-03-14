@@ -13,7 +13,7 @@ export default defineNuxtRouteMiddleware(async () => {
     .eq('id', userId.value)
     .maybeSingle()
 
-  if (!profile || profile.role !== 'master') {
-    return navigateTo(localePath('/client'))
+  if (!profile || profile.role !== 'client') {
+    return navigateTo(localePath('/dashboard'))
   }
 })

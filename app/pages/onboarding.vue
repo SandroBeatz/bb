@@ -123,7 +123,7 @@ async function handleContinue() {
     if (selectedRole.value === 'master') {
       await navigateTo(localePath('/dashboard'))
     } else {
-      await navigateTo(localePath('/'))
+      await navigateTo(localePath('/client'))
     }
   } catch (e) {
     console.error('Onboarding error:', e)
