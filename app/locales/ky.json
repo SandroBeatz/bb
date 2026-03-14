@@ -81,7 +81,22 @@
       "selectTime": "Убакытты тандаңыз",
       "confirm": "Жазылууну ырастоо",
       "success": "Сиз ийгиликтүү жаздыңыз!",
-      "noSlots": "Бош убакыттар жок"
+      "noSlots": "Бош убакыттар жок",
+      "stepOf": "{current}/{total} кадам",
+      "created": "Жазылуу түзүлдү",
+      "name": "Атыңыз",
+      "namePlaceholder": "Аты-жөнү",
+      "phone": "Телефон",
+      "phonePlaceholder": "+7 (___) ___-__-__",
+      "serviceLabel": "Кызмат",
+      "dateLabel": "Күн",
+      "timeLabel": "Убакыт",
+      "totalLabel": "Жыйынтык",
+      "validation": {
+        "nameRequired": "Атыңызды киргизиңиз",
+        "phoneRequired": "Телефон номериңизди киргизиңиз",
+        "phoneInvalid": "Туура телефон номерин киргизиңиз"
+      }
     },
     "settings": {
       "title": "Жөндөөлөр",
@@ -149,7 +164,13 @@
     "namePlaceholder": "Мисалы: Накта, Kaspi",
     "nameLabel": "Аталышы",
     "presets": "Алдын ала орнотулган варианттар",
-    "presetValues": ["Накта акча", "Kaspi", "Mbank", "O!Деньги", "Карточкага которуу"],
+    "presetValues": [
+      "Накта акча",
+      "Kaspi",
+      "Mbank",
+      "O!Деньги",
+      "Карточкага которуу"
+    ],
     "inactive": "Активдүү эмес",
     "validation": {
       "nameRequired": "Төлөм ыкмасынын аталышын киргизиңиз",
