@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{
     payment_type_id: string
     amount: number
+    note?: string | null
   }>(event)
 
   if (!body?.payment_type_id || body?.amount == null) {
@@ -43,9 +44,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: error.message })
   }
 
+  const bookingUpdate: { status: string; notes?: string } = { status: 'completed' }
+  if (body.note != null) {
+    bookingUpdate.notes = body.note
+  }
+
   await supabase
     .from('bookings')
-    .update({ status: 'completed' })
+    .update(bookingUpdate)
     .eq('id', bookingId)
 
   return data

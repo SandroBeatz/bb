@@ -1,12 +1,13 @@
+import { defineStore } from 'pinia'
 import type { Booking, PaymentType } from '~/types'
 
-export const useQuickCheckout = () => {
+export const useQuickCheckout = defineStore('quickCheckout', () => {
   const isOpen = ref(false)
   const booking = ref<Booking | null>(null)
   const paymentTypes = ref<PaymentType[]>([])
   const loading = ref(false)
 
-  function open(selectedBooking: Booking) {
+  function openCheckout(selectedBooking: Booking) {
     booking.value = selectedBooking
     isOpen.value = true
   }
@@ -16,19 +17,17 @@ export const useQuickCheckout = () => {
     booking.value = null
   }
 
-  async function fetchPaymentTypes(masterId: string) {
-    const data = await $fetch<PaymentType[]>('/api/master/payment-types', {
-      params: { master_id: masterId },
-    })
+  async function fetchPaymentTypes() {
+    const data = await $fetch<PaymentType[]>('/api/master/payment-types')
     paymentTypes.value = data ?? []
   }
 
-  async function checkout(bookingId: string, paymentTypeId: string, amount: number) {
+  async function submitCheckout(bookingId: string, amount: number, paymentTypeId: string, note?: string) {
     loading.value = true
     try {
       await $fetch(`/api/master/bookings/${bookingId}/checkout`, {
         method: 'POST',
-        body: { payment_type_id: paymentTypeId, amount },
+        body: { payment_type_id: paymentTypeId, amount, note: note || null },
       })
       close()
     }
@@ -37,5 +36,5 @@ export const useQuickCheckout = () => {
     }
   }
 
-  return { isOpen, booking, paymentTypes, loading, open, close, fetchPaymentTypes, checkout }
-}
+  return { isOpen, booking, paymentTypes, loading, openCheckout, close, fetchPaymentTypes, submitCheckout }
+})

@@ -167,6 +167,36 @@
       }
     }
   },
+  "checkout": {
+    "title": "Сеансты аяктоо",
+    "sessionWith": "{client} менен сеанс",
+    "amount": "Сумма",
+    "amountPlaceholder": "0",
+    "paymentType": "Төлөм ыкмасы",
+    "paymentTypePlaceholder": "Төлөм ыкмасын тандаңыз",
+    "note": "Эскертме",
+    "notePlaceholder": "Кошумча комментарий...",
+    "confirm": "Ырастоо",
+    "completeSession": "Сеансты аяктоо",
+    "success": "Сеанс аяктады",
+    "noPaymentTypes": "Алгач жөндөөлөрдө төлөм ыкмаларын кошуңуз",
+    "validation": {
+      "amountPositive": "Сумма 0дон чоң болушу керек",
+      "paymentTypeRequired": "Төлөм ыкмасын тандаңыз"
+    }
+  },
+  "bookings": {
+    "today": "Бүгүнкү жазылуулар",
+    "upcoming": "Кийинки жазылуулар",
+    "empty": "Жазылуулар жок",
+    "emptyDescription": "Бүгүн жазылуулар жок",
+    "status": {
+      "pending": "Күтүүдө",
+      "confirmed": "Ырасталды",
+      "completed": "Аяктады",
+      "cancelled": "Жокко чыгарылды"
+    }
+  },
   "paymentTypes": {
     "add": "Төлөм ыкмасын кошуу",
     "addFirst": "Биринчи төлөм ыкмасын кошуу",
