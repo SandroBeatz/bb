@@ -7,7 +7,7 @@
   },
   "files": {
     "includes": ["app/**", "server/**", "bot/**", "*.ts"],
-    "ignore": ["**/node_modules", "**/.nuxt", "**/.output", "**/dist"]
+    "experimentalScannerIgnores": ["**/node_modules", "**/.nuxt", "**/.output", "**/dist"]
   },
   "formatter": {
     "enabled": true,
@@ -17,8 +17,14 @@
     "lineEnding": "lf",
     "lineWidth": 100
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on"
+        }
+      }
+    }
   },
   "linter": {
     "enabled": true,

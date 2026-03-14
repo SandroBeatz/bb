@@ -9,7 +9,10 @@ export default defineEventHandler(async (event) => {
   }>(event)
 
   if (!body?.name || body?.price == null || !body?.duration_minutes) {
-    throw createError({ statusCode: 400, message: 'name, price and duration_minutes are required' })
+    throw createError({
+      statusCode: 400,
+      message: 'name, price and duration_minutes are required',
+    })
   }
 
   const supabase = useServerSupabase()

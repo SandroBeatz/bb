@@ -32,10 +32,12 @@ export function generateSlots(
   serviceDuration: number,
   bufferMinutes = 10,
 ): TimeSlot[] {
-  const dayOfWeek = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-US', {
-    weekday: 'long',
-    timeZone: 'UTC',
-  }).toLowerCase()
+  const dayOfWeek = new Date(`${date}T12:00:00Z`)
+    .toLocaleDateString('en-US', {
+      weekday: 'long',
+      timeZone: 'UTC',
+    })
+    .toLowerCase()
 
   const dayHours = workHours?.[dayOfWeek]
   if (!dayHours) return []

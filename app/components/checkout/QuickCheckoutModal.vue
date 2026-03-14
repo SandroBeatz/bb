@@ -97,7 +97,8 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const toast = useToast()
 
-const { isOpen, booking, paymentTypes, loading, fetchPaymentTypes, submitCheckout } = useQuickCheckout()
+const { isOpen, booking, paymentTypes, loading, fetchPaymentTypes, submitCheckout } =
+  useQuickCheckout()
 
 const loadingPaymentTypes = ref(false)
 
@@ -116,9 +117,7 @@ const bookingInfo = computed<BookingInfo | null>(() => {
 })
 
 const paymentTypeOptions = computed(() =>
-  paymentTypes.value
-    .filter(pt => pt.is_active)
-    .map(pt => ({ label: pt.name, value: pt.id })),
+  paymentTypes.value.filter((pt) => pt.is_active).map((pt) => ({ label: pt.name, value: pt.id })),
 )
 
 const schema = z.object({

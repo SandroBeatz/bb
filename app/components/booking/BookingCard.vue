@@ -87,17 +87,22 @@ const servicePrice = computed(() => props.booking.services?.price)
 
 const isCompletable = computed(() => props.booking.status === 'confirmed')
 
-const isCancellable = computed(() =>
-  props.booking.status === 'pending' || props.booking.status === 'confirmed',
+const isCancellable = computed(
+  () => props.booking.status === 'pending' || props.booking.status === 'confirmed',
 )
 
 const statusColor = computed(() => {
   switch (props.booking.status) {
-    case 'confirmed': return 'success' as const
-    case 'pending': return 'warning' as const
-    case 'completed': return 'neutral' as const
-    case 'cancelled': return 'error' as const
-    default: return 'neutral' as const
+    case 'confirmed':
+      return 'success' as const
+    case 'pending':
+      return 'warning' as const
+    case 'completed':
+      return 'neutral' as const
+    case 'cancelled':
+      return 'error' as const
+    default:
+      return 'neutral' as const
   }
 })
 
@@ -121,11 +126,9 @@ async function onConfirm() {
       body: { status: 'confirmed' },
     })
     emit('refresh')
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     confirming.value = false
   }
 }
@@ -138,11 +141,9 @@ async function onCancel() {
       body: { status: 'cancelled' },
     })
     emit('refresh')
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     cancelling.value = false
   }
 }

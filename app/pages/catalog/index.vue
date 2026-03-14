@@ -55,13 +55,15 @@ interface MasterListItem {
   full_name: string | null
   username: string | null
   avatar_url: string | null
-  master_profiles: {
-    bio: string | null
-    city: string | null
-    specializations: string[]
-    rating: number | null
-    subscription_tier: string | null
-  }[] | null
+  master_profiles:
+    | {
+        bio: string | null
+        city: string | null
+        specializations: string[]
+        rating: number | null
+        subscription_tier: string | null
+      }[]
+    | null
 }
 
 const { t } = useI18n()
@@ -75,22 +77,24 @@ const debouncedSearch = ref('')
 let debounceTimer: ReturnType<typeof setTimeout>
 watch(search, (val) => {
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => { debouncedSearch.value = val }, 300)
+  debounceTimer = setTimeout(() => {
+    debouncedSearch.value = val
+  }, 300)
 })
 
-const { data: masters, pending } = await useAsyncData(
-  'masters-catalog',
-  () => $fetch<MasterListItem[]>('/api/masters'),
+const { data: masters, pending } = await useAsyncData('masters-catalog', () =>
+  $fetch<MasterListItem[]>('/api/masters'),
 )
 
 const filteredMasters = computed(() => {
   const list = masters.value ?? []
   if (!debouncedSearch.value.trim()) return list
   const q = debouncedSearch.value.toLowerCase()
-  return list.filter(m =>
-    (m.full_name?.toLowerCase().includes(q)) ||
-    (m.master_profiles?.[0]?.city?.toLowerCase().includes(q)) ||
-    (m.master_profiles?.[0]?.specializations?.some(s => s.toLowerCase().includes(q))),
+  return list.filter(
+    (m) =>
+      m.full_name?.toLowerCase().includes(q) ||
+      m.master_profiles?.[0]?.city?.toLowerCase().includes(q) ||
+      m.master_profiles?.[0]?.specializations?.some((s) => s.toLowerCase().includes(q)),
   )
 })
 </script>

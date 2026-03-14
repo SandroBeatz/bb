@@ -15,11 +15,9 @@ export const useBooking = () => {
         params: { date: dateStr },
       })
       availableSlots.value = data ?? []
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch slots'
-    }
-    finally {
+    } finally {
       loading.value = false
     }
   }
@@ -34,12 +32,10 @@ export const useBooking = () => {
       })
       booking.value = data
       return data
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to create booking'
       throw err
-    }
-    finally {
+    } finally {
       loading.value = false
     }
   }

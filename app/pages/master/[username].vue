@@ -22,9 +22,12 @@ const { t } = useI18n()
 
 const username = String(route.params.username)
 
-const { data: master, error, pending } = await useAsyncData(
-  `master-${username}`,
-  () => $fetch<MasterResponse>(`/api/masters/${username}`),
+const {
+  data: master,
+  error,
+  pending,
+} = await useAsyncData(`master-${username}`, () =>
+  $fetch<MasterResponse>(`/api/masters/${username}`),
 )
 
 if (error.value || !master.value) {

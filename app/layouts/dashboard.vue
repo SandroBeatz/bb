@@ -158,10 +158,30 @@ const sidebarCollapsed = ref(false)
 const mobileMenuOpen = ref(false)
 
 const mobileTabs = computed(() => [
-  { label: t('nav.dashboard'), icon: 'i-heroicons-squares-2x2', to: localePath('/dashboard'), exact: true },
-  { label: t('nav.calendar'), icon: 'i-heroicons-calendar-days', to: localePath('/dashboard/calendar'), exact: false },
-  { label: t('nav.services'), icon: 'i-heroicons-scissors', to: localePath('/dashboard/services'), exact: false },
-  { label: t('nav.clients'), icon: 'i-heroicons-users', to: localePath('/dashboard/clients'), exact: false },
+  {
+    label: t('nav.dashboard'),
+    icon: 'i-heroicons-squares-2x2',
+    to: localePath('/dashboard'),
+    exact: true,
+  },
+  {
+    label: t('nav.calendar'),
+    icon: 'i-heroicons-calendar-days',
+    to: localePath('/dashboard/calendar'),
+    exact: false,
+  },
+  {
+    label: t('nav.services'),
+    icon: 'i-heroicons-scissors',
+    to: localePath('/dashboard/services'),
+    exact: false,
+  },
+  {
+    label: t('nav.clients'),
+    icon: 'i-heroicons-users',
+    to: localePath('/dashboard/clients'),
+    exact: false,
+  },
 ])
 
 const sidebarItems = computed<NavigationMenuItem[][]>(() => [

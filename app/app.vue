@@ -11,7 +11,11 @@
 const { isSignedIn } = useAuth()
 const { fetch } = useProfile()
 
-watch(isSignedIn, (signed) => {
-  if (signed) fetch()
-}, { immediate: true })
+watch(
+  isSignedIn,
+  (signed) => {
+    if (signed) fetch()
+  },
+  { immediate: true },
+)
 </script>

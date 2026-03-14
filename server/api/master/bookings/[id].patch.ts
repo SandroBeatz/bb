@@ -6,17 +6,24 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Booking ID is required' })
   }
 
-  const body = await readBody<{ status: string }>(event)
+  const body = await readBody<{ status?: string; notes?: string }>(event)
 
-  if (!body?.status) {
-    throw createError({ statusCode: 400, message: 'status is required' })
+  if (body?.status === undefined && body?.notes === undefined) {
+    throw createError({
+      statusCode: 400,
+      message: 'status or notes is required',
+    })
   }
+
+  const updateData: { status?: string; notes?: string } = {}
+  if (body.status !== undefined) updateData.status = body.status
+  if (body.notes !== undefined) updateData.notes = body.notes
 
   const supabase = useServerSupabase()
 
   const { data, error } = await supabase
     .from('bookings')
-    .update({ status: body.status })
+    .update(updateData)
     .eq('id', bookingId)
     .eq('master_id', masterId)
     .select()

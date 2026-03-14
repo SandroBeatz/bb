@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Service, PortfolioItem } from '~/types'
+import type { PortfolioItem, Service } from '~/types'
 
 interface MasterProfileMeta {
   bio: string | null
@@ -32,13 +32,11 @@ const props = defineProps<{ master: MasterData }>()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
-const masterProfile = computed((): MasterProfileMeta | null =>
-  props.master.master_profiles?.[0] ?? null,
+const masterProfile = computed(
+  (): MasterProfileMeta | null => props.master.master_profiles?.[0] ?? null,
 )
 
-const specializations = computed(() =>
-  masterProfile.value?.specializations?.join(', ') ?? '',
-)
+const specializations = computed(() => masterProfile.value?.specializations?.join(', ') ?? '')
 
 const contactLinks = computed(() => {
   const contacts = masterProfile.value?.contacts ?? {}

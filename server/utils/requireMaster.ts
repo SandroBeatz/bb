@@ -19,7 +19,10 @@ export async function requireMaster(event: H3Event): Promise<Profile> {
   }
 
   if (profile.role !== 'master') {
-    throw createError({ statusCode: 403, message: 'Access denied: master role required' })
+    throw createError({
+      statusCode: 403,
+      message: 'Access denied: master role required',
+    })
   }
 
   return profile

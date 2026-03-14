@@ -1,4 +1,4 @@
-import { init, retrieveLaunchParams, type LaunchParams } from '@tma.js/sdk'
+import { init, type LaunchParams, retrieveLaunchParams } from '@tma.js/sdk'
 
 export const useTelegramApp = () => {
   const isTMA = ref(false)
@@ -12,8 +12,7 @@ export const useTelegramApp = () => {
       isTMA.value = true
       tgUser.value = params.tgWebAppData?.user ?? null
       initData.value = params.tgWebAppInitData ?? null
-    }
-    catch {
+    } catch {
       isTMA.value = false
     }
   })

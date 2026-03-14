@@ -234,7 +234,9 @@ async function confirmDelete() {
   if (!deletingService.value) return
   deleteLoading.value = true
   try {
-    await $fetch(`/api/master/services/${deletingService.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/master/services/${deletingService.value.id}`, {
+      method: 'DELETE',
+    })
     services.value = services.value.filter((s) => s.id !== deletingService.value?.id)
     toast.add({ title: t('services.toast.deleted'), color: 'success' })
     deleteModalOpen.value = false

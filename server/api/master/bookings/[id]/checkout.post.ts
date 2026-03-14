@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
   }>(event)
 
   if (!body?.payment_type_id || body?.amount == null) {
-    throw createError({ statusCode: 400, message: 'payment_type_id and amount are required' })
+    throw createError({
+      statusCode: 400,
+      message: 'payment_type_id and amount are required',
+    })
   }
 
   const supabase = useServerSupabase()
@@ -44,15 +47,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: error.message })
   }
 
-  const bookingUpdate: { status: string; notes?: string } = { status: 'completed' }
+  const bookingUpdate: { status: string; notes?: string } = {
+    status: 'completed',
+  }
   if (body.note != null) {
     bookingUpdate.notes = body.note
   }
 
-  await supabase
-    .from('bookings')
-    .update(bookingUpdate)
-    .eq('id', bookingId)
+  await supabase.from('bookings').update(bookingUpdate).eq('id', bookingId)
 
   return data
 })

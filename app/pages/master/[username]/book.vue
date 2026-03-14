@@ -37,8 +37,12 @@ interface MasterData {
   avatar_url: string | null
 }
 
-const { data: master, pending: masterPending } = await useFetch<MasterData>(`/api/masters/${username}`)
-const { data: services, pending: servicesPending } = await useFetch<Service[]>(`/api/masters/${username}/services`)
+const { data: master, pending: masterPending } = await useFetch<MasterData>(
+  `/api/masters/${username}`,
+)
+const { data: services, pending: servicesPending } = await useFetch<Service[]>(
+  `/api/masters/${username}/services`,
+)
 
 const pending = computed(() => masterPending.value || servicesPending.value)
 

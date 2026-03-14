@@ -1,6 +1,6 @@
 import { Bot, webhookCallback } from 'grammy'
-import { handleStart } from './handlers/start'
 import { handleBookings } from './handlers/bookings'
+import { handleStart } from './handlers/start'
 
 const token = process.env.NUXT_TELEGRAM_BOT_TOKEN
 

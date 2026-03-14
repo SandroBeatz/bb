@@ -6,7 +6,10 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{ role: string }>(event)
 
   if (!body?.role || !['master', 'client'].includes(body.role)) {
-    throw createError({ statusCode: 400, message: 'Invalid role. Must be "master" or "client".' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid role. Must be "master" or "client".',
+    })
   }
 
   // Get user data directly from Clerk — no webhook needed
@@ -19,7 +22,12 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await supabase
     .from('profiles')
     .upsert(
-      { id: userId, role: body.role, full_name: fullName, avatar_url: avatarUrl },
+      {
+        id: userId,
+        role: body.role,
+        full_name: fullName,
+        avatar_url: avatarUrl,
+      },
       { onConflict: 'id' },
     )
     .select()

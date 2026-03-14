@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { MasterProfile, Service, Booking } from '~/types'
+import type { Booking, MasterProfile, Service } from '~/types'
 
 export const useMasterStore = defineStore('master', () => {
   const profile = ref<MasterProfile | null>(null)
@@ -9,11 +9,7 @@ export const useMasterStore = defineStore('master', () => {
   const supabase = useSupabaseClient()
 
   async function fetchProfile(masterId: string) {
-    const { data } = await supabase
-      .from('master_profiles')
-      .select('*')
-      .eq('id', masterId)
-      .single()
+    const { data } = await supabase.from('master_profiles').select('*').eq('id', masterId).single()
     profile.value = data
   }
 
@@ -35,5 +31,12 @@ export const useMasterStore = defineStore('master', () => {
     bookings.value = data ?? []
   }
 
-  return { profile, services, bookings, fetchProfile, fetchServices, fetchBookings }
+  return {
+    profile,
+    services,
+    bookings,
+    fetchProfile,
+    fetchServices,
+    fetchBookings,
+  }
 })
