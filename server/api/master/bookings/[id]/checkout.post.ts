@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const bookingId = getRouterParam(event, 'id')
-  const masterId = requireAuth(event)
+  const { id: masterId } = await requireMaster(event)
 
   if (!bookingId) {
     throw createError({ statusCode: 400, message: 'Booking ID is required' })
