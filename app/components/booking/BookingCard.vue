@@ -1,5 +1,5 @@
 <template>
-  <UCard>
+  <UCard class="rounded-xl p-3">
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-1">
@@ -19,16 +19,42 @@
         </p>
       </div>
 
-      <UButton
-        v-if="isCompletable"
-        color="success"
-        variant="soft"
-        size="sm"
-        icon="i-heroicons-check-circle"
-        @click="onComplete"
-      >
-        {{ $t('checkout.completeSession') }}
-      </UButton>
+      <div class="flex flex-col gap-2 shrink-0">
+        <UButton
+          v-if="booking.status === 'pending'"
+          color="success"
+          variant="soft"
+          size="sm"
+          icon="i-heroicons-check"
+          :loading="confirming"
+          @click="onConfirm"
+        >
+          {{ $t('common.confirm') }}
+        </UButton>
+
+        <UButton
+          v-if="isCompletable"
+          color="success"
+          variant="soft"
+          size="sm"
+          icon="i-heroicons-check-circle"
+          @click="onComplete"
+        >
+          {{ $t('checkout.completeSession') }}
+        </UButton>
+
+        <UButton
+          v-if="isCancellable"
+          color="error"
+          variant="ghost"
+          size="sm"
+          icon="i-heroicons-x-mark"
+          :loading="cancelling"
+          @click="onCancel"
+        >
+          {{ $t('common.cancel') }}
+        </UButton>
+      </div>
     </div>
   </UCard>
 </template>
@@ -45,13 +71,23 @@ const props = defineProps<{
   booking: BookingWithDetails
 }>()
 
+const emit = defineEmits<{
+  refresh: []
+}>()
+
 const { openCheckout } = useQuickCheckout()
+const toast = useToast()
+
+const confirming = ref(false)
+const cancelling = ref(false)
 
 const serviceName = computed(() => props.booking.services?.name ?? '—')
 const clientName = computed(() => props.booking.profiles?.full_name ?? '—')
 const servicePrice = computed(() => props.booking.services?.price)
 
-const isCompletable = computed(() =>
+const isCompletable = computed(() => props.booking.status === 'confirmed')
+
+const isCancellable = computed(() =>
   props.booking.status === 'pending' || props.booking.status === 'confirmed',
 )
 
@@ -65,7 +101,7 @@ const statusColor = computed(() => {
   }
 })
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const formattedTime = computed(() => {
   const date = new Date(props.booking.starts_at)
@@ -76,6 +112,40 @@ const formattedTime = computed(() => {
     minute: '2-digit',
   })
 })
+
+async function onConfirm() {
+  confirming.value = true
+  try {
+    await $fetch(`/api/master/bookings/${props.booking.id}`, {
+      method: 'PATCH',
+      body: { status: 'confirmed' },
+    })
+    emit('refresh')
+  }
+  catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  }
+  finally {
+    confirming.value = false
+  }
+}
+
+async function onCancel() {
+  cancelling.value = true
+  try {
+    await $fetch(`/api/master/bookings/${props.booking.id}`, {
+      method: 'PATCH',
+      body: { status: 'cancelled' },
+    })
+    emit('refresh')
+  }
+  catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  }
+  finally {
+    cancelling.value = false
+  }
+}
 
 function onComplete() {
   openCheckout(props.booking)

@@ -61,6 +61,17 @@
     "networkError": "Тармак катасы. Интернетке туташуунузду текшериңиз.",
     "validation": "Талааларды туура толтуруңуз"
   },
+  "dashboard": {
+    "kpi": {
+      "today": "Бүгүн",
+      "pending": "Ырастоо күтүүдө",
+      "monthRevenue": "Бул ай"
+    },
+    "fab": {
+      "addBooking": "Жазылуу кошуу",
+      "blockTime": "Убакытты бөгөттөө"
+    }
+  },
   "pages": {
     "home": {
       "title": "BeautyBook",
