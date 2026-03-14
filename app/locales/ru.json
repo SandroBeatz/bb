@@ -14,7 +14,10 @@
     "forMasters": "Для мастеров",
     "signIn": "Войти",
     "signOut": "Выйти",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "menu": "Меню",
+    "master": "Мастер",
+    "masterRole": "Мастер красоты"
   },
   "common": {
     "save": "Сохранить",

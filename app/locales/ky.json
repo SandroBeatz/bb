@@ -14,7 +14,10 @@
     "forMasters": "Мастерлер үчүн",
     "signIn": "Кирүү",
     "signOut": "Чыгуу",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "menu": "Меню",
+    "master": "Мастер",
+    "masterRole": "Сулуулук мастери"
   },
   "common": {
     "save": "Сактоо",

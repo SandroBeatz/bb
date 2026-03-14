@@ -1,11 +1,8 @@
 <template>
   <UFooter>
     <template #left>
-      <NuxtLink
-        :to="localePath('/')"
-        class="font-serif font-light text-xl text-highlighted transition-opacity hover:opacity-75"
-      >
-        BeautyBook
+      <NuxtLink :to="localePath('/')" class="transition-opacity hover:opacity-75">
+        <img src="~/assets/img/bb-logo.svg" alt="BeautyBook" class="h-6 w-auto dark:invert" />
       </NuxtLink>
     </template>
 

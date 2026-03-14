@@ -136,3 +136,15 @@
 .pl-safe  { padding-left:   env(safe-area-inset-left,   0px); }
 .pr-safe  { padding-right:  env(safe-area-inset-right,  0px); }
 
+/* ============================================================
+   DASHBOARD MOBILE — bottom nav spacing
+   Adds padding to the scrollable panel content so it isn't
+   hidden under the fixed bottom navigation bar on mobile.
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Add bottom clearance for the fixed mobile bottom nav bar */
+  [data-bb-dashboard] .overflow-y-auto {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+

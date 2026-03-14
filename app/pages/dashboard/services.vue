@@ -1,24 +1,27 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('nav.services')" icon="i-heroicons-scissors">
-        <template #right>
-          <UButton
-            icon="i-heroicons-plus"
-            color="primary"
-            size="sm"
-            @click="openCreateModal"
-          >
-            {{ $t('services.add') }}
-          </UButton>
-        </template>
-      </UDashboardNavbar>
+      <UDashboardNavbar :title="$t('nav.services')" icon="i-heroicons-scissors" />
     </template>
 
     <div class="p-6">
       <!-- Loading state -->
       <div v-if="loading" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <USkeleton v-for="n in 3" :key="n" class="h-40 rounded-xl" />
+        <div v-for="n in 3" :key="n" class="rounded-xl border border-default bg-default p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1 space-y-2">
+              <USkeleton class="h-5 w-2/3 rounded-md" />
+              <USkeleton class="h-4 w-full rounded-md" />
+              <USkeleton class="h-4 w-1/2 rounded-md" />
+            </div>
+            <USkeleton class="h-6 w-14 shrink-0 rounded-md" />
+          </div>
+          <div class="mt-4 flex justify-end gap-2 border-t border-default pt-4">
+            <USkeleton class="size-8 rounded-md" />
+            <USkeleton class="size-8 rounded-md" />
+            <USkeleton class="size-8 rounded-md" />
+          </div>
+        </div>
       </div>
 
       <!-- Empty state -->
@@ -42,77 +45,78 @@
       </div>
 
       <!-- Services grid -->
-      <div v-else>
-        <div class="mb-4 flex justify-end">
-          <UButton
-            icon="i-heroicons-plus"
-            color="primary"
-            size="sm"
-            @click="openCreateModal"
-          >
-            {{ $t('services.add') }}
-          </UButton>
-        </div>
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <UCard
-            v-for="service in services"
-            :key="service.id"
-            class="rounded-xl"
-            :class="{ 'opacity-50': !service.is_active }"
-          >
-            <div class="flex items-start justify-between gap-2 p-4">
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <h3 class="truncate font-semibold">{{ service.name }}</h3>
-                  <UBadge
-                    v-if="!service.is_active"
-                    color="neutral"
-                    variant="subtle"
-                    size="xs"
-                  >
-                    {{ $t('services.inactive') }}
-                  </UBadge>
-                </div>
-                <p v-if="service.description" class="mt-1 line-clamp-2 text-sm text-muted">
-                  {{ service.description }}
-                </p>
-                <div class="mt-2 flex items-center gap-1 text-sm text-muted">
-                  <UIcon name="i-heroicons-clock" class="size-4 shrink-0" />
-                  <span>{{ service.duration_minutes }} {{ $t('pages.masterProfile.services.duration') }}</span>
-                </div>
+      <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <UCard
+          v-for="service in services"
+          :key="service.id"
+          class="rounded-xl"
+          :class="{ 'opacity-50': !service.is_active }"
+        >
+          <div class="flex items-start justify-between gap-2 p-4">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h3 class="truncate font-semibold">{{ service.name }}</h3>
+                <UBadge
+                  v-if="!service.is_active"
+                  color="neutral"
+                  variant="subtle"
+                  size="xs"
+                >
+                  {{ $t('services.inactive') }}
+                </UBadge>
               </div>
-              <span class="shrink-0 text-lg font-semibold text-primary">
-                {{ service.price }} {{ $t('services.currency') }}
-              </span>
+              <p v-if="service.description" class="mt-1 line-clamp-2 text-sm text-muted">
+                {{ service.description }}
+              </p>
+              <div class="mt-2 flex items-center gap-1 text-sm text-muted">
+                <UIcon name="i-heroicons-clock" class="size-4 shrink-0" />
+                <span>{{ service.duration_minutes }} {{ $t('pages.masterProfile.services.duration') }}</span>
+              </div>
             </div>
+            <span class="shrink-0 text-lg font-semibold text-primary">
+              {{ service.price }} {{ $t('services.currency') }}
+            </span>
+          </div>
 
-            <template #footer>
-              <div class="flex items-center justify-end gap-2 px-4 pb-4">
-                <UButton
-                  icon="i-heroicons-pencil-square"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  @click="openEditModal(service)"
-                />
-                <UButton
-                  :icon="service.is_active ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  @click="toggleActive(service)"
-                />
-                <UButton
-                  icon="i-heroicons-trash"
-                  color="error"
-                  variant="ghost"
-                  size="sm"
-                  @click="openDeleteModal(service)"
-                />
-              </div>
-            </template>
-          </UCard>
-        </div>
+          <template #footer>
+            <div class="flex items-center justify-end gap-2 px-4 pb-4">
+              <UButton
+                icon="i-heroicons-pencil-square"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="openEditModal(service)"
+              />
+              <UButton
+                :icon="service.is_active ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                @click="toggleActive(service)"
+              />
+              <UButton
+                icon="i-heroicons-trash"
+                color="error"
+                variant="ghost"
+                size="sm"
+                @click="openDeleteModal(service)"
+              />
+            </div>
+          </template>
+        </UCard>
+
+        <!-- Add service card -->
+        <button
+          class="group flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-default bg-transparent transition-colors hover:border-primary hover:bg-primary/5"
+          @click="openCreateModal"
+        >
+          <div class="flex size-10 items-center justify-center rounded-full bg-elevated transition-colors group-hover:bg-primary/10">
+            <UIcon name="i-heroicons-plus" class="size-5 text-muted transition-colors group-hover:text-primary" />
+          </div>
+          <span class="text-sm font-medium text-muted transition-colors group-hover:text-primary">
+            {{ $t('services.add') }}
+          </span>
+        </button>
       </div>
     </div>
   </UDashboardPanel>
@@ -241,6 +245,5 @@ async function confirmDelete() {
   }
 }
 
-await fetchServices()
+onMounted(() => fetchServices())
 </script>
-

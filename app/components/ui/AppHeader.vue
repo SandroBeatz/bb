@@ -1,7 +1,7 @@
 <template>
   <UHeader :to="localePath('/')" :title="t('app.name', 'BeautyBook')">
     <template #title>
-      <span class="font-serif font-light text-2xl text-highlighted">BeautyBook</span>
+      <img src="~/assets/img/bb-logo.svg" alt="BeautyBook" class="h-7 w-auto" />
     </template>
 
     <!-- Desktop center nav -->
