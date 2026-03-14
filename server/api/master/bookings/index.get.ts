@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const masterId = requireAuth(event)
+  const { id: masterId } = await requireMaster(event)
 
   const query = getQuery(event)
   const status = query.status as string | undefined

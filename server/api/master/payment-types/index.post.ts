@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const masterId = requireAuth(event)
+  const { id: masterId } = await requireMaster(event)
 
   const body = await readBody<{ name: string; sort_order?: number }>(event)
 
