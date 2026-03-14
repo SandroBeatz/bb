@@ -14,7 +14,10 @@
     "forMasters": "Для мастеров",
     "signIn": "Войти",
     "signOut": "Выйти",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "menu": "Меню",
+    "master": "Мастер",
+    "masterRole": "Мастер красоты"
   },
   "common": {
     "save": "Сохранить",
@@ -136,6 +139,44 @@
         "verified": "Проверен",
         "pro": "Pro"
       }
+    }
+  },
+  "services": {
+    "add": "Добавить услугу",
+    "addFirst": "Добавить первую услугу",
+    "emptyTitle": "У вас ещё нет услуг",
+    "emptyDescription": "Добавьте первую услугу, чтобы клиенты могли записываться к вам",
+    "inactive": "Неактивна",
+    "currency": "сом",
+    "form": {
+      "titleCreate": "Новая услуга",
+      "titleEdit": "Редактировать услугу",
+      "name": "Название",
+      "namePlaceholder": "Например: Стрижка, Маникюр",
+      "description": "Описание",
+      "descriptionPlaceholder": "Опишите услугу...",
+      "price": "Цена (сом)",
+      "pricePlaceholder": "0",
+      "duration": "Длительность",
+      "save": "Сохранить услугу",
+      "update": "Обновить услугу"
+    },
+    "validation": {
+      "nameRequired": "Введите название услуги",
+      "pricePositive": "Цена должна быть больше 0",
+      "durationRequired": "Выберите длительность"
+    },
+    "deleteModal": {
+      "title": "Удалить услугу",
+      "message": "Вы уверены, что хотите удалить услугу «{name}»?",
+      "confirm": "Удалить"
+    },
+    "toast": {
+      "created": "Услуга создана",
+      "updated": "Услуга обновлена",
+      "deleted": "Услуга удалена",
+      "activated": "Услуга активирована",
+      "deactivated": "Услуга деактивирована"
     }
   },
   "masterCard": {
