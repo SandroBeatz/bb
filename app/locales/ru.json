@@ -138,6 +138,11 @@
       }
     }
   },
+  "masterCard": {
+    "priceFrom": "от {price} сом",
+    "reviews": "{count} отзывов",
+    "noReviews": "Нет отзывов"
+  },
   "language": {
     "ru": "Русский",
     "ky": "Кыргызча"
