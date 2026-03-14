@@ -107,6 +107,35 @@
     },
     "signUp": {
       "title": "Аккаунт түзүү"
+    },
+    "masterProfile": {
+      "book": "Жазылуу",
+      "tabs": {
+        "services": "Кызматтар",
+        "portfolio": "Портфолио",
+        "reviews": "Сын-пикирлер",
+        "about": "Мастер жөнүндө"
+      },
+      "services": {
+        "empty": "Кызматтар кошулган жок",
+        "duration": "мин"
+      },
+      "portfolio": {
+        "empty": "Портфолио азыр бош"
+      },
+      "reviews": {
+        "empty": "Сын-пикирлер жок",
+        "count": "сын-пикир"
+      },
+      "about": {
+        "bio": "Өзү жөнүндө",
+        "contacts": "Байланыштар",
+        "noBio": "Маалымат кошулган жок"
+      },
+      "badges": {
+        "verified": "Текшерилген",
+        "pro": "Pro"
+      }
     }
   },
   "language": {

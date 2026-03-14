@@ -107,6 +107,35 @@
     },
     "signUp": {
       "title": "Создать аккаунт"
+    },
+    "masterProfile": {
+      "book": "Записаться",
+      "tabs": {
+        "services": "Услуги",
+        "portfolio": "Портфолио",
+        "reviews": "Отзывы",
+        "about": "О мастере"
+      },
+      "services": {
+        "empty": "Услуги не добавлены",
+        "duration": "мин"
+      },
+      "portfolio": {
+        "empty": "Портфолио пока пусто"
+      },
+      "reviews": {
+        "empty": "Отзывов пока нет",
+        "count": "отзывов"
+      },
+      "about": {
+        "bio": "О себе",
+        "contacts": "Контакты",
+        "noBio": "Информация не добавлена"
+      },
+      "badges": {
+        "verified": "Проверен",
+        "pro": "Pro"
+      }
     }
   },
   "language": {
