@@ -138,6 +138,11 @@
       }
     }
   },
+  "masterCard": {
+    "priceFrom": "{price} сомдон",
+    "reviews": "{count} сын-пикир",
+    "noReviews": "Сын-пикирлер жок"
+  },
   "language": {
     "ru": "Русский",
     "ky": "Кыргызча"
