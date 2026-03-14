@@ -84,3 +84,9 @@ export interface Review {
   comment: string | null
   created_at: string
 }
+
+export interface TimeSlot {
+  start: string
+  end: string
+  available: boolean
+}
