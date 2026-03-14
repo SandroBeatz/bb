@@ -5,7 +5,7 @@
    ============================================================ */
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @import "@nuxt/ui";
@@ -47,32 +47,32 @@
   /* ── Light mode (:root) ── */
   :root {
     /* Background surfaces */
-    --ui-bg:           #FAF8F5;   /* warm cream — page background */
-    --ui-bg-muted:     #F5EFE8;   /* warm beige — secondary sections */
-    --ui-bg-elevated:  #EEE8E0;   /* for hover states, tooltips */
-    --ui-bg-accented:  #E5DDD4;   /* highlighted blocks */
+    --ui-bg: #faf8f5; /* warm cream — page background */
+    --ui-bg-muted: #f5efe8; /* warm beige — secondary sections */
+    --ui-bg-elevated: #eee8e0; /* for hover states, tooltips */
+    --ui-bg-accented: #e5ddd4; /* highlighted blocks */
 
     /* Borders */
-    --ui-border:         #DDD5CB;
-    --ui-border-muted:   #E8E0D8;
-    --ui-border-accented: #CFC5B9;
+    --ui-border: #ddd5cb;
+    --ui-border-muted: #e8e0d8;
+    --ui-border-accented: #cfc5b9;
 
     /* Global radius */
-    --ui-radius: 0.5rem;   /* 8px — soft but not bubble */
+    --ui-radius: 0.5rem; /* 8px — soft but not bubble */
   }
 
   /* ── Dark mode (.dark) ── */
   .dark {
     /* Background surfaces */
-    --ui-bg:           #1A1612;   /* warm dark coffee — page background */
-    --ui-bg-muted:     #231D18;   /* slightly lighter */
-    --ui-bg-elevated:  #2C2420;   /* cards, elevated surfaces */
-    --ui-bg-accented:  #38302A;   /* highlighted blocks in dark */
+    --ui-bg: #1a1612; /* warm dark coffee — page background */
+    --ui-bg-muted: #231d18; /* slightly lighter */
+    --ui-bg-elevated: #2c2420; /* cards, elevated surfaces */
+    --ui-bg-accented: #38302a; /* highlighted blocks in dark */
 
     /* Borders */
-    --ui-border:         #3D342C;
-    --ui-border-muted:   #352D26;
-    --ui-border-accented: #4A3F36;
+    --ui-border: #3d342c;
+    --ui-border-muted: #352d26;
+    --ui-border-accented: #4a3f36;
   }
 }
 
@@ -94,15 +94,19 @@
 
 /* Shimmer skeleton loading — use class="skeleton" */
 @keyframes bb-shimmer {
-  from { background-position: -200% 0; }
-  to   { background-position:  200% 0; }
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
 }
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--ui-bg-muted)    25%,
+    var(--ui-bg-muted) 25%,
     var(--ui-bg-elevated) 50%,
-    var(--ui-bg-muted)    75%
+    var(--ui-bg-muted) 75%
   );
   background-size: 200% 100%;
   animation: bb-shimmer 1.5s ease-in-out infinite;
@@ -111,8 +115,9 @@
 
 /* Master card hover lift */
 .master-card {
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 200ms ease-out;
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms ease-out;
 }
 .master-card:hover {
   transform: translateY(-2px);
@@ -131,10 +136,18 @@
 /* ============================================================
    SAFE AREA INSETS — iOS notch / home indicator
    ============================================================ */
-.pb-safe  { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.pt-safe  { padding-top:    env(safe-area-inset-top,    0px); }
-.pl-safe  { padding-left:   env(safe-area-inset-left,   0px); }
-.pr-safe  { padding-right:  env(safe-area-inset-right,  0px); }
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
 
 /* ============================================================
    BOOKING CALENDAR — bb-calendar
@@ -168,11 +181,14 @@
 }
 
 /* Available dates — rose light highlight (not selected, not disabled) */
-.bb-calendar [data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
+.bb-calendar
+[data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
   background-color: var(--color-rose-100);
   color: var(--color-rose-700);
 }
-.dark .bb-calendar [data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
+.dark
+  .bb-calendar
+  [data-slot="cellTrigger"]:has([data-available]):not([data-selected]):not([data-disabled]) {
   background-color: color-mix(in srgb, var(--color-rose-500) 15%, transparent);
   color: var(--color-rose-300);
 }
@@ -193,4 +209,3 @@
     padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
 }
-

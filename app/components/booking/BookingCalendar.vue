@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { CalendarDate } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
+import { CalendarDate } from '@internationalized/date'
 
 const props = defineProps<{
   availableDates?: Date[]
@@ -38,9 +38,7 @@ function toJsDate(cal: DateValue): Date {
   return new Date(cal.year, cal.month - 1, cal.day)
 }
 
-const minCalendarDate = computed(() =>
-  toCalDate(props.minDate ?? new Date()),
-)
+const minCalendarDate = computed(() => toCalDate(props.minDate ?? new Date()))
 
 const internalValue = computed<DateValue | undefined>({
   get() {
@@ -64,13 +62,9 @@ function calDateKey(date: DateValue): string {
   return `${date.year}-${m}-${d}`
 }
 
-const availableSet = computed(
-  () => new Set((props.availableDates ?? []).map(dateSetKey)),
-)
+const availableSet = computed(() => new Set((props.availableDates ?? []).map(dateSetKey)))
 
-const unavailableSet = computed(
-  () => new Set((props.unavailableDates ?? []).map(dateSetKey)),
-)
+const unavailableSet = computed(() => new Set((props.unavailableDates ?? []).map(dateSetKey)))
 
 function isAvailableDate(date: DateValue): boolean {
   return availableSet.value.has(calDateKey(date))

@@ -12,7 +12,9 @@ export const useBookingStore = defineStore('booking', () => {
     const dateStr = date.toISOString().split('T')[0]
     const params: Record<string, string> = { date: dateStr }
     if (serviceId) params.service_id = serviceId
-    const data = await $fetch<TimeSlot[]>(`/api/masters/${masterId}/slots`, { params })
+    const data = await $fetch<TimeSlot[]>(`/api/masters/${masterId}/slots`, {
+      params,
+    })
     availableSlots.value = data ?? []
   }
 

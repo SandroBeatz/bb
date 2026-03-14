@@ -208,6 +208,16 @@
       "cancelled": "Отменено"
     }
   },
+  "calendar": {
+    "notes": "Заметки",
+    "notesPlaceholder": "Заметки мастера...",
+    "addOrBlock": "Что хотите сделать?",
+    "source": {
+      "online": "Онлайн",
+      "offline": "Офлайн",
+      "telegram": "Telegram"
+    }
+  },
   "paymentTypes": {
     "add": "Добавить способ оплаты",
     "addFirst": "Добавить первый способ оплаты",
@@ -216,13 +226,7 @@
     "namePlaceholder": "Например: Наличные, Kaspi",
     "nameLabel": "Название",
     "presets": "Предустановленные варианты",
-    "presetValues": [
-      "Наличные",
-      "Kaspi",
-      "Mbank",
-      "O!Деньги",
-      "Перевод на карту"
-    ],
+    "presetValues": ["Наличные", "Kaspi", "Mbank", "O!Деньги", "Перевод на карту"],
     "inactive": "Неактивен",
     "validation": {
       "nameRequired": "Введите название способа оплаты",

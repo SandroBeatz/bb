@@ -36,7 +36,9 @@ export default defineNuxtPlugin(() => {
     [clerk, () => colorMode.value],
     ([instance, mode]) => {
       if (!instance?.loaded) return
-      updateClerkOptions({ appearance: mode === 'dark' ? DARK_APPEARANCE : LIGHT_APPEARANCE })
+      updateClerkOptions({
+        appearance: mode === 'dark' ? DARK_APPEARANCE : LIGHT_APPEARANCE,
+      })
     },
     { immediate: true },
   )

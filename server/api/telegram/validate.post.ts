@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
   const isValid = validateTelegramInitData(body.init_data, botToken)
 
   if (!isValid) {
-    throw createError({ statusCode: 401, message: 'Invalid Telegram init data' })
+    throw createError({
+      statusCode: 401,
+      message: 'Invalid Telegram init data',
+    })
   }
 
   return { valid: true }

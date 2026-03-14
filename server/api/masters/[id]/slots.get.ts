@@ -8,7 +8,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    throw createError({ statusCode: 400, message: 'date query param (YYYY-MM-DD) is required' })
+    throw createError({
+      statusCode: 400,
+      message: 'date query param (YYYY-MM-DD) is required',
+    })
   }
 
   const supabase = useServerSupabase()

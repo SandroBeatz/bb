@@ -9,13 +9,13 @@ export default defineAppConfig({
   ui: {
     // ── Color roles ──────────────────────────────────────────────────────────
     colors: {
-      primary:   'rose',     // Dusty Rose / Mauve (custom shades in main.css)
-      secondary: 'stone',    // Warm taupe — used for secondary actions
-      neutral:   'stone',    // All text, borders, bg surfaces → warm stone
-      success:   'emerald',  // Confirmed bookings, successful payments
-      warning:   'amber',    // Pending, upcoming reminders
-      error:     'red',      // Cancellations, validation errors
-      info:      'sky',      // Neutral hints and informational states
+      primary: 'rose', // Dusty Rose / Mauve (custom shades in main.css)
+      secondary: 'stone', // Warm taupe — used for secondary actions
+      neutral: 'stone', // All text, borders, bg surfaces → warm stone
+      success: 'emerald', // Confirmed bookings, successful payments
+      warning: 'amber', // Pending, upcoming reminders
+      error: 'red', // Cancellations, validation errors
+      info: 'sky', // Neutral hints and informational states
     },
 
     // ── Global component defaults ─────────────────────────────────────────────
@@ -26,8 +26,8 @@ export default defineAppConfig({
         base: 'font-sans font-medium text-center justify-center tracking-wide cursor-pointer transition-transform active:scale-[0.97]',
       },
       defaultVariants: {
-        size:    'md',
-        color:   'primary',
+        size: 'md',
+        color: 'primary',
         variant: 'solid',
       },
     },
@@ -35,9 +35,9 @@ export default defineAppConfig({
     // Cards — soft radius, warm shadow
     card: {
       slots: {
-        root:   'rounded-2xl shadow-sm border border-default bg-default',
+        root: 'rounded-2xl shadow-sm border border-default bg-default',
         header: 'px-5 py-4 border-b border-default',
-        body:   'px-5 py-4',
+        body: 'px-5 py-4',
         footer: 'px-5 py-4 border-t border-default',
       },
     },
@@ -49,8 +49,8 @@ export default defineAppConfig({
         base: 'font-sans rounded-lg',
       },
       defaultVariants: {
-        size:    'md',
-        color:   'neutral',
+        size: 'md',
+        color: 'neutral',
         variant: 'outline',
       },
     },
@@ -61,7 +61,7 @@ export default defineAppConfig({
         base: 'font-sans rounded-lg resize-none',
       },
       defaultVariants: {
-        size:  'md',
+        size: 'md',
         color: 'neutral',
       },
     },
@@ -72,8 +72,8 @@ export default defineAppConfig({
         base: 'font-sans rounded-lg',
       },
       defaultVariants: {
-        size:    'md',
-        color:   'neutral',
+        size: 'md',
+        color: 'neutral',
         variant: 'outline',
       },
     },
@@ -84,8 +84,8 @@ export default defineAppConfig({
         base: 'font-sans font-medium rounded-full',
       },
       defaultVariants: {
-        size:    'sm',
-        color:   'neutral',
+        size: 'sm',
+        color: 'neutral',
         variant: 'soft',
       },
     },
@@ -119,7 +119,7 @@ export default defineAppConfig({
     // Tabs — underline style, clean and minimal
     tabs: {
       slots: {
-        list:    'border-b border-default rounded-none bg-transparent gap-0 p-0',
+        list: 'border-b border-default rounded-none bg-transparent gap-0 p-0',
         trigger: [
           'font-sans font-medium text-sm text-muted px-4 py-3 rounded-none',
           'border-b-2 border-transparent',
@@ -133,7 +133,7 @@ export default defineAppConfig({
     // Toast notifications
     toast: {
       slots: {
-        root:  'rounded-xl shadow-lg font-sans',
+        root: 'rounded-xl shadow-lg font-sans',
         title: 'font-semibold text-sm',
       },
       defaultVariants: {
@@ -151,10 +151,10 @@ export default defineAppConfig({
     // Form field labels
     formField: {
       slots: {
-        label:   'font-sans font-medium text-sm text-default mb-1',
-        hint:    'font-sans text-xs text-muted',
-        error:   'font-sans text-xs text-error',
-        help:    'font-sans text-xs text-muted',
+        label: 'font-sans font-medium text-sm text-default mb-1',
+        hint: 'font-sans text-xs text-muted',
+        error: 'font-sans text-xs text-error',
+        help: 'font-sans text-xs text-muted',
       },
     },
 
@@ -162,7 +162,7 @@ export default defineAppConfig({
     separator: {
       slots: {
         border: 'border-default',
-        label:  'font-sans text-xs text-muted px-2',
+        label: 'font-sans text-xs text-muted px-2',
       },
     },
 
@@ -183,10 +183,10 @@ export default defineAppConfig({
     // Breadcrumb
     breadcrumb: {
       slots: {
-        base:      'font-sans text-sm',
-        item:      'text-muted hover:text-default transition-colors',
+        base: 'font-sans text-sm',
+        item: 'text-muted hover:text-default transition-colors',
         separator: 'text-muted',
-        active:    'text-default font-medium',
+        active: 'text-default font-medium',
       },
     },
 
@@ -194,8 +194,8 @@ export default defineAppConfig({
     dropdownMenu: {
       slots: {
         content: 'rounded-xl shadow-lg border border-default font-sans text-sm',
-        item:    'rounded-lg',
-        label:   'font-medium text-xs text-muted uppercase tracking-wide px-2 py-1',
+        item: 'rounded-lg',
+        label: 'font-medium text-xs text-muted uppercase tracking-wide px-2 py-1',
       },
     },
 
@@ -212,8 +212,8 @@ export default defineAppConfig({
     // Accordion (FAQ, expanded sections)
     accordion: {
       slots: {
-        root:    'divide-y divide-default',
-        item:    'py-0',
+        root: 'divide-y divide-default',
+        item: 'py-0',
         trigger: 'font-sans font-medium text-base py-4 hover:no-underline',
         content: 'font-sans text-sm text-muted pb-4',
       },
@@ -222,8 +222,8 @@ export default defineAppConfig({
     // Alert
     alert: {
       slots: {
-        root:        'rounded-xl p-4 font-sans text-sm',
-        title:       'font-semibold text-sm',
+        root: 'rounded-xl p-4 font-sans text-sm',
+        title: 'font-semibold text-sm',
         description: 'text-sm',
       },
     },

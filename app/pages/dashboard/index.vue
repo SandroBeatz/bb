@@ -113,7 +113,7 @@ const todayStr = new Date().toISOString().slice(0, 10)
 
 const todayBookings = computed(() => {
   return bookings.value
-    .filter(b => b.starts_at.slice(0, 10) === todayStr)
+    .filter((b) => b.starts_at.slice(0, 10) === todayStr)
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
 })
 
@@ -141,11 +141,9 @@ async function fetchData() {
     ])
     bookings.value = bookingsData ?? []
     analytics.value = analyticsData
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Failed to fetch dashboard data:', err)
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }

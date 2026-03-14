@@ -3,14 +3,20 @@ export default defineEventHandler(async (event) => {
   const { id: masterId } = await requireMaster(event)
 
   if (!paymentTypeId) {
-    throw createError({ statusCode: 400, message: 'Payment type ID is required' })
+    throw createError({
+      statusCode: 400,
+      message: 'Payment type ID is required',
+    })
   }
 
-  const body = await readBody<Partial<{
-    name: string
-    is_active: boolean
-    sort_order: number
-  }>>(event)
+  const body =
+    await readBody<
+      Partial<{
+        name: string
+        is_active: boolean
+        sort_order: number
+      }>
+    >(event)
 
   const supabase = useServerSupabase()
   const { data, error } = await supabase

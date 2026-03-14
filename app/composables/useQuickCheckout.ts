@@ -22,7 +22,12 @@ export const useQuickCheckout = defineStore('quickCheckout', () => {
     paymentTypes.value = data ?? []
   }
 
-  async function submitCheckout(bookingId: string, amount: number, paymentTypeId: string, note?: string) {
+  async function submitCheckout(
+    bookingId: string,
+    amount: number,
+    paymentTypeId: string,
+    note?: string,
+  ) {
     loading.value = true
     try {
       await $fetch(`/api/master/bookings/${bookingId}/checkout`, {
@@ -30,11 +35,19 @@ export const useQuickCheckout = defineStore('quickCheckout', () => {
         body: { payment_type_id: paymentTypeId, amount, note: note || null },
       })
       close()
-    }
-    finally {
+    } finally {
       loading.value = false
     }
   }
 
-  return { isOpen, booking, paymentTypes, loading, openCheckout, close, fetchPaymentTypes, submitCheckout }
+  return {
+    isOpen,
+    booking,
+    paymentTypes,
+    loading,
+    openCheckout,
+    close,
+    fetchPaymentTypes,
+    submitCheckout,
+  }
 })

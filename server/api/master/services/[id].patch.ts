@@ -6,13 +6,16 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Service ID is required' })
   }
 
-  const body = await readBody<Partial<{
-    name: string
-    description: string | null
-    price: number
-    duration_minutes: number
-    is_active: boolean
-  }>>(event)
+  const body =
+    await readBody<
+      Partial<{
+        name: string
+        description: string | null
+        price: number
+        duration_minutes: number
+        is_active: boolean
+      }>
+    >(event)
 
   const supabase = useServerSupabase()
   const { data, error } = await supabase

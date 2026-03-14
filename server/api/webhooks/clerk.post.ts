@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
   const webhookSecret = config.clerkWebhookSecret
 
   if (!webhookSecret) {
-    throw createError({ statusCode: 500, message: 'Webhook secret not configured' })
+    throw createError({
+      statusCode: 500,
+      message: 'Webhook secret not configured',
+    })
   }
 
   const svixId = getHeader(event, 'svix-id')
@@ -44,7 +47,10 @@ export default defineEventHandler(async (event) => {
       'svix-signature': svixSignature,
     }) as ClerkWebhookEvent
   } catch {
-    throw createError({ statusCode: 400, message: 'Invalid webhook signature' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid webhook signature',
+    })
   }
 
   const supabase = useServerSupabase()
@@ -54,14 +60,19 @@ export default defineEventHandler(async (event) => {
     const fullName = [first_name, last_name].filter(Boolean).join(' ')
 
     // Use upsert to handle race condition where onboarding may create profile first
-    const { error } = await supabase.from('profiles').upsert(
-      { id, full_name: fullName || '', avatar_url: image_url || null },
-      { onConflict: 'id' },
-    )
+    const { error } = await supabase
+      .from('profiles')
+      .upsert(
+        { id, full_name: fullName || '', avatar_url: image_url || null },
+        { onConflict: 'id' },
+      )
 
     if (error) {
       console.error('[clerk webhook] Error creating profile:', error.message)
-      throw createError({ statusCode: 500, message: 'Failed to create profile' })
+      throw createError({
+        statusCode: 500,
+        message: 'Failed to create profile',
+      })
     }
   }
 
@@ -79,7 +90,10 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
       console.error('[clerk webhook] Error updating profile:', error.message)
-      throw createError({ statusCode: 500, message: 'Failed to update profile' })
+      throw createError({
+        statusCode: 500,
+        message: 'Failed to update profile',
+      })
     }
   }
 

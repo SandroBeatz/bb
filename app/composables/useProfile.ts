@@ -39,10 +39,18 @@ export function useProfile() {
   }
 
   async function update(data: ProfileUpdate) {
-    const updated = await $fetch('/api/me/profile', { method: 'PATCH', body: data })
+    const updated = await $fetch('/api/me/profile', {
+      method: 'PATCH',
+      body: data,
+    })
     profile.value = updated as typeof profile.value
     return updated
   }
 
-  return { profile: readonly(profile), pending: readonly(pending), fetch, update }
+  return {
+    profile: readonly(profile),
+    pending: readonly(pending),
+    fetch,
+    update,
+  }
 }

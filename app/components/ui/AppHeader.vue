@@ -101,22 +101,36 @@ const userCookie = useCookie<{ imageUrl: string; name: string } | null>('bb_u', 
 })
 
 // Fill cookie as soon as user data is available
-watch(() => user.value, (u) => {
-  if (u) {
-    userCookie.value = { imageUrl: u.imageUrl, name: u.fullName ?? u.firstName ?? '' }
-  }
-}, { immediate: true })
+watch(
+  () => user.value,
+  (u) => {
+    if (u) {
+      userCookie.value = {
+        imageUrl: u.imageUrl,
+        name: u.fullName ?? u.firstName ?? '',
+      }
+    }
+  },
+  { immediate: true },
+)
 
 // Clear cookie ONLY when Clerk explicitly confirms signed-out (isSignedIn === false)
 // undefined = still loading → don't touch cache
-watch(isSignedIn, (signed) => {
-  if (signed === false) userCookie.value = null
-}, { immediate: true })
+watch(
+  isSignedIn,
+  (signed) => {
+    if (signed === false) userCookie.value = null
+  },
+  { immediate: true },
+)
 
 // Single source of truth: live user data first, cookie as SSR/hydration fallback
 const cachedUser = computed(() =>
   user.value
-    ? { imageUrl: user.value.imageUrl, name: user.value.fullName ?? user.value.firstName ?? '' }
+    ? {
+        imageUrl: user.value.imageUrl,
+        name: user.value.fullName ?? user.value.firstName ?? '',
+      }
     : userCookie.value,
 )
 
@@ -126,10 +140,26 @@ const navItems = computed<NavigationMenuItem[]>(() => [
 ])
 
 const mobileNavItems = computed<NavigationMenuItem[]>(() => [
-  { label: t('nav.catalog'), icon: 'i-heroicons-magnifying-glass', to: localePath('/catalog') },
-  { label: t('nav.forMasters'), icon: 'i-heroicons-star', to: localePath('/for-masters') },
-  { label: t('footer.about'), icon: 'i-heroicons-information-circle', to: localePath('/about') },
-  { label: t('footer.contacts'), icon: 'i-heroicons-envelope', to: localePath('/contacts') },
+  {
+    label: t('nav.catalog'),
+    icon: 'i-heroicons-magnifying-glass',
+    to: localePath('/catalog'),
+  },
+  {
+    label: t('nav.forMasters'),
+    icon: 'i-heroicons-star',
+    to: localePath('/for-masters'),
+  },
+  {
+    label: t('footer.about'),
+    icon: 'i-heroicons-information-circle',
+    to: localePath('/about'),
+  },
+  {
+    label: t('footer.contacts'),
+    icon: 'i-heroicons-envelope',
+    to: localePath('/contacts'),
+  },
 ])
 
 const userMenuItems = computed(() => [

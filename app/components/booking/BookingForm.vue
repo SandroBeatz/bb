@@ -243,11 +243,15 @@ const confirmState = reactive({
 })
 
 // Pre-fill name when user data becomes available
-watch(() => user.value, (u) => {
-  if (u && !confirmState.name) {
-    confirmState.name = u.fullName ?? u.firstName ?? ''
-  }
-}, { immediate: true })
+watch(
+  () => user.value,
+  (u) => {
+    if (u && !confirmState.name) {
+      confirmState.name = u.fullName ?? u.firstName ?? ''
+    }
+  },
+  { immediate: true },
+)
 
 const confirmSchema = z.object({
   name: z.string().min(1, t('pages.booking.validation.nameRequired')),
@@ -260,11 +264,16 @@ const confirmSchema = z.object({
 // Computed: whether current step can proceed
 const canProceed = computed(() => {
   switch (store.currentStep) {
-    case 1: return !!store.selectedService
-    case 2: return !!store.selectedDate
-    case 3: return !!store.selectedSlot
-    case 4: return confirmState.name.trim().length > 0 && confirmState.phone.trim().length > 0
-    default: return false
+    case 1:
+      return !!store.selectedService
+    case 2:
+      return !!store.selectedDate
+    case 3:
+      return !!store.selectedSlot
+    case 4:
+      return confirmState.name.trim().length > 0 && confirmState.phone.trim().length > 0
+    default:
+      return false
   }
 })
 
@@ -288,32 +297,36 @@ const formattedDate = computed(() => {
 })
 
 // Load slots when entering step 3
-watch(() => store.currentStep, async (step) => {
-  if (step === 3 && store.selectedDate && store.selectedService) {
-    slotsLoading.value = true
-    store.selectedSlot = null
-    try {
-      await store.fetchSlots(props.masterId, store.selectedDate, store.selectedService.id)
+watch(
+  () => store.currentStep,
+  async (step) => {
+    if (step === 3 && store.selectedDate && store.selectedService) {
+      slotsLoading.value = true
+      store.selectedSlot = null
+      try {
+        await store.fetchSlots(props.masterId, store.selectedDate, store.selectedService.id)
+      } finally {
+        slotsLoading.value = false
+      }
     }
-    finally {
-      slotsLoading.value = false
-    }
-  }
-})
+  },
+)
 
 // Also reload slots if date changes while on step 3
-watch(() => store.selectedDate, async (date) => {
-  if (store.currentStep === 3 && date && store.selectedService) {
-    slotsLoading.value = true
-    store.selectedSlot = null
-    try {
-      await store.fetchSlots(props.masterId, date, store.selectedService.id)
+watch(
+  () => store.selectedDate,
+  async (date) => {
+    if (store.currentStep === 3 && date && store.selectedService) {
+      slotsLoading.value = true
+      store.selectedSlot = null
+      try {
+        await store.fetchSlots(props.masterId, date, store.selectedService.id)
+      } finally {
+        slotsLoading.value = false
+      }
     }
-    finally {
-      slotsLoading.value = false
-    }
-  }
-})
+  },
+)
 
 function handleNext() {
   if (!canProceed.value) return
@@ -336,13 +349,11 @@ async function onSubmit() {
     })
     showSuccess.value = true
     // Wait for animation then emit success
-    await new Promise(resolve => setTimeout(resolve, SUCCESS_ANIMATION_DURATION))
+    await new Promise((resolve) => setTimeout(resolve, SUCCESS_ANIMATION_DURATION))
     emit('success')
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     submitting.value = false
   }
 }

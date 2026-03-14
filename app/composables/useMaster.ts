@@ -1,7 +1,16 @@
 import type { MasterProfile, Service } from '~/types'
 
 export const useMaster = () => {
-  const master = ref<(MasterProfile & { profile: { full_name: string; username: string; avatar_url: string | null } }) | null>(null)
+  const master = ref<
+    | (MasterProfile & {
+        profile: {
+          full_name: string
+          username: string
+          avatar_url: string | null
+        }
+      })
+    | null
+  >(null)
   const services = ref<Service[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -12,11 +21,9 @@ export const useMaster = () => {
     try {
       const data = await $fetch<typeof master.value>(`/api/masters/${username}`)
       master.value = data
-    }
-    catch (err: unknown) {
+    } catch (err: unknown) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch master'
-    }
-    finally {
+    } finally {
       loading.value = false
     }
   }

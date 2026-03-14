@@ -192,7 +192,9 @@ const schema = computed(() => {
     name: z
       .string()
       .min(1, t('paymentTypes.validation.nameRequired'))
-      .refine((val) => !existingNames.includes(val.toLowerCase()), { message: t('paymentTypes.validation.nameDuplicate') }),
+      .refine((val) => !existingNames.includes(val.toLowerCase()), {
+        message: t('paymentTypes.validation.nameDuplicate'),
+      }),
   })
 })
 
@@ -200,11 +202,9 @@ async function fetchPaymentTypes() {
   loading.value = true
   try {
     paymentTypes.value = await $fetch<PaymentType[]>('/api/master/payment-types')
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }
@@ -242,8 +242,7 @@ async function submitForm() {
       const idx = paymentTypes.value.findIndex((pt) => pt.id === updated.id)
       if (idx >= 0) paymentTypes.value[idx] = updated
       toast.add({ title: t('paymentTypes.toast.updated'), color: 'success' })
-    }
-    else {
+    } else {
       const created = await $fetch<PaymentType>('/api/master/payment-types', {
         method: 'POST',
         body: { name: formState.name, sort_order: paymentTypes.value.length },
@@ -252,11 +251,9 @@ async function submitForm() {
       toast.add({ title: t('paymentTypes.toast.created'), color: 'success' })
     }
     closeForm()
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     formLoading.value = false
   }
 }
@@ -270,11 +267,12 @@ async function toggleActive(pt: PaymentType) {
     const idx = paymentTypes.value.findIndex((p) => p.id === updated.id)
     if (idx >= 0) paymentTypes.value[idx] = updated
     toast.add({
-      title: updated.is_active ? t('paymentTypes.toast.activated') : t('paymentTypes.toast.deactivated'),
+      title: updated.is_active
+        ? t('paymentTypes.toast.activated')
+        : t('paymentTypes.toast.deactivated'),
       color: 'success',
     })
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
   }
 }
@@ -288,15 +286,15 @@ async function confirmDelete() {
   if (!deletingPaymentType.value) return
   deleteLoading.value = true
   try {
-    await $fetch(`/api/master/payment-types/${deletingPaymentType.value.id}`, { method: 'DELETE' })
+    await $fetch(`/api/master/payment-types/${deletingPaymentType.value.id}`, {
+      method: 'DELETE',
+    })
     paymentTypes.value = paymentTypes.value.filter((pt) => pt.id !== deletingPaymentType.value?.id)
     toast.add({ title: t('paymentTypes.toast.deleted'), color: 'success' })
     deleteModalOpen.value = false
-  }
-  catch {
+  } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
-  }
-  finally {
+  } finally {
     deleteLoading.value = false
   }
 }

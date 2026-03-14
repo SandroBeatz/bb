@@ -208,6 +208,16 @@
       "cancelled": "Жокко чыгарылды"
     }
   },
+  "calendar": {
+    "notes": "Эскертмелер",
+    "notesPlaceholder": "Мастердин эскертмелери...",
+    "addOrBlock": "Эмне кылгыңыз келет?",
+    "source": {
+      "online": "Онлайн",
+      "offline": "Офлайн",
+      "telegram": "Telegram"
+    }
+  },
   "paymentTypes": {
     "add": "Төлөм ыкмасын кошуу",
     "addFirst": "Биринчи төлөм ыкмасын кошуу",
@@ -216,13 +226,7 @@
     "namePlaceholder": "Мисалы: Накта, Kaspi",
     "nameLabel": "Аталышы",
     "presets": "Алдын ала орнотулган варианттар",
-    "presetValues": [
-      "Накта акча",
-      "Kaspi",
-      "Mbank",
-      "O!Деньги",
-      "Карточкага которуу"
-    ],
+    "presetValues": ["Накта акча", "Kaspi", "Mbank", "O!Деньги", "Карточкага которуу"],
     "inactive": "Активдүү эмес",
     "validation": {
       "nameRequired": "Төлөм ыкмасынын аталышын киргизиңиз",

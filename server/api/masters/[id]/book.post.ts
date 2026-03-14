@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
   }>(event)
 
   if (!body?.service_id || !body?.starts_at) {
-    throw createError({ statusCode: 400, message: 'service_id and starts_at are required' })
+    throw createError({
+      statusCode: 400,
+      message: 'service_id and starts_at are required',
+    })
   }
 
   const supabase = useServerSupabase()
@@ -41,7 +44,10 @@ export default defineEventHandler(async (event) => {
     .limit(1)
 
   if (conflict && conflict.length > 0) {
-    throw createError({ statusCode: 409, message: 'Time slot is already booked' })
+    throw createError({
+      statusCode: 409,
+      message: 'Time slot is already booked',
+    })
   }
 
   const clientId = requireAuth(event)
