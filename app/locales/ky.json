@@ -283,6 +283,18 @@
       "deactivated": "Кызмат деактивдештирилди"
     }
   },
+  "clients": {
+    "emptyTitle": "Азырча кардарларыңыз жок",
+    "emptyDescription": "Биринчи аяктаган жазылуудан кийин кардарлар пайда болот",
+    "searchPlaceholder": "Аты боюнча издөө...",
+    "visits": "{count} визит",
+    "visitsLabel": "Визит",
+    "lastVisit": "Акыркы визит",
+    "totalAmount": "Жыйынтык",
+    "historyTitle": "Визиттердин тарыхы",
+    "avgCheck": "Орточо сумма",
+    "preferredServices": "Кызматтар"
+  },
   "masterCard": {
     "priceFrom": "{price} сомдон",
     "reviews": "{count} сын-пикир",
