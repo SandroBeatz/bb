@@ -1,0 +1,170 @@
+<template>
+  <UDrawer v-model:open="isOpen" direction="bottom" :overlay="true">
+    <template #content>
+      <div class="rounded-t-3xl px-4 pt-4 pb-safe">
+        <div class="w-10 h-1 bg-accented rounded-full mx-auto mb-6" />
+
+        <h2 class="text-lg font-semibold mb-1">
+          {{ $t('checkout.title') }}
+        </h2>
+        <p v-if="bookingInfo" class="text-sm text-muted mb-6">
+          {{ $t('checkout.sessionWith', { client: bookingInfo.clientName }) }}
+          &mdash; {{ bookingInfo.serviceName }}
+        </p>
+
+        <UForm :schema="schema" :state="formState" class="space-y-4" @submit="onSubmit">
+          <UFormField :label="$t('checkout.amount')" name="amount" required>
+            <UInput
+              v-model="formState.amount"
+              inputmode="decimal"
+              :placeholder="$t('checkout.amountPlaceholder')"
+              size="lg"
+              class="w-full"
+              :ui="{ base: 'text-2xl font-semibold' }"
+            />
+          </UFormField>
+
+          <UFormField :label="$t('checkout.paymentType')" name="paymentTypeId" required>
+            <USelect
+              v-model="formState.paymentTypeId"
+              :items="paymentTypeOptions"
+              :placeholder="$t('checkout.paymentTypePlaceholder')"
+              size="lg"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField :label="$t('checkout.note')" name="note">
+            <UTextarea
+              v-model="formState.note"
+              :placeholder="$t('checkout.notePlaceholder')"
+              size="lg"
+              :rows="2"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UAlert
+            v-if="paymentTypes.length === 0 && !loadingPaymentTypes"
+            color="warning"
+            variant="soft"
+            icon="i-heroicons-exclamation-triangle"
+            :description="$t('checkout.noPaymentTypes')"
+          />
+
+          <div class="flex gap-3 pt-2 pb-4">
+            <UButton
+              type="button"
+              variant="outline"
+              color="neutral"
+              size="lg"
+              class="flex-1"
+              @click="isOpen = false"
+            >
+              {{ $t('common.cancel') }}
+            </UButton>
+            <UButton
+              type="submit"
+              color="success"
+              size="lg"
+              class="flex-1"
+              :loading="loading"
+              :disabled="paymentTypes.length === 0"
+            >
+              {{ $t('checkout.confirm') }}
+            </UButton>
+          </div>
+        </UForm>
+      </div>
+    </template>
+  </UDrawer>
+</template>
+
+<script setup lang="ts">
+import { z } from 'zod'
+
+interface BookingInfo {
+  id: string
+  serviceName: string
+  clientName: string
+  price: number
+}
+
+const emit = defineEmits<{
+  success: []
+}>()
+
+const { t } = useI18n()
+const toast = useToast()
+
+const { isOpen, booking, paymentTypes, loading, fetchPaymentTypes, submitCheckout } = useQuickCheckout()
+
+const loadingPaymentTypes = ref(false)
+
+const bookingInfo = computed<BookingInfo | null>(() => {
+  if (!booking.value) return null
+  const b = booking.value as typeof booking.value & {
+    services?: { name: string; price: number } | null
+    profiles?: { full_name: string } | null
+  }
+  return {
+    id: b.id,
+    serviceName: b.services?.name ?? '',
+    clientName: b.profiles?.full_name ?? '',
+    price: b.services?.price ?? 0,
+  }
+})
+
+const paymentTypeOptions = computed(() =>
+  paymentTypes.value
+    .filter(pt => pt.is_active)
+    .map(pt => ({ label: pt.name, value: pt.id })),
+)
+
+const schema = z.object({
+  amount: z.coerce.number().positive(t('checkout.validation.amountPositive')),
+  paymentTypeId: z.string().min(1, t('checkout.validation.paymentTypeRequired')),
+  note: z.string().optional(),
+})
+
+const defaultState = () => ({
+  amount: undefined as number | undefined,
+  paymentTypeId: '' as string,
+  note: '' as string,
+})
+
+const formState = reactive(defaultState())
+
+watch(isOpen, async (open) => {
+  if (open) {
+    Object.assign(formState, defaultState())
+    if (bookingInfo.value) {
+      formState.amount = bookingInfo.value.price
+    }
+    if (paymentTypes.value.length === 0) {
+      loadingPaymentTypes.value = true
+      await fetchPaymentTypes()
+      loadingPaymentTypes.value = false
+    }
+    if (paymentTypeOptions.value.length > 0) {
+      formState.paymentTypeId = paymentTypeOptions.value[0]?.value ?? ''
+    }
+  }
+})
+
+async function onSubmit() {
+  if (!bookingInfo.value) return
+  try {
+    await submitCheckout(
+      bookingInfo.value.id,
+      Number(formState.amount),
+      formState.paymentTypeId,
+      formState.note || undefined,
+    )
+    toast.add({ title: t('checkout.success'), color: 'success' })
+    emit('success')
+  } catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  }
+}
+</script>

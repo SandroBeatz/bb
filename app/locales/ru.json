@@ -167,6 +167,36 @@
       }
     }
   },
+  "checkout": {
+    "title": "Завершить сеанс",
+    "sessionWith": "Сеанс с {client}",
+    "amount": "Сумма",
+    "amountPlaceholder": "0",
+    "paymentType": "Способ оплаты",
+    "paymentTypePlaceholder": "Выберите способ оплаты",
+    "note": "Заметка",
+    "notePlaceholder": "Необязательный комментарий...",
+    "confirm": "Подтвердить",
+    "completeSession": "Завершить сеанс",
+    "success": "Сеанс завершён",
+    "noPaymentTypes": "Сначала добавьте способы оплаты в настройках",
+    "validation": {
+      "amountPositive": "Сумма должна быть больше 0",
+      "paymentTypeRequired": "Выберите способ оплаты"
+    }
+  },
+  "bookings": {
+    "today": "Записи на сегодня",
+    "upcoming": "Ближайшие записи",
+    "empty": "Нет записей",
+    "emptyDescription": "На сегодня записей нет",
+    "status": {
+      "pending": "Ожидает",
+      "confirmed": "Подтверждено",
+      "completed": "Завершено",
+      "cancelled": "Отменено"
+    }
+  },
   "paymentTypes": {
     "add": "Добавить способ оплаты",
     "addFirst": "Добавить первый способ оплаты",
