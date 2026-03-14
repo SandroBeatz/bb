@@ -138,6 +138,44 @@
       }
     }
   },
+  "services": {
+    "add": "Кызмат кошуу",
+    "addFirst": "Биринчи кызматты кошуу",
+    "emptyTitle": "Сизде азыр кызматтар жок",
+    "emptyDescription": "Биринчи кызматты кошуңуз, кардарлар сизге жазыла алышсын",
+    "inactive": "Активдүү эмес",
+    "currency": "сом",
+    "form": {
+      "titleCreate": "Жаңы кызмат",
+      "titleEdit": "Кызматты өзгөртүү",
+      "name": "Аталышы",
+      "namePlaceholder": "Мисалы: Чач кесүү, Маникюр",
+      "description": "Сүрөттөмө",
+      "descriptionPlaceholder": "Кызматты сүрөттөңүз...",
+      "price": "Баасы (сом)",
+      "pricePlaceholder": "0",
+      "duration": "Узактыгы",
+      "save": "Кызматты сактоо",
+      "update": "Кызматты жаңылоо"
+    },
+    "validation": {
+      "nameRequired": "Кызматтын аталышын киргизиңиз",
+      "pricePositive": "Баасы 0дон чоң болуши керек",
+      "durationRequired": "Узактыгын тандаңыз"
+    },
+    "deleteModal": {
+      "title": "Кызматты жок кылуу",
+      "message": "«{name}» кызматын жок кылууну каалайсызбы?",
+      "confirm": "Жок кылуу"
+    },
+    "toast": {
+      "created": "Кызмат кошулду",
+      "updated": "Кызмат жаңыланды",
+      "deleted": "Кызмат жок кылынды",
+      "activated": "Кызмат активдештирилди",
+      "deactivated": "Кызмат деактивдештирилди"
+    }
+  },
   "masterCard": {
     "priceFrom": "{price} сомдон",
     "reviews": "{count} сын-пикир",
