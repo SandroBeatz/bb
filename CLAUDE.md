@@ -137,37 +137,65 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 Use the MCP server `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs when needed.
 
-#### Calendar — `nuxt-calendar` (mandatory)
+#### Calendar — FullCalendar (`@fullcalendar/vue3`)
 
-**Never use `@samk-dev/nuxt-vcalendar` or `<VCalendar>` — it's removed. Always use `<NuxtCalendar>`.**
+**Never use `nuxt-calendar`, `@samk-dev/nuxt-vcalendar`, or `<VCalendar>` — use FullCalendar exclusively.**
 
-Docs: https://nuxtcalendar.com/docs/getting-started/installation
+FullCalendar uses browser-only APIs. Always wrap in a `.client.vue` component (see `app/components/Calendar/View.client.vue`) and use `<ClientOnly>` in pages.
 
+Docs: https://fullcalendar.io/docs/vue
+
+**Required packages:** `@fullcalendar/vue3`, `@fullcalendar/core`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`, `@fullcalendar/interaction`
+
+**Plugin file** `app/plugins/fullcalendar.client.ts` must exist (enforces client-only loading).
+
+**Usage pattern in pages:**
 ```vue
-<template>
-  <div class="h-full">
-    <NuxtCalendar :events="events" />
-  </div>
-</template>
-
-<script setup lang="ts">
-const events = ref([
-  {
-    id: 1,
-    title: 'Appointment',
-    start: new Date(),
-    end: new Date(Date.now() + 3600000),
-    description: 'Client booking',
-  },
-])
-</script>
+<ClientOnly>
+  <CalendarView
+    :events="calendarEvents"
+    :locale="locale"
+    @event-click="handleEventClick"
+    @dates-set="handleDatesSet"
+  />
+  <template #fallback>
+    <USkeleton class="h-full w-full rounded-lg" />
+  </template>
+</ClientOnly>
 ```
 
-Event shape: `{ id, title, start: Date, end: Date, description?: string }`.
-Module config in `nuxt.config.ts`:
+**Event schema** (pass to `events` prop):
 ```ts
-nuxtCalendar: { timeFormat: '24h', weekStartsOn: 1 }
+{
+  id: string,
+  title: string,
+  start: string,           // ISO string from DB
+  end: string,
+  backgroundColor: string, // status-based color
+  borderColor: string,
+  textColor: '#ffffff',
+  extendedProps: { status, clientName, ... }
+}
 ```
+
+**`datesSet` callback** fires on initial render and every navigation — use it to fetch bookings for the visible range only:
+```ts
+function handleDatesSet(info: { startStr: string; endStr: string }) {
+  fetchBookings({ from: info.startStr, to: info.endStr })
+}
+```
+
+**`eventClick` → `USlideover` pattern** (never use built-in FullCalendar popups):
+```ts
+function handleEventClick(info: { event: { id: string } }) {
+  selectedBooking.value = bookingMap.value.get(info.event.id)
+  isSlideoverOpen.value = true
+}
+```
+
+The `CalendarView.client.vue` wrapper component is in `app/components/Calendar/CalendarView.client.vue` and handles all FullCalendar imports and CSS overrides. Use it — do not import FullCalendar directly in page files.
+
+**Important**: This project uses `pathPrefix: false` in nuxt.config.ts components config. Component names are based **only on the filename**, not the folder. Example: `Calendar/CalendarView.client.vue` → `<CalendarView>`, `Calendar/BookingPopover.vue` → `<BookingPopover>`. Always verify auto-import names in `.nuxt/components.d.ts`.
 
 ### Code quality
 

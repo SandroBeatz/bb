@@ -251,6 +251,59 @@
           </UForm>
         </UCard>
 
+        <!-- Calendar settings section -->
+        <UCard>
+          <template #header>
+            <div class="px-4 pt-4">
+              <h2 class="text-base font-semibold">
+                {{ $t('calendar.settings.title') }}
+              </h2>
+            </div>
+          </template>
+
+          <div class="divide-y divide-default">
+            <!-- Default view -->
+            <div class="px-4 py-5 space-y-3">
+              <div>
+                <p class="text-sm font-medium">{{ $t('calendar.settings.defaultView') }}</p>
+                <p class="text-xs text-muted mt-0.5">{{ $t('calendar.settings.defaultViewHint') }}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-for="view in VIEW_OPTIONS"
+                  :key="view.value"
+                  size="sm"
+                  :variant="calSettings.defaultView === view.value ? 'solid' : 'outline'"
+                  :color="calSettings.defaultView === view.value ? 'primary' : 'neutral'"
+                  @click="changeView(view.value)"
+                >
+                  {{ view.label }}
+                </UButton>
+              </div>
+            </div>
+
+            <!-- Slot duration -->
+            <div class="px-4 py-5 space-y-3">
+              <div>
+                <p class="text-sm font-medium">{{ $t('calendar.settings.slotDuration') }}</p>
+                <p class="text-xs text-muted mt-0.5">{{ $t('calendar.settings.slotDurationHint') }}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-for="slot in SLOT_OPTIONS"
+                  :key="slot.value"
+                  size="sm"
+                  :variant="calSettings.slotDuration === slot.value ? 'solid' : 'outline'"
+                  :color="calSettings.slotDuration === slot.value ? 'primary' : 'neutral'"
+                  @click="changeDuration(slot.value)"
+                >
+                  {{ slot.label }}
+                </UButton>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
         <!-- Sign out — mobile only -->
         <UButton
           class="md:hidden w-full"
@@ -416,6 +469,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { Database } from '~/types/database.types'
+import type { CalendarView, SlotDuration } from '~/composables/useCalendarSettings'
 
 type PaymentType = Database['public']['Tables']['payment_types']['Row']
 
@@ -427,6 +481,33 @@ const toast = useToast()
 const clerk = useClerk()
 const cache = useDashboardCache()
 const { profileData, profileLoading: profileFetching } = storeToRefs(cache)
+
+// ─── Calendar settings ────────────────────────────────────────────────────────
+
+const { settings: calSettings, setDefaultView, setSlotDuration } = useCalendarSettings()
+
+const VIEW_OPTIONS = computed<{ value: CalendarView; label: string }[]>(() => [
+  { value: 'timeGridWeek', label: t('calendar.settings.views.timeGridWeek') },
+  { value: 'timeGridDay', label: t('calendar.settings.views.timeGridDay') },
+  { value: 'dayGridMonth', label: t('calendar.settings.views.dayGridMonth') },
+])
+
+const SLOT_OPTIONS = computed<{ value: SlotDuration; label: string }[]>(() => [
+  { value: '00:15:00', label: t('calendar.settings.intervals.00:15:00') },
+  { value: '00:20:00', label: t('calendar.settings.intervals.00:20:00') },
+  { value: '00:30:00', label: t('calendar.settings.intervals.00:30:00') },
+  { value: '01:00:00', label: t('calendar.settings.intervals.01:00:00') },
+])
+
+function changeView(view: CalendarView) {
+  setDefaultView(view)
+  toast.add({ title: t('calendar.settings.saved'), color: 'success' })
+}
+
+function changeDuration(duration: SlotDuration) {
+  setSlotDuration(duration)
+  toast.add({ title: t('calendar.settings.saved'), color: 'success' })
+}
 
 async function handleSignOut() {
   await clerk.value?.signOut()

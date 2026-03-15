@@ -322,6 +322,25 @@
       "online": "Онлайн",
       "offline": "Офлайн",
       "telegram": "Telegram"
+    },
+    "settings": {
+      "title": "Жылнаама жөндөөлөрү",
+      "defaultView": "Демейки көрүнүш",
+      "defaultViewHint": "Жылнаамага киргенде кайсы көрүнүш ачылат",
+      "slotDuration": "Уячанын аралыгы",
+      "slotDurationHint": "Бир убакыт уячасынын бийиктиги",
+      "saved": "Жылнаама жөндөөлөрү сакталды",
+      "views": {
+        "timeGridWeek": "Жума",
+        "timeGridDay": "Күн",
+        "dayGridMonth": "Ай"
+      },
+      "intervals": {
+        "00:15:00": "15 мүнөт",
+        "00:20:00": "20 мүнөт",
+        "00:30:00": "30 мүнөт",
+        "01:00:00": "1 саат"
+      }
     }
   },
   "paymentTypes": {

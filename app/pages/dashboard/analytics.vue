@@ -293,7 +293,10 @@ const lineChartOptions = {
     legend: { display: false },
     tooltip: {
       // biome-ignore lint/suspicious/noExplicitAny: chart.js callback typing
-      callbacks: { label: (ctx: any) => ` ${ctx.parsed.y.toLocaleString(locale.value)} ${t('services.currency')}` },
+      callbacks: {
+        label: (ctx: any) =>
+          ` ${ctx.parsed.y.toLocaleString(locale.value)} ${t('services.currency')}`,
+      },
     },
   },
   scales: baseScaleConfig,

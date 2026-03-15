@@ -322,6 +322,25 @@
       "online": "Онлайн",
       "offline": "Офлайн",
       "telegram": "Telegram"
+    },
+    "settings": {
+      "title": "Настройки календаря",
+      "defaultView": "Вид по умолчанию",
+      "defaultViewHint": "Какой вид открывается при входе в календарь",
+      "slotDuration": "Интервал ячеек",
+      "slotDurationHint": "Высота одной временной ячейки",
+      "saved": "Настройки календаря сохранены",
+      "views": {
+        "timeGridWeek": "Неделя",
+        "timeGridDay": "День",
+        "dayGridMonth": "Месяц"
+      },
+      "intervals": {
+        "00:15:00": "15 минут",
+        "00:20:00": "20 минут",
+        "00:30:00": "30 минут",
+        "01:00:00": "1 час"
+      }
     }
   },
   "paymentTypes": {

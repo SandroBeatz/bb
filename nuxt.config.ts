@@ -31,7 +31,6 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/supabase',
     '@clerk/nuxt',
-    'nuxt-calendar',
   ],
 
   i18n: {
@@ -43,11 +42,6 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default', // Russian (default) uses no prefix, Kyrgyz uses /ky/
     langDir: '../app/locales/',
     lazy: true,
-  },
-
-  nuxtCalendar: {
-    timeFormat: '24h',
-    weekStartsOn: 1, // Monday
   },
 
   colorMode: {
