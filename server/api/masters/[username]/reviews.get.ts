@@ -26,7 +26,9 @@ export default defineEventHandler(async (event) => {
 
   const { data, error, count } = await supabase
     .from('reviews')
-    .select('id, rating, comment, created_at, client:client_id(full_name, avatar_url)', { count: 'exact' })
+    .select('id, rating, comment, created_at, client:client_id(full_name, avatar_url)', {
+      count: 'exact',
+    })
     .eq('master_id', profile.id)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
