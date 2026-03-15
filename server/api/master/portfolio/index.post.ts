@@ -53,15 +53,15 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
   const supabaseUrl = config.public.supabaseUrl
-  const serviceRoleKey = config.supabaseServiceRoleKey
+  const anonKey = config.public.supabaseAnonKey
 
   const buffer = await blob.arrayBuffer()
 
   const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/portfolio/${filename}`, {
     method: 'POST',
     headers: {
-      apikey: serviceRoleKey,
-      Authorization: `Bearer ${serviceRoleKey}`,
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
       'Content-Type': contentType,
       'x-upsert': 'false',
     },

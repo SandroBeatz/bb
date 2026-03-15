@@ -35,15 +35,15 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
     const supabaseUrl = config.public.supabaseUrl
-    const serviceRoleKey = config.supabaseServiceRoleKey
+    const anonKey = config.public.supabaseAnonKey
     const publicBase = `${supabaseUrl}/storage/v1/object/public/portfolio/`
     if (item.image_url.startsWith(publicBase)) {
       const storagePath = item.image_url.slice(publicBase.length)
       await fetch(`${supabaseUrl}/storage/v1/object/portfolio/${storagePath}`, {
         method: 'DELETE',
         headers: {
-          apikey: serviceRoleKey,
-          Authorization: `Bearer ${serviceRoleKey}`,
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
         },
       })
     }
