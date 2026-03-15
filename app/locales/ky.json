@@ -227,7 +227,13 @@
     "namePlaceholder": "Мисалы: Накта, Kaspi",
     "nameLabel": "Аталышы",
     "presets": "Алдын ала орнотулган варианттар",
-    "presetValues": ["Накта акча", "Kaspi", "Mbank", "O!Деньги", "Карточкага которуу"],
+    "presetValues": [
+      "Накта акча",
+      "Kaspi",
+      "Mbank",
+      "O!Деньги",
+      "Карточкага которуу"
+    ],
     "inactive": "Активдүү эмес",
     "validation": {
       "nameRequired": "Төлөм ыкмасынын аталышын киргизиңиз",
@@ -355,5 +361,22 @@
     "contacts": "Байланыш",
     "forMasters": "Мастерлер үчүн",
     "copyright": "© 2026 BeautyBook. Бардык укуктар корголгон."
+  },
+  "portfolio": {
+    "edit": "Түзөтүү",
+    "doneEditing": "Даяр",
+    "upload": {
+      "dropzone": "Сүрөттөрдү бул жерге сүйрөңүз",
+      "hint": "JPEG, PNG, WebP · ар бири 5 МБ чейин",
+      "selectFiles": "Файлдарды тандоо",
+      "remaining": "Бош орун: {remaining} / {max}",
+      "invalidType": "Жалаң JPEG, PNG жана WebP уруксат берилет",
+      "tooLarge": "«{name}» файлы өтө чоң (максимум 5 МБ)",
+      "limitReached": "Портфолио лимитине жеттиңиз ({max} сүрөт)"
+    },
+    "toast": {
+      "uploaded": "Сүрөт жүктөлдү",
+      "deleted": "Сүрөт жок кылынды"
+    }
   }
 }

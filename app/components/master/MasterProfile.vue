@@ -240,35 +240,9 @@ function formatDate(dateStr: string) {
         <!-- Portfolio tab -->
         <template #portfolio>
           <div class="px-4 py-4 md:px-8">
-            <template v-if="portfolioPending">
-              <div class="grid grid-cols-3 gap-2">
-                <USkeleton
-                  v-for="i in 6"
-                  :key="i"
-                  class="aspect-square rounded-lg"
-                />
-              </div>
-            </template>
-            <template v-else-if="portfolio?.length">
-              <div class="grid grid-cols-3 gap-2">
-                <div
-                  v-for="item in portfolio"
-                  :key="item.id"
-                  class="aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800"
-                >
-                  <img
-                    :src="item.image_url"
-                    :alt="item.caption ?? ''"
-                    class="size-full object-cover transition-transform duration-300 hover:scale-105"
-                    loading="lazy"
-                  >
-                </div>
-              </div>
-            </template>
-            <UEmpty
-              v-else
-              :title="$t('pages.masterProfile.portfolio.empty')"
-              icon="i-heroicons-photo"
+            <PortfolioGrid
+              :items="portfolio ?? []"
+              :loading="portfolioPending"
             />
           </div>
         </template>
