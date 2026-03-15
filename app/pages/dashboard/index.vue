@@ -93,7 +93,9 @@ const localePath = useLocalePath()
 const cache = useDashboardCache()
 const { bookings, bookingsLoading, bookingsReady, analytics } = storeToRefs(cache)
 
-const loading = computed(() => !bookingsReady.value || (bookingsLoading.value && !bookings.value.length))
+const loading = computed(
+  () => !bookingsReady.value || (bookingsLoading.value && !bookings.value.length),
+)
 
 const todayStr = new Date().toISOString().slice(0, 10)
 

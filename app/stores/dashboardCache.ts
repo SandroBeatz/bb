@@ -128,10 +128,24 @@ export const useDashboardCache = defineStore('dashboardCache', () => {
   }
 
   return {
-    bookings, bookingsLoading, bookingsReady, fetchBookings,
-    analytics, analyticsLoading, analyticsReady, fetchAnalytics,
-    services, servicesLoading, servicesReady, fetchServices,
-    clients, clientsLoading, clientsReady, fetchClients,
-    profileData, profileLoading, fetchProfile,
+    bookings,
+    bookingsLoading,
+    bookingsReady,
+    fetchBookings,
+    analytics,
+    analyticsLoading,
+    analyticsReady,
+    fetchAnalytics,
+    services,
+    servicesLoading,
+    servicesReady,
+    fetchServices,
+    clients,
+    clientsLoading,
+    clientsReady,
+    fetchClients,
+    profileData,
+    profileLoading,
+    fetchProfile,
   }
 })
