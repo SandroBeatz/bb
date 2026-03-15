@@ -51,30 +51,19 @@ export default defineEventHandler(async (event) => {
   const ext = MIME_TO_EXT[contentType]
   const filename = `${masterId}/${Date.now()}.${ext}`
 
-  const config = useRuntimeConfig()
-  const supabaseUrl = config.public.supabaseUrl
-  const anonKey = config.public.supabaseAnonKey
-
   const buffer = await blob.arrayBuffer()
 
-  const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/portfolio/${filename}`, {
-    method: 'POST',
-    headers: {
-      apikey: anonKey,
-      Authorization: `Bearer ${anonKey}`,
-      'Content-Type': contentType,
-      'x-upsert': 'false',
-    },
-    body: buffer,
-  })
+  const { error: uploadError } = await supabase.storage
+    .from('portfolio')
+    .upload(filename, buffer, { contentType, upsert: false })
 
-  if (!uploadResponse.ok) {
-    const body = await uploadResponse.text()
-    console.error('[portfolio upload] error:', uploadResponse.status, body)
-    throw createError({ statusCode: 500, message: `Upload failed: ${body}` })
+  if (uploadError) {
+    console.error('[portfolio upload] error:', uploadError)
+    throw createError({ statusCode: 500, message: `Upload failed: ${uploadError.message}` })
   }
 
-  const imageUrl = `${supabaseUrl}/storage/v1/object/public/portfolio/${filename}`
+  const { data: publicUrlData } = supabase.storage.from('portfolio').getPublicUrl(filename)
+  const imageUrl = publicUrlData.publicUrl
 
   // Determine next sort_order
   const { data: lastItem } = await supabase

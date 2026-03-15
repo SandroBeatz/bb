@@ -35,17 +35,10 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
     const supabaseUrl = config.public.supabaseUrl
-    const anonKey = config.public.supabaseAnonKey
     const publicBase = `${supabaseUrl}/storage/v1/object/public/portfolio/`
     if (item.image_url.startsWith(publicBase)) {
       const storagePath = item.image_url.slice(publicBase.length)
-      await fetch(`${supabaseUrl}/storage/v1/object/portfolio/${storagePath}`, {
-        method: 'DELETE',
-        headers: {
-          apikey: anonKey,
-          Authorization: `Bearer ${anonKey}`,
-        },
-      })
+      await supabase.storage.from('portfolio').remove([storagePath])
     }
   } catch {
     // Ignore storage cleanup errors — record is already deleted
