@@ -83,9 +83,44 @@ const { data: portfolio, pending: portfolioPending } = useLazyFetch<PortfolioIte
   `/api/masters/${props.master.username}/portfolio`,
 )
 
-const { data: reviews, pending: reviewsPending } = useLazyFetch<ReviewWithClient[]>(
-  `/api/masters/${props.master.username}/reviews`,
-)
+interface ReviewsResponse {
+  data: ReviewWithClient[]
+  hasMore: boolean
+  total: number
+}
+
+const reviews = ref<ReviewWithClient[]>([])
+const reviewsPending = ref(true)
+const reviewsHasMore = ref(false)
+const reviewsTotal = ref(0)
+const reviewsOffset = ref(0)
+const reviewsLoadingMore = ref(false)
+const REVIEWS_LIMIT = 10
+
+async function loadReviews(append = false) {
+  if (!append) reviewsPending.value = true
+  else reviewsLoadingMore.value = true
+
+  try {
+    const res = await $fetch<ReviewsResponse>(
+      `/api/masters/${props.master.username}/reviews`,
+      { query: { limit: REVIEWS_LIMIT, offset: reviewsOffset.value } },
+    )
+    if (append) {
+      reviews.value = [...reviews.value, ...res.data]
+    } else {
+      reviews.value = res.data
+    }
+    reviewsHasMore.value = res.hasMore
+    reviewsTotal.value = res.total
+    reviewsOffset.value += res.data.length
+  } finally {
+    reviewsPending.value = false
+    reviewsLoadingMore.value = false
+  }
+}
+
+onMounted(() => loadReviews())
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat('ru-RU', {
@@ -176,7 +211,7 @@ function formatDate(dateStr: string) {
           <UIcon name="i-heroicons-star-solid" class="size-4 shrink-0 text-yellow-400" />
           <span class="font-medium">{{ masterProfile?.rating?.toFixed(1) ?? '–' }}</span>
           <span class="text-muted">
-            ({{ reviews?.length ?? 0 }} {{ $t('pages.masterProfile.reviews.count') }})
+            ({{ reviewsTotal }} {{ $t('pages.masterProfile.reviews.count') }})
           </span>
         </span>
       </div>
@@ -297,6 +332,17 @@ function formatDate(dateStr: string) {
                     {{ formatDate(review.created_at) }}
                   </p>
                 </div>
+              </div>
+              <div v-if="reviewsHasMore" class="flex justify-center pt-2">
+                <UButton
+                  color="neutral"
+                  variant="outline"
+                  size="sm"
+                  :loading="reviewsLoadingMore"
+                  @click="loadReviews(true)"
+                >
+                  {{ $t('reviews.form.loadMore') }}
+                </UButton>
               </div>
             </template>
             <UEmpty

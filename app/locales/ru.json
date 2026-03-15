@@ -426,6 +426,25 @@
       "saved": "Профиль сохранён"
     }
   },
+  "reviews": {
+    "form": {
+      "title": "Оставить отзыв",
+      "ratingLabel": "Оценка",
+      "stars": "звёзд",
+      "commentLabel": "Комментарий",
+      "commentPlaceholder": "Расскажите о своём визите...",
+      "submit": "Отправить",
+      "loadMore": "Показать ещё"
+    },
+    "toast": {
+      "success": "Отзыв опубликован",
+      "error": "Не удалось опубликовать отзыв",
+      "alreadyExists": "Вы уже оставили отзыв"
+    },
+    "validation": {
+      "ratingRequired": "Выберите оценку"
+    }
+  },
   "footer": {
     "about": "О нас",
     "contacts": "Контакты",
