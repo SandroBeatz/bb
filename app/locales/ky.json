@@ -182,8 +182,30 @@
     "catalog": {
       "title": "Мастерлердин каталогу",
       "subtitle": "Сулуулук мастериңизди табыңыз",
-      "searchPlaceholder": "Аты, шаар же кызмат боюнча издөө...",
-      "empty": "Мастерлер табылган жок"
+      "searchPlaceholder": "Аты боюнча издөө...",
+      "empty": "Мастерлер табылган жок",
+      "emptyHint": "Чыпкаларды өзгөртүп көрүңүз",
+      "allCategories": "Баары",
+      "filterCity": "Шаар",
+      "filterCityPlaceholder": "Шаарды киргизиңиз...",
+      "filterRating": "Рейтинг",
+      "sort": {
+        "label": "Сорттоо",
+        "date": "Жаңылар биринчи",
+        "rating": "Рейтинг боюнча",
+        "price": "Баа боюнча"
+      },
+      "categories": {
+        "manicure": "Маникюр",
+        "pedicure": "Педикюр",
+        "lashes": "Кирпик",
+        "brows": "Каш",
+        "makeup": "Макияж",
+        "tattoo": "Тату",
+        "haircut": "Чач кесүү",
+        "coloring": "Боёо",
+        "massage": "Массаж"
+      }
     },
     "onboarding": {
       "title": "BeautyBook'ту кантип колдонобуз?",

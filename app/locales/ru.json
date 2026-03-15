@@ -182,8 +182,30 @@
     "catalog": {
       "title": "Каталог мастеров",
       "subtitle": "Найдите своего мастера красоты",
-      "searchPlaceholder": "Поиск по имени, городу или услуге...",
-      "empty": "Мастера не найдены"
+      "searchPlaceholder": "Поиск по имени...",
+      "empty": "Мастера не найдены",
+      "emptyHint": "Попробуйте изменить фильтры",
+      "allCategories": "Все",
+      "filterCity": "Город",
+      "filterCityPlaceholder": "Введите город...",
+      "filterRating": "Рейтинг",
+      "sort": {
+        "label": "Сортировка",
+        "date": "Сначала новые",
+        "rating": "По рейтингу",
+        "price": "По цене"
+      },
+      "categories": {
+        "manicure": "Маникюр",
+        "pedicure": "Педикюр",
+        "lashes": "Ресницы",
+        "brows": "Брови",
+        "makeup": "Макияж",
+        "tattoo": "Тату",
+        "haircut": "Стрижка",
+        "coloring": "Окрашивание",
+        "massage": "Массаж"
+      }
     },
     "onboarding": {
       "title": "Как вы будете использовать BeautyBook?",
