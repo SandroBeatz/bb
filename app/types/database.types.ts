@@ -11,6 +11,8 @@ export interface Database {
           username: string | null
           avatar_url: string | null
           telegram_id: string | null
+          phone: string | null
+          email: string | null
           created_at: string
         }
         Insert: {
@@ -20,6 +22,8 @@ export interface Database {
           username?: string | null
           avatar_url?: string | null
           telegram_id?: string | null
+          phone?: string | null
+          email?: string | null
           created_at?: string
         }
         Update: {
@@ -29,6 +33,8 @@ export interface Database {
           username?: string | null
           avatar_url?: string | null
           telegram_id?: string | null
+          phone?: string | null
+          email?: string | null
           created_at?: string
         }
       }
@@ -209,6 +215,35 @@ export interface Database {
           caption?: string | null
           service_tag?: string | null
           sort_order?: number
+          created_at?: string
+        }
+      }
+      master_clients: {
+        Row: {
+          id: string
+          master_id: string
+          client_id: string
+          display_name: string | null
+          notes: string | null
+          invitation_status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          master_id: string
+          client_id: string
+          display_name?: string | null
+          notes?: string | null
+          invitation_status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          master_id?: string
+          client_id?: string
+          display_name?: string | null
+          notes?: string | null
+          invitation_status?: string
           created_at?: string
         }
       }

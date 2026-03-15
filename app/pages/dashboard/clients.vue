@@ -1,7 +1,19 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :toggle="false" :title="$t('nav.clients')" icon="i-heroicons-users" />
+      <UDashboardNavbar :toggle="false" :title="$t('nav.clients')" icon="i-heroicons-users">
+        <template #right>
+          <UButton
+            icon="i-heroicons-plus"
+            size="sm"
+            color="primary"
+            variant="soft"
+            @click="addClientOpen = true"
+          >
+            {{ $t('clients.addClient') }}
+          </UButton>
+        </template>
+      </UDashboardNavbar>
     </template>
 
     <template #body>
@@ -39,8 +51,7 @@
           <div class="flex-1 min-w-0">
             <p class="font-medium truncate">{{ client.full_name }}</p>
             <p class="text-sm text-muted">
-              {{ $t('clients.visits', { count: client.visit_count }) }}
-              <span v-if="client.last_visit"> · {{ formatDate(client.last_visit) }}</span>
+              <span v-if="client.phone">{{ client.phone }} · </span>{{ $t('clients.visits', { count: client.visit_count }) }}<span v-if="client.last_visit"> · {{ formatDate(client.last_visit) }}</span>
             </p>
           </div>
           <div class="text-right shrink-0">
@@ -62,6 +73,7 @@
             />
             <div>
               <p class="font-semibold">{{ selectedClient.full_name }}</p>
+              <p v-if="selectedClient.phone" class="text-sm text-muted">{{ selectedClient.phone }}</p>
               <p class="text-sm text-muted">
                 {{ $t('clients.visits', { count: selectedClient.visit_count }) }}
               </p>
@@ -145,6 +157,51 @@
         </div>
       </template>
     </USlideover>
+
+    <!-- Add client modal -->
+    <UModal v-model:open="addClientOpen" :title="$t('clients.addClient')">
+      <template #body>
+        <div class="p-4 space-y-4">
+          <UFormField :label="$t('clients.form.name')" required>
+            <UInput
+              v-model="newClientForm.full_name"
+              :placeholder="$t('clients.form.namePlaceholder')"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField :label="$t('clients.form.phone')">
+            <UInput
+              v-model="newClientForm.phone"
+              :placeholder="$t('clients.form.phonePlaceholder')"
+              class="w-full"
+            />
+          </UFormField>
+          <UFormField :label="$t('clients.form.email')">
+            <UInput
+              v-model="newClientForm.email"
+              type="email"
+              :placeholder="$t('clients.form.emailPlaceholder')"
+              class="w-full"
+            />
+          </UFormField>
+          <div class="flex justify-end gap-2 pt-1">
+            <UButton variant="ghost" color="neutral" @click="addClientOpen = false">
+              {{ $t('common.cancel') }}
+            </UButton>
+            <UButton
+              color="primary"
+              :loading="addClientLoading"
+              :disabled="!newClientForm.full_name.trim()"
+              icon="i-heroicons-user-plus"
+              @click="createClient"
+            >
+              {{ $t('common.add') }}
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </UModal>
+
     </UContainer>
     </template>
   </UDashboardPanel>
@@ -157,6 +214,12 @@ type ClientItem = {
   id: string
   full_name: string
   avatar_url: string | null
+  phone: string | null
+  email: string | null
+  display_name: string | null
+  notes: string | null
+  invitation_status: string
+  added_at: string
   visit_count: number
   last_visit: string | null
   total_amount: number
@@ -178,6 +241,7 @@ type ClientDetail = {
 }
 
 const { t, locale } = useI18n()
+const toast = useToast()
 
 const cache = useDashboardCache()
 const { clients, clientsLoading, clientsReady } = storeToRefs(cache)
@@ -195,8 +259,38 @@ const clientBookings = ref<ClientBooking[]>([])
 const filteredClients = computed(() => {
   if (!search.value.trim()) return clients.value
   const q = search.value.toLowerCase()
-  return clients.value.filter((c) => c.full_name.toLowerCase().includes(q))
+  return clients.value.filter(
+    (c) =>
+      c.full_name.toLowerCase().includes(q) ||
+      (c.phone && c.phone.toLowerCase().includes(q)),
+  )
 })
+
+// Add client
+const addClientOpen = ref(false)
+const addClientLoading = ref(false)
+const newClientForm = reactive({ full_name: '', phone: '', email: '' })
+
+async function createClient() {
+  if (!newClientForm.full_name.trim()) return
+  addClientLoading.value = true
+  try {
+    const client = await $fetch('/api/master/clients', {
+      method: 'POST',
+      body: { full_name: newClientForm.full_name.trim(), phone: newClientForm.phone.trim() || undefined, email: newClientForm.email.trim() || undefined },
+    })
+    cache.clients.unshift(client as ClientItem)
+    addClientOpen.value = false
+    newClientForm.full_name = ''
+    newClientForm.phone = ''
+    newClientForm.email = ''
+    toast.add({ title: t('clients.added'), color: 'success' })
+  } catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  } finally {
+    addClientLoading.value = false
+  }
+}
 
 const avgCheck = computed(() => {
   if (!selectedClient.value || selectedClient.value.visit_count === 0) return 0
@@ -216,8 +310,9 @@ const preferredServices = computed(() => {
 })
 
 function bookingAmount(booking: ClientBooking): number {
-  if (!booking.payment_records) return 0
-  return booking.payment_records.reduce((sum, p) => sum + Number(p.amount), 0)
+  const raw = booking.payment_records
+  const payments = Array.isArray(raw) ? raw : raw ? [raw] : []
+  return payments.reduce((sum, p) => sum + Number(p.amount), 0)
 }
 
 function statusColor(status: string) {

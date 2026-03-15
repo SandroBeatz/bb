@@ -23,6 +23,12 @@ export type ClientItem = {
   id: string
   full_name: string
   avatar_url: string | null
+  phone: string | null
+  email: string | null
+  display_name: string | null
+  notes: string | null
+  invitation_status: string
+  added_at: string
   visit_count: number
   last_visit: string | null
   total_amount: number

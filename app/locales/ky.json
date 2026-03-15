@@ -318,6 +318,33 @@
     "notes": "Эскертмелер",
     "notesPlaceholder": "Мастердин эскертмелери...",
     "addOrBlock": "Эмне кылгыңыз келет?",
+    "clientPicker": {
+      "placeholder": "Аты же телефону боюнча издөө...",
+      "visits": "бара",
+      "empty": "Кардарлар жок. Атын жазып баштаңыз.",
+      "notFound": "Кардар табылган жок",
+      "createNew": "«{name}» түзүү",
+      "newClientTitle": "Жаңы кардар",
+      "namePlaceholder": "Кардардын аты",
+      "phonePlaceholder": "+996 000 000 000",
+      "created": "Кардар кошулду"
+    },
+    "editTime": {
+      "title": "Жазылуу убактысы",
+      "duration": "Узактыгы"
+    },
+    "addBooking": {
+      "title": "Жазылуу кошуу",
+      "clientName": "Кардардын аты",
+      "clientNamePlaceholder": "Аты-жөнү",
+      "service": "Кызмат",
+      "servicePlaceholder": "Кызматты тандаңыз",
+      "date": "Күнү",
+      "time": "Убактысы",
+      "submit": "Жазылуу түзүү",
+      "created": "Жазылуу түзүлдү",
+      "conflictError": "Бул убакыт бош эмес. Башка убакытты тандаңыз."
+    },
     "source": {
       "online": "Онлайн",
       "offline": "Офлайн",
@@ -411,14 +438,24 @@
   "clients": {
     "emptyTitle": "Азырча кардарларыңыз жок",
     "emptyDescription": "Биринчи аяктаган жазылуудан кийин кардарлар пайда болот",
-    "searchPlaceholder": "Аты боюнча издөө...",
+    "searchPlaceholder": "Аты же телефону боюнча издөө...",
     "visits": "{count} визит",
     "visitsLabel": "Визит",
     "lastVisit": "Акыркы визит",
     "totalAmount": "Жыйынтык",
     "historyTitle": "Визиттердин тарыхы",
     "avgCheck": "Орточо сумма",
-    "preferredServices": "Кызматтар"
+    "preferredServices": "Кызматтар",
+    "addClient": "Кардар кошуу",
+    "added": "Кардар кошулду",
+    "form": {
+      "name": "Аты",
+      "namePlaceholder": "Аты-жөнү",
+      "phone": "Телефон",
+      "phonePlaceholder": "+996 000 000 000",
+      "email": "Email",
+      "emailPlaceholder": "kardar{'@'}example.com"
+    }
   },
   "masterCard": {
     "priceFrom": "{price} сомдон",

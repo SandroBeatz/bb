@@ -51,37 +51,17 @@
             @cancelled="cancelBooking"
             @completed="completeBooking"
             @notes-saved="saveNotes"
+            @time-updated="updateBookingTime"
           />
         </template>
       </USlideover>
 
-      <!-- New slot action modal -->
-      <UModal v-model:open="isNewSlotModalOpen" :title="$t('calendar.addOrBlock')">
-        <template #body>
-          <div class="p-4 space-y-3">
-            <UButton
-              variant="soft"
-              color="primary"
-              size="sm"
-              icon="i-heroicons-calendar-days"
-              class="w-full justify-start"
-              @click="isNewSlotModalOpen = false"
-            >
-              {{ $t('dashboard.fab.addBooking') }}
-            </UButton>
-            <UButton
-              variant="soft"
-              color="neutral"
-              size="sm"
-              icon="i-heroicons-no-symbol"
-              class="w-full justify-start"
-              @click="isNewSlotModalOpen = false"
-            >
-              {{ $t('dashboard.fab.blockTime') }}
-            </UButton>
-          </div>
-        </template>
-      </UModal>
+      <!-- Add booking modal -->
+      <AddBookingModal
+        v-model:open="isNewSlotModalOpen"
+        :default-datetime="clickedDatetime"
+        @created="refresh"
+      />
 
       <QuickCheckoutModal @success="refresh" />
     </template>
@@ -130,6 +110,7 @@ const selectedBooking = ref<BookingWithDetails | null>(null)
 
 // New slot modal state
 const isNewSlotModalOpen = ref(false)
+const clickedDatetime = ref<string | null>(null)
 
 // Per-action loading states for the currently selected booking
 const actionLoading = ref(false)
@@ -148,7 +129,7 @@ const bookingMap = computed(() => {
 const calendarEvents = computed<CalendarEvent[]>(() =>
   bookings.value.map((b) => ({
     id: b.id,
-    title: b.services?.name ?? '—',
+    title: [b.services?.name, b.profiles?.full_name].filter(Boolean).join(' · '),
     start: b.starts_at,
     end: b.ends_at,
     backgroundColor: STATUS_COLORS[b.status]?.background ?? '#9CA3AF',
@@ -199,7 +180,8 @@ function handleEventClick(info: { event: { id: string } }) {
   }
 }
 
-function handleDateClick(_info: unknown) {
+function handleDateClick(info: { dateStr: string }) {
+  clickedDatetime.value = info.dateStr
   isNewSlotModalOpen.value = true
 }
 
@@ -260,6 +242,21 @@ async function saveNotes(id: string, notes: string): Promise<void> {
     toast.add({ title: t('errors.general'), color: 'error' })
   } finally {
     savingNotes.value = false
+  }
+}
+
+async function updateBookingTime(id: string, starts_at: string, ends_at: string): Promise<void> {
+  try {
+    await $fetch(`/api/master/bookings/${id}`, {
+      method: 'PATCH',
+      body: { starts_at, ends_at },
+    })
+    await fetchBookings(currentRange.value ?? undefined)
+    const updated = bookingMap.value.get(id)
+    if (updated) selectedBooking.value = updated
+    toast.add({ title: t('common.success'), color: 'success' })
+  } catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
   }
 }
 </script>

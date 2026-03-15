@@ -21,6 +21,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: error.message })
   }
 
+  // Normalize payment_records to always be an array
+  const normalized = (bookings ?? []).map((b) => {
+    const raw = b.payment_records
+    return { ...b, payment_records: Array.isArray(raw) ? raw : raw ? [raw] : [] }
+  })
+
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url')
@@ -31,5 +37,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Client not found' })
   }
 
-  return { profile, bookings: bookings ?? [] }
+  return { profile, bookings: normalized }
 })

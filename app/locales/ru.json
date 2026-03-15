@@ -318,6 +318,33 @@
     "notes": "Заметки",
     "notesPlaceholder": "Заметки мастера...",
     "addOrBlock": "Что хотите сделать?",
+    "clientPicker": {
+      "placeholder": "Поиск клиента по имени или телефону...",
+      "visits": "визитов",
+      "empty": "Нет клиентов. Начните вводить имя.",
+      "notFound": "Клиент не найден",
+      "createNew": "Создать «{name}»",
+      "newClientTitle": "Новый клиент",
+      "namePlaceholder": "Имя клиента",
+      "phonePlaceholder": "+7 000 000 00 00",
+      "created": "Клиент добавлен"
+    },
+    "editTime": {
+      "title": "Время записи",
+      "duration": "Длительность"
+    },
+    "addBooking": {
+      "title": "Добавить запись",
+      "clientName": "Имя клиента",
+      "clientNamePlaceholder": "Имя и фамилия",
+      "service": "Услуга",
+      "servicePlaceholder": "Выберите услугу",
+      "date": "Дата",
+      "time": "Время",
+      "submit": "Создать запись",
+      "created": "Запись создана",
+      "conflictError": "Это время уже занято. Выберите другое."
+    },
     "source": {
       "online": "Онлайн",
       "offline": "Офлайн",
@@ -411,14 +438,24 @@
   "clients": {
     "emptyTitle": "У вас пока нет клиентов",
     "emptyDescription": "Клиенты появятся после первой завершённой записи",
-    "searchPlaceholder": "Поиск по имени...",
+    "searchPlaceholder": "Поиск по имени или телефону...",
     "visits": "{count} визитов",
     "visitsLabel": "Визитов",
     "lastVisit": "Последний визит",
     "totalAmount": "Итого",
     "historyTitle": "История визитов",
     "avgCheck": "Средний чек",
-    "preferredServices": "Услуги"
+    "preferredServices": "Услуги",
+    "addClient": "Добавить клиента",
+    "added": "Клиент добавлен",
+    "form": {
+      "name": "Имя",
+      "namePlaceholder": "Имя и фамилия",
+      "phone": "Телефон",
+      "phonePlaceholder": "+7 000 000 00 00",
+      "email": "Email",
+      "emailPlaceholder": "client{'@'}example.com"
+    }
   },
   "masterCard": {
     "priceFrom": "от {price} сом",

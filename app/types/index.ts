@@ -10,6 +10,20 @@ export interface Profile {
   username: string
   avatar_url: string | null
   telegram_id: string | null
+  phone: string | null
+  email: string | null
+  created_at: string
+}
+
+export type InvitationStatus = 'none' | 'sent' | 'accepted'
+
+export interface MasterClient {
+  id: string
+  master_id: string
+  client_id: string
+  display_name: string | null
+  notes: string | null
+  invitation_status: InvitationStatus
   created_at: string
 }
 

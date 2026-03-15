@@ -69,7 +69,7 @@
       </div>
     </UContainer>
 
-    <CheckoutQuickCheckoutModal @success="fetchData" />
+    <QuickCheckoutModal @success="fetchData" />
     </template>
   </UDashboardPanel>
 

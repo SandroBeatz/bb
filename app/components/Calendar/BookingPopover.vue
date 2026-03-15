@@ -31,6 +31,57 @@
       </div>
     </div>
 
+    <!-- Edit time & duration -->
+    <div class="p-4 space-y-3">
+      <div class="flex items-center justify-between">
+        <p class="text-xs font-medium text-muted uppercase tracking-wide">
+          {{ $t('calendar.editTime.title') }}
+        </p>
+        <UButton
+          v-if="!editingTime"
+          size="xs"
+          variant="ghost"
+          color="neutral"
+          icon="i-heroicons-pencil"
+          @click="startEditTime"
+        >
+          {{ $t('common.edit') }}
+        </UButton>
+      </div>
+
+      <div v-if="editingTime" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <UFormField :label="$t('calendar.addBooking.date')" size="sm">
+            <UInput v-model="editDate" type="date" size="sm" class="w-full" />
+          </UFormField>
+          <UFormField :label="$t('calendar.addBooking.time')" size="sm">
+            <UInput v-model="editTime" type="time" size="sm" class="w-full" />
+          </UFormField>
+        </div>
+        <UFormField :label="$t('calendar.editTime.duration')" size="sm">
+          <USelect
+            v-model="editDuration"
+            :items="durationOptions"
+            size="sm"
+            class="w-full"
+          />
+        </UFormField>
+        <div class="flex gap-2">
+          <UButton
+            size="xs"
+            color="primary"
+            :loading="savingTime"
+            @click="saveTime"
+          >
+            {{ $t('common.save') }}
+          </UButton>
+          <UButton size="xs" variant="ghost" color="neutral" @click="editingTime = false">
+            {{ $t('common.cancel') }}
+          </UButton>
+        </div>
+      </div>
+    </div>
+
     <!-- Notes -->
     <div class="p-4 space-y-2">
       <p class="text-xs font-medium text-muted uppercase tracking-wide">
@@ -112,6 +163,7 @@ const emit = defineEmits<{
   cancelled: [id: string]
   completed: [booking: BookingWithDetails]
   notesSaved: [id: string, notes: string]
+  timeUpdated: [id: string, starts_at: string, ends_at: string]
 }>()
 
 const { locale } = useI18n()
@@ -125,6 +177,46 @@ watch(
   },
 )
 
+// ── Edit time ────────────────────────────────────────────────────
+const editingTime = ref(false)
+const savingTime = ref(false)
+const editDate = ref('')
+const editTime = ref('')
+const editDuration = ref(30)
+
+const durationOptions = [
+  { label: '15 мин', value: 15 },
+  { label: '20 мин', value: 20 },
+  { label: '30 мин', value: 30 },
+  { label: '45 мин', value: 45 },
+  { label: '1 час', value: 60 },
+  { label: '1.5 часа', value: 90 },
+  { label: '2 часа', value: 120 },
+  { label: '3 часа', value: 180 },
+]
+
+function startEditTime() {
+  const start = new Date(props.booking.starts_at)
+  const end = new Date(props.booking.ends_at)
+  editDate.value = start.toISOString().slice(0, 10)
+  editTime.value = `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`
+  editDuration.value = Math.round((end.getTime() - start.getTime()) / 60_000)
+  editingTime.value = true
+}
+
+async function saveTime() {
+  savingTime.value = true
+  try {
+    const startsAt = new Date(`${editDate.value}T${editTime.value}:00`)
+    const endsAt = new Date(startsAt.getTime() + editDuration.value * 60_000)
+    emit('timeUpdated', props.booking.id, startsAt.toISOString(), endsAt.toISOString())
+    editingTime.value = false
+  } finally {
+    savingTime.value = false
+  }
+}
+
+// ── Display ──────────────────────────────────────────────────────
 const formattedTime = computed(() => {
   const start = new Date(props.booking.starts_at)
   const end = new Date(props.booking.ends_at)

@@ -1,13 +1,9 @@
 <template>
-  <UDrawer v-model:open="isOpen" direction="bottom" :overlay="true">
-    <template #content>
-      <div class="rounded-t-3xl px-4 pt-4 pb-safe">
-        <div class="w-10 h-1 bg-accented rounded-full mx-auto mb-6" />
+  <UModal v-model:open="store.isOpen" :title="$t('checkout.title')">
+    <template #body>
+      <div class="px-4 pt-2 pb-4">
 
-        <h2 class="text-lg font-semibold mb-1">
-          {{ $t('checkout.title') }}
-        </h2>
-        <p v-if="bookingInfo" class="text-sm text-muted mb-6">
+        <p v-if="bookingInfo" class="text-sm text-muted mb-4">
           {{ $t('checkout.sessionWith', { client: bookingInfo.clientName }) }}
           &mdash; {{ bookingInfo.serviceName }}
         </p>
@@ -45,7 +41,7 @@
           </UFormField>
 
           <UAlert
-            v-if="paymentTypes.length === 0 && !loadingPaymentTypes"
+            v-if="store.paymentTypes.length === 0 && !loadingPaymentTypes"
             color="warning"
             variant="soft"
             icon="i-heroicons-exclamation-triangle"
@@ -59,7 +55,7 @@
               color="neutral"
               size="lg"
               class="flex-1"
-              @click="isOpen = false"
+              @click="store.isOpen = false"
             >
               {{ $t('common.cancel') }}
             </UButton>
@@ -68,8 +64,8 @@
               color="success"
               size="lg"
               class="flex-1"
-              :loading="loading"
-              :disabled="paymentTypes.length === 0"
+              :loading="store.loading"
+              :disabled="store.paymentTypes.length === 0"
             >
               {{ $t('checkout.confirm') }}
             </UButton>
@@ -77,7 +73,7 @@
         </UForm>
       </div>
     </template>
-  </UDrawer>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -97,14 +93,13 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const toast = useToast()
 
-const { isOpen, booking, paymentTypes, loading, fetchPaymentTypes, submitCheckout } =
-  useQuickCheckout()
+const store = useQuickCheckout()
 
 const loadingPaymentTypes = ref(false)
 
 const bookingInfo = computed<BookingInfo | null>(() => {
-  if (!booking.value) return null
-  const b = booking.value as typeof booking.value & {
+  if (!store.booking) return null
+  const b = store.booking as typeof store.booking & {
     services?: { name: string; price: number } | null
     profiles?: { full_name: string } | null
   }
@@ -117,7 +112,7 @@ const bookingInfo = computed<BookingInfo | null>(() => {
 })
 
 const paymentTypeOptions = computed(() =>
-  paymentTypes.value.filter((pt) => pt.is_active).map((pt) => ({ label: pt.name, value: pt.id })),
+  store.paymentTypes.filter((pt) => pt.is_active).map((pt) => ({ label: pt.name, value: pt.id })),
 )
 
 const schema = z.object({
@@ -134,27 +129,30 @@ const defaultState = () => ({
 
 const formState = reactive(defaultState())
 
-watch(isOpen, async (open) => {
-  if (open) {
-    Object.assign(formState, defaultState())
-    if (bookingInfo.value) {
-      formState.amount = bookingInfo.value.price
+watch(
+  () => store.isOpen,
+  async (open) => {
+    if (open) {
+      Object.assign(formState, defaultState())
+      if (bookingInfo.value) {
+        formState.amount = bookingInfo.value.price
+      }
+      if (store.paymentTypes.length === 0) {
+        loadingPaymentTypes.value = true
+        await store.fetchPaymentTypes()
+        loadingPaymentTypes.value = false
+      }
+      if (paymentTypeOptions.value.length > 0) {
+        formState.paymentTypeId = paymentTypeOptions.value[0]?.value ?? ''
+      }
     }
-    if (paymentTypes.value.length === 0) {
-      loadingPaymentTypes.value = true
-      await fetchPaymentTypes()
-      loadingPaymentTypes.value = false
-    }
-    if (paymentTypeOptions.value.length > 0) {
-      formState.paymentTypeId = paymentTypeOptions.value[0]?.value ?? ''
-    }
-  }
-})
+  },
+)
 
 async function onSubmit() {
   if (!bookingInfo.value) return
   try {
-    await submitCheckout(
+    await store.submitCheckout(
       bookingInfo.value.id,
       Number(formState.amount),
       formState.paymentTypeId,

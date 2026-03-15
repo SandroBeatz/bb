@@ -6,6 +6,7 @@ interface ClerkUserData {
   last_name: string | null
   image_url: string | null
   email_addresses: Array<{ email_address: string }>
+  phone_numbers: Array<{ phone_number: string }>
 }
 
 interface ClerkWebhookEvent {
@@ -56,23 +57,61 @@ export default defineEventHandler(async (event) => {
   const supabase = useServerSupabase()
 
   if (evt.type === 'user.created') {
-    const { id, first_name, last_name, image_url } = evt.data
+    const { id, first_name, last_name, image_url, email_addresses, phone_numbers } = evt.data
     const fullName = [first_name, last_name].filter(Boolean).join(' ')
+    const email = email_addresses?.[0]?.email_address ?? null
+    const phone = phone_numbers?.[0]?.phone_number
+      ? normalizePhone(phone_numbers[0].phone_number)
+      : null
 
-    // Use upsert to handle race condition where onboarding may create profile first
+    // Check if an offline profile exists with matching phone or email — merge if so
+    let offlineId: string | null = null
+    if (phone) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', phone)
+        .not('id', 'like', 'user_%')
+        .maybeSingle()
+      if (data) offlineId = data.id
+    }
+    if (!offlineId && email) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .not('id', 'like', 'user_%')
+        .maybeSingle()
+      if (data) offlineId = data.id
+    }
+
+    // Create the Clerk profile
     const { error } = await supabase
       .from('profiles')
       .upsert(
-        { id, full_name: fullName || '', avatar_url: image_url || null },
+        {
+          id,
+          full_name: fullName || '',
+          avatar_url: image_url || null,
+          phone,
+          email,
+        },
         { onConflict: 'id' },
       )
 
     if (error) {
       console.error('[clerk webhook] Error creating profile:', error.message)
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to create profile',
-      })
+      throw createError({ statusCode: 500, message: 'Failed to create profile' })
+    }
+
+    // Merge offline profile if found
+    if (offlineId) {
+      try {
+        await mergeOfflineProfile(supabase, offlineId, id)
+        console.log(`[clerk webhook] Merged offline profile ${offlineId} → ${id}`)
+      } catch (mergeErr) {
+        console.error('[clerk webhook] Merge error:', mergeErr)
+      }
     }
   }
 
