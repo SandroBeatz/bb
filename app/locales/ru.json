@@ -111,6 +111,7 @@
     },
     "settings": {
       "title": "Настройки",
+      "profileSection": "Профиль",
       "paymentTypes": "Способы оплаты"
     },
     "admin": {
@@ -303,6 +304,51 @@
   "language": {
     "ru": "Русский",
     "ky": "Кыргызча"
+  },
+  "profileEdit": {
+    "avatar": "Фото профиля",
+    "changePhoto": "Изменить фото",
+    "fullName": "Имя",
+    "fullNamePlaceholder": "Ваше имя",
+    "username": "Username (slug)",
+    "usernamePlaceholder": "например, anna_beauty",
+    "bio": "О себе",
+    "bioPlaceholder": "Расскажите о себе и своих услугах...",
+    "city": "Город",
+    "cityPlaceholder": "Например, Бишкек",
+    "specializations": "Специализации",
+    "specializationsPlaceholder": "Добавьте специализацию",
+    "specializationAdd": "Добавить",
+    "contacts": "Контакты",
+    "telegram": "Telegram",
+    "telegramPlaceholder": "{'@'}username",
+    "whatsapp": "WhatsApp",
+    "whatsappPlaceholder": "+7 (___) ___-__-__",
+    "instagram": "Instagram",
+    "instagramPlaceholder": "{'@'}username",
+    "phone": "Телефон",
+    "phonePlaceholder": "+7 (___) ___-__-__",
+    "workHours": "График работы",
+    "dayOff": "Выходной",
+    "days": {
+      "mon": "Пн",
+      "tue": "Вт",
+      "wed": "Ср",
+      "thu": "Чт",
+      "fri": "Пт",
+      "sat": "Сб",
+      "sun": "Вс"
+    },
+    "save": "Сохранить профиль",
+    "validation": {
+      "fullNameRequired": "Введите ваше имя",
+      "usernameFormat": "Только строчные буквы, цифры, _ и -",
+      "usernameMinLength": "Минимум 2 символа",
+      "usernameTaken": "Этот username уже занят"
+    },
+    "toast": {
+      "saved": "Профиль сохранён"
+    }
   },
   "footer": {
     "about": "О нас",

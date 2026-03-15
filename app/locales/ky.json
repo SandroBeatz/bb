@@ -111,6 +111,7 @@
     },
     "settings": {
       "title": "Жөндөөлөр",
+      "profileSection": "Профиль",
       "paymentTypes": "Төлөм ыкмалары"
     },
     "admin": {
@@ -303,6 +304,51 @@
   "language": {
     "ru": "Русский",
     "ky": "Кыргызча"
+  },
+  "profileEdit": {
+    "avatar": "Профиль сүрөтү",
+    "changePhoto": "Сүрөттү өзгөртүү",
+    "fullName": "Аты-жөнү",
+    "fullNamePlaceholder": "Сиздин атыңыз",
+    "username": "Username (slug)",
+    "usernamePlaceholder": "мисалы, anna_beauty",
+    "bio": "Өзүм жөнүндө",
+    "bioPlaceholder": "Өзүңүз жана кызматтарыңыз жөнүндө айтыңыз...",
+    "city": "Шаар",
+    "cityPlaceholder": "Мисалы, Бишкек",
+    "specializations": "Адистиктер",
+    "specializationsPlaceholder": "Адистик кошуу",
+    "specializationAdd": "Кошуу",
+    "contacts": "Байланыштар",
+    "telegram": "Telegram",
+    "telegramPlaceholder": "{'@'}username",
+    "whatsapp": "WhatsApp",
+    "whatsappPlaceholder": "+7 (___) ___-__-__",
+    "instagram": "Instagram",
+    "instagramPlaceholder": "{'@'}username",
+    "phone": "Телефон",
+    "phonePlaceholder": "+7 (___) ___-__-__",
+    "workHours": "Иш графиги",
+    "dayOff": "Эс алуу күнү",
+    "days": {
+      "mon": "Дш",
+      "tue": "Шш",
+      "wed": "Ср",
+      "thu": "Бш",
+      "fri": "Жм",
+      "sat": "Шб",
+      "sun": "Жк"
+    },
+    "save": "Профилди сактоо",
+    "validation": {
+      "fullNameRequired": "Атыңызды киргизиңиз",
+      "usernameFormat": "Кичине тамгалар, цифралар, _ жана - гана",
+      "usernameMinLength": "Минимум 2 символ",
+      "usernameTaken": "Бул username мурунтан алынган"
+    },
+    "toast": {
+      "saved": "Профиль сакталды"
+    }
   },
   "footer": {
     "about": "Биз жөнүндө",
