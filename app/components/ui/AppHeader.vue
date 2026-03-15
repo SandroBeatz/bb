@@ -92,6 +92,7 @@ const localePath = useLocalePath()
 const { isSignedIn, isLoaded } = useAuth()
 const { user } = useUser()
 const clerk = useClerk()
+const { profile } = useProfile()
 
 // Cache user data in cookie — survives page refresh, eliminates auth flash
 const userCookie = useCookie<{ imageUrl: string; name: string } | null>('bb_u', {
@@ -164,11 +165,17 @@ const mobileNavItems = computed<NavigationMenuItem[]>(() => [
 
 const userMenuItems = computed(() => [
   [
-    {
-      label: t('nav.dashboard'),
-      icon: 'i-heroicons-squares-2x2',
-      to: localePath('/dashboard'),
-    },
+    profile.value?.role === 'master'
+      ? {
+          label: t('nav.dashboard'),
+          icon: 'i-heroicons-squares-2x2',
+          to: localePath('/dashboard'),
+        }
+      : {
+          label: t('nav.bookings'),
+          icon: 'i-heroicons-calendar-days',
+          to: localePath('/client/bookings'),
+        },
     {
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',

@@ -31,6 +31,13 @@ const props = defineProps<{ master: MasterData }>()
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
+const { profile: currentUserProfile } = useProfile()
+
+const isOwnProfile = computed(
+  () =>
+    !!currentUserProfile.value?.username &&
+    currentUserProfile.value.username === props.master.username,
+)
 
 const masterProfile = computed(
   (): MasterProfileMeta | null => props.master.master_profiles?.[0] ?? null,
@@ -403,7 +410,8 @@ function formatDate(dateStr: string) {
 
     <!-- ── Sticky CTA ── -->
     <div
-      class="fixed bottom-0 left-0 right-0 z-40 border-t border-default bg-default/95 px-4 pb-safe pt-3 shadow-lg backdrop-blur-sm"
+      v-if="!isOwnProfile"
+      class="fixed bottom-0 left-0 right-0 z-50 border-t border-default bg-default/95 px-4 pb-safe pt-3 shadow-lg backdrop-blur-sm"
     >
       <UButton
         size="lg"
