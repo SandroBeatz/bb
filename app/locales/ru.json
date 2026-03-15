@@ -227,7 +227,13 @@
     "namePlaceholder": "Например: Наличные, Kaspi",
     "nameLabel": "Название",
     "presets": "Предустановленные варианты",
-    "presetValues": ["Наличные", "Kaspi", "Mbank", "O!Деньги", "Перевод на карту"],
+    "presetValues": [
+      "Наличные",
+      "Kaspi",
+      "Mbank",
+      "O!Деньги",
+      "Перевод на карту"
+    ],
     "inactive": "Неактивен",
     "validation": {
       "nameRequired": "Введите название способа оплаты",
@@ -355,5 +361,22 @@
     "contacts": "Контакты",
     "forMasters": "Для мастеров",
     "copyright": "© 2026 BeautyBook. Все права защищены."
+  },
+  "portfolio": {
+    "edit": "Редактировать",
+    "doneEditing": "Готово",
+    "upload": {
+      "dropzone": "Перетащите фотографии сюда",
+      "hint": "JPEG, PNG, WebP · до 5 МБ каждая",
+      "selectFiles": "Выбрать файлы",
+      "remaining": "Осталось мест: {remaining} из {max}",
+      "invalidType": "Допускаются только JPEG, PNG и WebP",
+      "tooLarge": "Файл «{name}» слишком большой (максимум 5 МБ)",
+      "limitReached": "Достигнут лимит портфолио ({max} фото)"
+    },
+    "toast": {
+      "uploaded": "Фото загружено",
+      "deleted": "Фото удалено"
+    }
   }
 }
