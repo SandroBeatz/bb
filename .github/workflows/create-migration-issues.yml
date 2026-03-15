@@ -1,0 +1,443 @@
+name: Create FullCalendar Migration Issues
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (print issues without creating)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  create-issues:
+    name: Create migration issues on GitHub
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Create issues via GitHub API
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const dryRun = '${{ inputs.dry_run }}' === 'true'
+
+            const issues = [
+              {
+                title: "chore: remove nuxt-calendar, install FullCalendar packages",
+                labels: ["migration", "dependencies"],
+                body: `## Description
+            Replace \`nuxt-calendar\` (0.1.0-beta, zero community) with the battle-tested FullCalendar v6 stack.
+
+            ## Tasks
+            - [ ] Run \`bun remove nuxt-calendar\`
+            - [ ] Run \`bun add @fullcalendar/vue3 @fullcalendar/core @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction\`
+            - [ ] Remove \`nuxt-calendar\` from \`modules\` array in \`nuxt.config.ts\`
+            - [ ] Remove \`nuxtCalendar\` config block from \`nuxt.config.ts\`
+            - [ ] Verify \`bun run build\` completes without errors
+
+            ## Definition of Done
+            - \`package.json\` no longer contains \`nuxt-calendar\`
+            - All FullCalendar packages are listed in \`dependencies\`
+            - \`nuxt.config.ts\` has no \`nuxt-calendar\` references
+            - Build passes
+
+            ## Dependencies
+            None — this is the first step.`,
+              },
+              {
+                title: "feat: create fullcalendar.client.ts Nuxt plugin for SSR safety",
+                labels: ["migration", "infrastructure"],
+                body: `## Description
+            FullCalendar uses browser-only APIs and cannot run on the server. Create a client-only plugin
+            so Nuxt 4 never attempts to SSR FullCalendar components.
+
+            ## Tasks
+            - [ ] Create \`app/plugins/fullcalendar.client.ts\` (the \`.client.ts\` suffix is enough — no registration needed)
+            - [ ] Verify that FullCalendar imports are excluded from SSR bundle (\`nuxi build\` should not error server-side)
+
+            ## File to create
+            \`\`\`ts
+            // app/plugins/fullcalendar.client.ts
+            // The .client.ts suffix ensures this plugin only runs in the browser.
+            // FullCalendar uses browser-only DOM APIs and cannot be server-rendered.
+            export default defineNuxtPlugin(() => {})
+            \`\`\`
+
+            ## Definition of Done
+            - \`app/plugins/fullcalendar.client.ts\` exists
+            - \`bun run build\` produces no SSR-related FullCalendar errors
+
+            ## Dependencies
+            - Depends on: **chore: remove nuxt-calendar, install FullCalendar packages**`,
+              },
+              {
+                title: "feat: migrate calendarEvents computed to FullCalendar event schema",
+                labels: ["migration", "calendar"],
+                body: `## Description
+            The current \`calendarEvents\` computed in \`app/pages/dashboard/calendar.vue\` maps bookings
+            to NuxtCalendar-specific fields (\`teamId\`, \`teamMemberId\`, \`startTime\`, \`endTime\`, \`date\`).
+            Rewrite to use FullCalendar's standard event schema.
+
+            ## Current shape
+            \`\`\`ts
+            {
+              id, title, description,
+              start, end, date,
+              startTime, endTime,
+              teamId: 'booking-status',
+              teamMemberId: b.status,  // drives color
+            }
+            \`\`\`
+
+            ## Target shape
+            \`\`\`ts
+            {
+              id: b.id,
+              title: b.services?.name ?? '—',
+              start: b.starts_at,   // ISO string — FullCalendar handles parsing
+              end: b.ends_at,
+              backgroundColor: STATUS_COLORS[b.status].background,
+              borderColor: STATUS_COLORS[b.status].border,
+              textColor: '#ffffff',
+              extendedProps: {
+                status: b.status,
+                clientName: b.profiles?.full_name ?? '',
+                servicePrice: b.services?.price ?? null,
+                serviceDuration: b.services?.duration_minutes ?? null,
+                source: b.source,
+                notes: b.notes,
+              },
+            }
+            \`\`\`
+
+            ## Tasks
+            - [ ] Rewrite \`calendarEvents\` computed in \`dashboard/calendar.vue\`
+            - [ ] Remove \`statusTeams\` array (no longer needed)
+            - [ ] Adjust TypeScript types accordingly
+
+            ## Definition of Done
+            - \`calendarEvents\` returns FullCalendar-compatible objects
+            - No references to \`teamId\` / \`teamMemberId\` remain
+            - TypeScript compiles without errors
+
+            ## Dependencies
+            - Depends on: **chore: remove nuxt-calendar, install FullCalendar packages**`,
+              },
+              {
+                title: "feat: build CalendarBookingPopover component (extract from #event-panel slot)",
+                labels: ["migration", "component"],
+                body: `## Description
+            The current \`#event-panel\` slot in NuxtCalendar renders a rich popover with booking details,
+            notes textarea, and action buttons. Extract this into a standalone component
+            \`app/components/Calendar/BookingPopover.vue\` that receives a booking object as a prop.
+
+            ## Component interface
+            \`\`\`ts
+            // Props
+            defineProps<{
+              booking: BookingWithDetails
+            }>()
+
+            // Emits
+            defineEmits<{
+              confirmed: [id: string]
+              cancelled: [id: string]
+              completed: [booking: BookingWithDetails]
+              notesSaved: [id: string]
+            }>()
+            \`\`\`
+
+            ## Tasks
+            - [ ] Create \`app/components/Calendar/BookingPopover.vue\`
+            - [ ] Move all booking detail UI from \`#event-panel\` into the new component
+            - [ ] Keep all existing Nuxt UI components (\`UBadge\`, \`UButton\`, \`UTextarea\`, etc.)
+            - [ ] Emit events for parent to handle API calls (confirm / cancel / complete / save notes)
+            - [ ] Write a minimal Storybook story or visual test if applicable
+
+            ## Definition of Done
+            - Component renders all booking fields: status badge, time range, service name, client, price, source, notes
+            - Action buttons (confirm / cancel / complete) emit correct events
+            - Notes textarea has save button with loading state
+            - No booking-fetch logic inside the component (data passed via props)
+
+            ## Dependencies
+            - No hard dependencies, can be developed in parallel`,
+              },
+              {
+                title: "feat: replace <NuxtCalendar> with <FullCalendar> in dashboard/calendar.vue",
+                labels: ["migration", "calendar"],
+                body: `## Description
+            Replace the \`<NuxtCalendar>\` component with \`<FullCalendar :options="calendarOptions">\`
+            wrapped in \`<ClientOnly>\`. Configure standard views and locale.
+
+            ## Target template structure
+            \`\`\`vue
+            <ClientOnly>
+              <FullCalendar :options="calendarOptions" />
+              <template #fallback>
+                <div class="h-full flex items-center justify-center p-6">
+                  <USkeleton class="h-full w-full rounded-lg" />
+                </div>
+              </template>
+            </ClientOnly>
+            \`\`\`
+
+            ## calendarOptions
+            \`\`\`ts
+            const calendarOptions = computed(() => ({
+              plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+              initialView: 'timeGridWeek',
+              headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+              },
+              locale: locale.value,  // from useI18n()
+              firstDay: 1,           // Monday
+              slotMinTime: '07:00:00',
+              slotMaxTime: '22:00:00',
+              allDaySlot: false,
+              height: 'parent',
+              events: calendarEvents.value,
+              eventClick: handleEventClick,
+              dateClick: handleDateClick,
+            }))
+            \`\`\`
+
+            ## Tasks
+            - [ ] Import FullCalendar and plugins
+            - [ ] Define \`calendarOptions\` computed
+            - [ ] Replace \`<NuxtCalendar>\` in template with \`<ClientOnly><FullCalendar>\`
+            - [ ] Add \`<USkeleton>\` fallback for SSR/loading state
+            - [ ] Ensure locale reactivity (when user changes language, calendar re-renders)
+            - [ ] Verify visual parity: events show correct colors by status
+
+            ## Definition of Done
+            - Calendar renders in \`timeGridWeek\` by default
+            - Events display with status-based background colors
+            - View switcher (Month/Week/Day) works
+            - Navigation (prev/next/today) works
+            - Calendar is not rendered server-side (no SSR errors)
+
+            ## Dependencies
+            - Depends on: **migrate calendarEvents computed**, **create fullcalendar.client.ts plugin**`,
+              },
+              {
+                title: "feat: implement eventClick → USlideover for booking details",
+                labels: ["migration", "calendar", "ux"],
+                body: `## Description
+            NuxtCalendar's \`#event-panel\` was rendered as a built-in popover. FullCalendar fires
+            \`eventClick\` callback instead. Open a \`USlideover\` containing the \`CalendarBookingPopover\`
+            component when the user clicks an event.
+
+            ## Implementation
+            \`\`\`ts
+            const selectedBooking = ref<BookingWithDetails | null>(null)
+            const isSlideoverOpen = ref(false)
+
+            function handleEventClick(info: EventClickArg) {
+              const booking = bookingMap.value.get(String(info.event.id))
+              if (booking) {
+                selectedBooking.value = booking
+                isSlideoverOpen.value = true
+              }
+            }
+            \`\`\`
+
+            \`\`\`vue
+            <USlideover v-model:open="isSlideoverOpen" :title="selectedBooking?.services?.name ?? ''">
+              <CalendarBookingPopover
+                v-if="selectedBooking"
+                :booking="selectedBooking"
+                @confirmed="onConfirmed"
+                @cancelled="onCancelled"
+                @completed="onCompleted"
+                @notes-saved="onNotesSaved"
+              />
+            </USlideover>
+            \`\`\`
+
+            ## Tasks
+            - [ ] Add \`selectedBooking\` and \`isSlideoverOpen\` reactive state
+            - [ ] Implement \`handleEventClick\` function
+            - [ ] Add \`<USlideover>\` to template with \`<CalendarBookingPopover>\` inside
+            - [ ] Wire up all emit handlers (confirm/cancel/complete/save notes) to existing API methods
+            - [ ] After each action, close slideover and refresh bookings
+
+            ## Definition of Done
+            - Clicking an event opens USlideover with full booking details
+            - All actions (confirm, cancel, complete, save notes) work as before
+            - Slideover closes after action completes
+            - Loading states shown during API calls
+
+            ## Dependencies
+            - Depends on: **build CalendarBookingPopover component**, **replace <NuxtCalendar> with <FullCalendar>**`,
+              },
+              {
+                title: "feat: implement dateClick / select for new booking slot creation",
+                labels: ["enhancement", "calendar"],
+                body: `## Description
+            Currently clicking an empty slot in NuxtCalendar shows a popover with "Add booking" and
+            "Block time" buttons. Implement the equivalent using FullCalendar's \`dateClick\` (single click)
+            and \`select\` (drag to select range) callbacks.
+
+            ## Behaviour
+            - \`dateClick\`: open a \`UModal\` or navigate to \`/dashboard/calendar?date=...\` to create a booking at that time
+            - \`select\`: pre-fill start/end time in the new booking form
+
+            ## Tasks
+            - [ ] Enable \`selectable: true\` in calendarOptions
+            - [ ] Implement \`handleDateClick(info)\` — open quick-add modal with pre-filled date/time
+            - [ ] Implement \`handleSelect(info)\` — open quick-add modal with pre-filled start + end
+            - [ ] Create or reuse a "Quick Add Booking" modal (if not already exists)
+            - [ ] Add "Block time" functionality (creates a blocked slot in DB)
+
+            ## Definition of Done
+            - Clicking empty time cell opens quick-add UI pre-filled with the clicked time
+            - Dragging over a range pre-fills both start and end time
+            - Booking created successfully appears on calendar without full page refresh
+
+            ## Dependencies
+            - Depends on: **replace <NuxtCalendar> with <FullCalendar>**
+            - Soft dependency: existing booking creation flow / API`,
+              },
+              {
+                title: "feat: implement datesSet for range-based booking fetch (performance)",
+                labels: ["enhancement", "calendar", "performance"],
+                body: `## Description
+            Currently \`fetchBookings()\` loads ALL bookings for the master on mount with no date filter.
+            FullCalendar's \`datesSet\` callback fires whenever the visible date range changes (view switch,
+            navigation). Use it to fetch only bookings in the visible range.
+
+            ## Implementation
+            \`\`\`ts
+            function handleDatesSet(info: DatesSetArg) {
+              fetchBookings({ from: info.startStr, to: info.endStr })
+            }
+            \`\`\`
+
+            Server API \`GET /api/master/bookings\` already supports \`from\`/\`to\` query params.
+
+            ## Tasks
+            - [ ] Add \`datesSet: handleDatesSet\` to \`calendarOptions\`
+            - [ ] Implement \`handleDatesSet\` that calls \`fetchBookings\` with date range
+            - [ ] Update \`fetchBookings\` signature to accept optional \`{ from?, to? }\` params
+            - [ ] Remove \`onMounted\` bare fetch (or keep as initial fetch fallback)
+            - [ ] Test that navigating weeks/months triggers correct API calls
+
+            ## Definition of Done
+            - Network tab shows \`/api/master/bookings?from=...&to=...\` requests on each navigation
+            - No unnecessary full-load requests for dates outside visible range
+            - Bookings are correct for current view
+
+            ## Dependencies
+            - Depends on: **replace <NuxtCalendar> with <FullCalendar>**`,
+              },
+              {
+                title: "docs: update CLAUDE.md — replace NuxtCalendar with FullCalendar usage pattern",
+                labels: ["docs", "migration"],
+                body: `## Description
+            \`CLAUDE.md\` currently mandates \`<NuxtCalendar>\` and prohibits using alternatives.
+            Update it to document the FullCalendar pattern for future AI-assisted development.
+
+            ## Changes needed in CLAUDE.md
+            - Remove the \`nuxt-calendar\` section (the "Never use \`@samk-dev/nuxt-vcalendar\`" note, etc.)
+            - Add FullCalendar usage pattern:
+              - Required imports
+              - \`<ClientOnly>\` wrapper pattern
+              - \`calendarOptions\` structure
+              - Event schema with \`extendedProps\`
+              - \`eventClick\` → \`USlideover\` pattern
+
+            ## Tasks
+            - [ ] Update the **Calendar** section in \`CLAUDE.md\`
+            - [ ] Add code example showing \`calendarOptions\` with correct plugin imports
+            - [ ] Add note about \`.client.ts\` plugin requirement
+            - [ ] Remove all \`NuxtCalendar\` / \`nuxt-calendar\` references
+
+            ## Definition of Done
+            - \`CLAUDE.md\` contains a clear FullCalendar usage example
+            - No references to \`nuxt-calendar\` / \`NuxtCalendar\` remain in docs
+            - Future Claude Code sessions will use the correct pattern
+
+            ## Dependencies
+            - Should be done last, after all migration tasks are complete`,
+              },
+            ]
+
+            core.info(`Total issues to create: ${issues.length}`)
+            core.info(`Dry run: ${dryRun}`)
+
+            if (dryRun) {
+              for (const issue of issues) {
+                core.info(`\n[DRY RUN] Would create issue: "${issue.title}"`)
+                core.info(`  Labels: ${issue.labels.join(', ')}`)
+              }
+              core.info('\nDry run complete. Set dry_run=false to actually create issues.')
+              return
+            }
+
+            // Ensure required labels exist
+            const requiredLabels = [
+              { name: 'migration', color: 'e4e669', description: 'Library migration task' },
+              { name: 'dependencies', color: '0075ca', description: 'Dependency management' },
+              { name: 'infrastructure', color: 'd73a4a', description: 'Infrastructure / config' },
+              { name: 'calendar', color: '7057ff', description: 'Calendar feature' },
+              { name: 'component', color: '008672', description: 'Vue component work' },
+              { name: 'ux', color: 'e99695', description: 'User experience' },
+              { name: 'enhancement', color: 'a2eeef', description: 'New feature or enhancement' },
+              { name: 'performance', color: 'f9d0c4', description: 'Performance improvement' },
+              { name: 'docs', color: '0052cc', description: 'Documentation changes' },
+            ]
+
+            const existingLabels = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            const existingLabelNames = new Set(existingLabels.data.map(l => l.name))
+
+            for (const label of requiredLabels) {
+              if (!existingLabelNames.has(label.name)) {
+                try {
+                  await github.rest.issues.createLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description,
+                  })
+                  core.info(`Created label: ${label.name}`)
+                } catch (err) {
+                  core.warning(`Could not create label "${label.name}": ${err.message}`)
+                }
+              }
+            }
+
+            // Create issues
+            const created = []
+            for (const issue of issues) {
+              try {
+                const response = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issue.title,
+                  body: issue.body,
+                  labels: issue.labels,
+                })
+                created.push(response.data.html_url)
+                core.info(`Created issue #${response.data.number}: ${issue.title}`)
+              } catch (err) {
+                core.error(`Failed to create issue "${issue.title}": ${err.message}`)
+              }
+            }
+
+            core.info(`\n✅ Created ${created.length}/${issues.length} issues:`)
+            for (const url of created) {
+              core.info(`  ${url}`)
+            }
