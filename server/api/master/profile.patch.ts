@@ -92,8 +92,7 @@ export default defineEventHandler(async (event) => {
   if (Object.keys(masterUpdates).length > 0) {
     const { error: masterError } = await supabase
       .from('master_profiles')
-      .update(masterUpdates)
-      .eq('id', profile.id)
+      .upsert({ id: profile.id, ...masterUpdates })
 
     if (masterError) {
       throw createError({ statusCode: 500, message: masterError.message })

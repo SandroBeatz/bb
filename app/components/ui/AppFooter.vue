@@ -1,8 +1,19 @@
 <template>
-  <UFooter>
+  <!-- Mobile: copyright only, with clearance for fixed bottom nav -->
+  <div
+    class="md:hidden border-t border-default py-3 px-4 text-center"
+    style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3.5rem)"
+  >
+    <p class="font-sans text-xs text-muted">
+      {{ t('footer.copyright') }}
+    </p>
+  </div>
+
+  <!-- Desktop: full footer -->
+  <UFooter class="hidden md:flex">
     <template #left>
       <NuxtLink :to="localePath('/')" class="transition-opacity hover:opacity-75">
-        <img src="~/assets/img/bb-logo.svg" alt="BeautyBook" class="h-6 w-auto dark:invert" />
+        <img src="~/assets/img/bb-logo.svg" alt="BeautyBook" class="h-6 w-auto" />
       </NuxtLink>
     </template>
 

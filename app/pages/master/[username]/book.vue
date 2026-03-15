@@ -1,10 +1,10 @@
 <template>
-  <div v-if="pending" class="mx-auto max-w-lg space-y-4 p-8">
+  <UContainer v-if="pending" style="--ui-container: 32rem" class="space-y-4 py-8">
     <USkeleton class="h-6 w-48 rounded-lg" />
     <USkeleton class="h-32 rounded-xl" />
     <USkeleton class="h-32 rounded-xl" />
     <USkeleton class="h-32 rounded-xl" />
-  </div>
+  </UContainer>
   <div v-else-if="!master" class="flex min-h-[60vh] items-center justify-center p-8">
     <UEmpty icon="i-heroicons-exclamation-circle" :title="$t('errors.notFound')" />
   </div>

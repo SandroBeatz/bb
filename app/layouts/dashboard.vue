@@ -17,13 +17,13 @@
             v-if="!sidebarCollapsed"
             src="~/assets/img/bb-logo.svg"
             alt="BeautyBook"
-            class="h-7 w-auto dark:invert"
+            class="h-7 w-auto"
           />
           <img
             v-else
             src="~/assets/img/favicon/favicon.svg"
             alt="BB"
-            class="size-7 dark:invert"
+            class="size-7"
           />
         </NuxtLink>
       </template>
@@ -82,44 +82,32 @@
         :class="mobileMenuOpen ? 'text-primary' : 'text-muted'"
         @click="mobileMenuOpen = true"
       >
-        <UAvatar
-          v-if="user"
-          :src="user.imageUrl"
-          :alt="user.fullName ?? ''"
-          size="xs"
-          class="ring-2 transition-all"
-          :class="mobileMenuOpen ? 'ring-primary' : 'ring-transparent'"
-        />
-        <UIcon v-else name="i-heroicons-bars-3" class="size-6" />
+        <UIcon name="i-heroicons-bars-3" class="size-6" />
         <span class="text-[10px] font-medium leading-tight">{{ t('nav.menu') }}</span>
       </button>
     </div>
   </nav>
 
-  <!-- Mobile "More" slideover -->
-  <USlideover v-model:open="mobileMenuOpen" side="right" class="md:hidden" :ui="{ width: 'max-w-xs' }">
+  <!-- Mobile menu drawer -->
+  <UDrawer v-model:open="mobileMenuOpen" class="md:hidden">
     <template #content>
       <!-- User card -->
-      <div class="flex flex-col gap-0 border-b border-default">
-        <div class="bg-gradient-to-br from-primary/10 to-primary/5 px-5 py-6">
-          <div class="flex items-center gap-3">
-            <UAvatar
-              :src="user?.imageUrl"
-              :alt="user?.fullName ?? ''"
-              size="lg"
-            />
-            <div class="min-w-0">
-              <p class="truncate font-semibold text-highlighted">
-                {{ user?.fullName ?? user?.firstName ?? t('nav.master') }}
-              </p>
-              <p class="text-sm text-muted">{{ t('nav.masterRole') }}</p>
-            </div>
-          </div>
+      <div class="flex items-center gap-3 border-b border-default px-5 py-4">
+        <UAvatar
+          :src="user?.imageUrl"
+          :alt="user?.fullName ?? ''"
+          size="md"
+        />
+        <div class="min-w-0">
+          <p class="truncate font-semibold text-highlighted">
+            {{ user?.fullName ?? user?.firstName ?? t('nav.master') }}
+          </p>
+          <p class="text-sm text-muted">{{ t('nav.masterRole') }}</p>
         </div>
       </div>
 
       <!-- Nav items -->
-      <div class="flex-1 overflow-y-auto p-3">
+      <div class="p-3">
         <UNavigationMenu
           :items="sidebarItems"
           orientation="vertical"
@@ -129,20 +117,8 @@
         />
       </div>
 
-      <!-- Footer actions -->
-      <div class="border-t border-default p-3" style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem)">
-        <UButton
-          variant="ghost"
-          color="neutral"
-          icon="i-heroicons-arrow-right-on-rectangle"
-          class="w-full justify-start"
-          @click="handleSignOut"
-        >
-          {{ t('nav.signOut') }}
-        </UButton>
-      </div>
     </template>
-  </USlideover>
+  </UDrawer>
 </template>
 
 <script setup lang="ts">

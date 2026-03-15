@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-6xl mx-auto px-4 py-8">
+  <UContainer style="--ui-container: 72rem" class="py-8">
     <div class="mb-8">
       <h1 class="text-2xl font-bold mb-2">{{ $t('pages.catalog.title') }}</h1>
       <p class="text-muted">{{ $t('pages.catalog.subtitle') }}</p>
@@ -46,7 +46,7 @@
         }"
       />
     </div>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,6 @@
 <template>
-  <div class="flex-1 flex flex-col items-center justify-center bg-(--ui-bg) px-4 py-16">
-    <div class="w-full max-w-2xl">
+  <div class="flex-1 flex flex-col items-center justify-center bg-(--ui-bg) py-16">
+    <UContainer>
       <!-- Header -->
       <div class="mb-12 text-center">
         <NuxtLink
@@ -93,7 +93,7 @@
           {{ t('common.next') }}
         </UButton>
       </div>
-    </div>
+    </UContainer>
   </div>
 </template>
 

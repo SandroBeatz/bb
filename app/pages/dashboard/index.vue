@@ -1,10 +1,11 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('nav.dashboard')" />
+      <UDashboardNavbar :toggle="false" :title="$t('nav.dashboard')" />
     </template>
 
-    <div class="p-6 space-y-6">
+    <template #body>
+    <UContainer class="space-y-6">
       <!-- KPI Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Today -->
@@ -66,9 +67,10 @@
           />
         </div>
       </div>
-    </div>
+    </UContainer>
 
     <CheckoutQuickCheckoutModal @success="fetchData" />
+    </template>
   </UDashboardPanel>
 
   <!-- FAB (mobile only) -->
@@ -83,31 +85,15 @@
 </template>
 
 <script setup lang="ts">
-import type { Booking } from '~/types'
-
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
-
-type BookingWithDetails = Booking & {
-  services?: { name: string; price: number; duration_minutes: number } | null
-  profiles?: { full_name: string; avatar_url: string | null } | null
-}
-
-type Analytics = {
-  totalRevenue: number
-  totalBookings: number
-  completedBookings: number
-  pendingBookings: number
-  todayBookings: number
-  todayRevenue: number
-  monthRevenue: number
-}
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const loading = ref(false)
-const bookings = ref<BookingWithDetails[]>([])
-const analytics = ref<Analytics | null>(null)
+const cache = useDashboardCache()
+const { bookings, bookingsLoading, bookingsReady, analytics } = storeToRefs(cache)
+
+const loading = computed(() => !bookingsReady.value || (bookingsLoading.value && !bookings.value.length))
 
 const todayStr = new Date().toISOString().slice(0, 10)
 
@@ -133,19 +119,7 @@ const fabItems = computed(() => [
 ])
 
 async function fetchData() {
-  loading.value = true
-  try {
-    const [bookingsData, analyticsData] = await Promise.all([
-      $fetch<BookingWithDetails[]>('/api/master/bookings'),
-      $fetch<Analytics>('/api/master/analytics'),
-    ])
-    bookings.value = bookingsData ?? []
-    analytics.value = analyticsData
-  } catch (err) {
-    console.error('Failed to fetch dashboard data:', err)
-  } finally {
-    loading.value = false
-  }
+  await Promise.all([cache.fetchBookings(), cache.fetchAnalytics()])
 }
 
 onMounted(() => {

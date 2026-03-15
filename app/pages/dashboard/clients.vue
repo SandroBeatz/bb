@@ -1,10 +1,11 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('nav.clients')" icon="i-heroicons-users" />
+      <UDashboardNavbar :toggle="false" :title="$t('nav.clients')" icon="i-heroicons-users" />
     </template>
 
-    <div class="p-6 space-y-4">
+    <template #body>
+    <UContainer class="space-y-4">
       <!-- Search -->
       <UInput
         v-model="search"
@@ -47,7 +48,6 @@
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Client detail slideover -->
     <USlideover v-model:open="slideoverOpen" side="right">
@@ -145,6 +145,8 @@
         </div>
       </template>
     </USlideover>
+    </UContainer>
+    </template>
   </UDashboardPanel>
 </template>
 
@@ -177,9 +179,11 @@ type ClientDetail = {
 
 const { t, locale } = useI18n()
 
+const cache = useDashboardCache()
+const { clients, clientsLoading, clientsReady } = storeToRefs(cache)
+
 const search = ref('')
-const loading = ref(false)
-const clients = ref<ClientItem[]>([])
+const loading = computed(() => !clientsReady.value || (clientsLoading.value && !clients.value.length))
 
 const slideoverOpen = ref(false)
 const selectedClient = ref<ClientItem | null>(null)
@@ -238,13 +242,10 @@ function formatDateTime(iso: string): string {
 }
 
 async function fetchClients() {
-  loading.value = true
   try {
-    clients.value = await $fetch<ClientItem[]>('/api/master/clients')
+    await cache.fetchClients()
   } catch (err) {
     console.error('Failed to fetch clients:', err)
-  } finally {
-    loading.value = false
   }
 }
 

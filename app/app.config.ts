@@ -36,9 +36,9 @@ export default defineAppConfig({
     card: {
       slots: {
         root: 'rounded-2xl shadow-sm border border-default bg-default',
-        header: 'px-5 py-4 border-b border-default',
-        body: 'px-5 py-4',
-        footer: 'px-5 py-4 border-t border-default',
+        header: 'px-3 py-3 sm:px-5 sm:py-4 border-b border-default',
+        body: 'px-3 py-3 sm:px-5 sm:py-4',
+        footer: 'px-3 py-3 sm:px-5 sm:py-4 border-t border-default',
       },
     },
 
@@ -106,6 +106,18 @@ export default defineAppConfig({
       slots: {
         content: 'rounded-2xl',
         overlay: 'backdrop-blur-sm',
+      },
+    },
+
+    // Container — less horizontal padding on mobile
+    container: {
+      base: 'w-full max-w-(--ui-container) mx-auto px-3 sm:px-6 lg:px-8',
+    },
+
+    // DashboardPanel — less padding on mobile
+    dashboardPanel: {
+      slots: {
+        body: 'flex flex-col flex-1 gap-4 sm:gap-6 overflow-y-auto py-4 px-2 sm:p-6',
       },
     },
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-3xl mx-auto">
+  <UContainer class="py-6">
     <h1 class="text-2xl font-bold mb-2">{{ $t('pages.client.dashboardTitle') }}</h1>
     <p class="text-muted mb-8">{{ $t('pages.client.dashboardSubtitle') }}</p>
 
@@ -38,7 +38,7 @@
         </div>
       </UCard>
     </div>
-  </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">

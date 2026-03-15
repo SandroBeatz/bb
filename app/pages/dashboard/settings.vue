@@ -1,11 +1,11 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('pages.settings.title')" icon="i-heroicons-cog-6-tooth" />
+      <UDashboardNavbar :toggle="false" :title="$t('pages.settings.title')" icon="i-heroicons-cog-6-tooth" />
     </template>
 
-    <div class="p-6">
-      <div class="mx-auto max-w-2xl space-y-6">
+    <template #body>
+      <UContainer class="space-y-6">
         <!-- Profile section -->
         <UCard>
           <template #header>
@@ -16,11 +16,30 @@
             </div>
           </template>
 
-          <div v-if="profileLoading" class="space-y-4 px-4 py-4">
-            <USkeleton class="h-16 w-16 rounded-full" />
-            <USkeleton class="h-10 w-full rounded-md" />
-            <USkeleton class="h-10 w-full rounded-md" />
-            <USkeleton class="h-24 w-full rounded-md" />
+          <div v-if="profileLoading" class="divide-y divide-default">
+            <div class="flex items-center gap-4 px-4 py-6">
+              <USkeleton class="size-16 rounded-full shrink-0" />
+              <div class="flex-1 space-y-2">
+                <USkeleton class="h-4 w-24 rounded-md" />
+                <USkeleton class="h-3 w-32 rounded-md" />
+              </div>
+            </div>
+            <div class="space-y-4 px-4 py-6">
+              <USkeleton class="h-10 w-full rounded-md" />
+              <USkeleton class="h-10 w-full rounded-md" />
+              <USkeleton class="h-24 w-full rounded-md" />
+              <USkeleton class="h-10 w-full rounded-md" />
+            </div>
+            <div class="space-y-3 px-4 py-6">
+              <USkeleton class="h-4 w-32 rounded-md" />
+              <div v-for="n in 7" :key="n" class="flex items-center gap-3">
+                <USkeleton class="h-4 w-8 rounded-md" />
+                <USkeleton class="size-4 rounded" />
+                <USkeleton class="h-8 w-24 rounded-md" />
+                <USkeleton class="h-4 w-4" />
+                <USkeleton class="h-8 w-24 rounded-md" />
+              </div>
+            </div>
           </div>
 
           <UForm
@@ -193,9 +212,8 @@
                   <span class="w-8 shrink-0 text-sm font-medium text-muted">
                     {{ $t(`profileEdit.days.${day}`) }}
                   </span>
-                  <UToggle
+                  <UCheckbox
                     :model-value="profileState.work_hours[day] !== null"
-                    size="sm"
                     @update:model-value="toggleDay(day, $event)"
                   />
                   <template v-if="profileState.work_hours[day] !== null">
@@ -232,6 +250,17 @@
             </div>
           </UForm>
         </UCard>
+
+        <!-- Sign out — mobile only -->
+        <UButton
+          class="md:hidden w-full"
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-arrow-right-on-rectangle"
+          @click="handleSignOut"
+        >
+          {{ $t('nav.signOut') }}
+        </UButton>
 
         <!-- Payment methods section -->
         <UCard>
@@ -360,8 +389,8 @@
             </UForm>
           </div>
         </UCard>
-      </div>
-    </div>
+      </UContainer>
+    </template>
   </UDashboardPanel>
 
   <!-- Delete confirmation modal -->
@@ -393,15 +422,26 @@ type PaymentType = Database['public']['Tables']['payment_types']['Row']
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 const { t, tm } = useI18n()
+const localePath = useLocalePath()
 const toast = useToast()
-const supabase = useSupabaseClient()
+const clerk = useClerk()
+const cache = useDashboardCache()
+const { profileData, profileLoading: profileFetching } = storeToRefs(cache)
+
+async function handleSignOut() {
+  await clerk.value?.signOut()
+  await navigateTo(localePath('/'))
+}
 
 // ─── Profile ─────────────────────────────────────────────────────────────────
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 type Day = (typeof DAYS)[number]
 
-interface WorkDay { start: string; end: string }
+interface WorkDay {
+  start: string
+  end: string
+}
 
 interface ProfileState {
   full_name: string
@@ -414,13 +454,16 @@ interface ProfileState {
   work_hours: Record<Day, WorkDay | null>
 }
 
-const profileLoading = ref(true)
+const profileLoading = computed(() => profileFetching.value || !profileData.value)
 const profileSaving = ref(false)
 const avatarUploading = ref(false)
 const newSpecialization = ref('')
 
 const defaultWorkHours = (): Record<Day, WorkDay | null> =>
-  Object.fromEntries(DAYS.map((d) => [d, { start: '09:00', end: '18:00' }])) as Record<Day, WorkDay | null>
+  Object.fromEntries(DAYS.map((d) => [d, { start: '09:00', end: '18:00' }])) as Record<
+    Day,
+    WorkDay | null
+  >
 
 const profileState = reactive<ProfileState>({
   full_name: '',
@@ -442,50 +485,32 @@ const profileSchema = z.object({
     .or(z.literal('')),
 })
 
-async function fetchProfile() {
-  profileLoading.value = true
-  try {
-    const data = await $fetch<{
-      full_name: string
-      username: string | null
-      avatar_url: string | null
-      master_profiles: {
-        bio: string | null
-        city: string | null
-        specializations: string[]
-        contacts: Record<string, string>
-        work_hours: Record<string, WorkDay | null>
-      } | null
-    }>('/api/master/profile')
-
-    profileState.full_name = data.full_name ?? ''
-    profileState.username = data.username ?? ''
-    profileState.avatar_url = data.avatar_url ?? null
-
-    const mp = data.master_profiles
-    if (mp) {
-      profileState.bio = mp.bio ?? ''
-      profileState.city = mp.city ?? ''
-      profileState.specializations = mp.specializations ?? []
-      profileState.contacts = {
-        telegram: (mp.contacts?.telegram as string) ?? '',
-        whatsapp: (mp.contacts?.whatsapp as string) ?? '',
-        instagram: (mp.contacts?.instagram as string) ?? '',
-        phone: (mp.contacts?.phone as string) ?? '',
-      }
-      const wh = defaultWorkHours()
-      for (const day of DAYS) {
-        const val = mp.work_hours?.[day]
-        wh[day] = val ?? null
-      }
-      Object.assign(profileState.work_hours, wh)
+function populateForm(data: typeof profileData.value) {
+  if (!data) return
+  profileState.full_name = data.full_name ?? ''
+  profileState.username = data.username ?? ''
+  profileState.avatar_url = data.avatar_url ?? null
+  const mp = data.master_profiles
+  if (mp) {
+    profileState.bio = mp.bio ?? ''
+    profileState.city = mp.city ?? ''
+    profileState.specializations = mp.specializations ?? []
+    profileState.contacts = {
+      telegram: (mp.contacts?.telegram as string) ?? '',
+      whatsapp: (mp.contacts?.whatsapp as string) ?? '',
+      instagram: (mp.contacts?.instagram as string) ?? '',
+      phone: (mp.contacts?.phone as string) ?? '',
     }
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    profileLoading.value = false
+    const wh = defaultWorkHours()
+    for (const day of DAYS) {
+      const val = mp.work_hours?.[day]
+      wh[day] = val ?? null
+    }
+    Object.assign(profileState.work_hours, wh)
   }
 }
+
+watch(profileData, populateForm, { immediate: true })
 
 async function saveProfile() {
   profileSaving.value = true
@@ -527,7 +552,6 @@ async function handleAvatarUpload(event: Event) {
   const file = input.files?.[0]
   if (!file) return
 
-  // Validate MIME type
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (!ALLOWED_TYPES.includes(file.type)) {
     toast.add({ title: t('errors.general'), color: 'error' })
@@ -535,29 +559,17 @@ async function handleAvatarUpload(event: Event) {
     return
   }
 
-  // Derive extension from MIME type for a safe filename
-  const MIME_TO_EXT: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-  }
-  const ext = MIME_TO_EXT[file.type] ?? 'jpg'
-
   avatarUploading.value = true
   try {
-    // Resize to 256px using canvas
     const resized = await resizeImage(file, 256)
-    const path = `avatars/${Date.now()}_${crypto.randomUUID()}.${ext}`
+    const fd = new FormData()
+    fd.append('file', new File([resized], 'avatar', { type: resized.type }))
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, resized, { upsert: true, contentType: resized.type })
-
-    if (uploadError) throw uploadError
-
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
-    profileState.avatar_url = urlData.publicUrl
+    const { url } = await $fetch<{ url: string }>('/api/master/avatar', {
+      method: 'POST',
+      body: fd,
+    })
+    profileState.avatar_url = url
   } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
   } finally {
@@ -579,10 +591,14 @@ function resizeImage(file: File, maxSize: number): Promise<Blob> {
       const ctx = canvas.getContext('2d')
       if (!ctx) return reject(new Error('canvas context unavailable'))
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error('toBlob failed'))
-      }, 'image/jpeg', 0.9)
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob)
+          else reject(new Error('toBlob failed'))
+        },
+        'image/jpeg',
+        0.9,
+      )
     }
     img.onerror = (err) => {
       URL.revokeObjectURL(url)
@@ -742,7 +758,7 @@ async function confirmDelete() {
 }
 
 onMounted(() => {
-  fetchProfile()
+  cache.fetchProfile()
   fetchPaymentTypes()
 })
 </script>

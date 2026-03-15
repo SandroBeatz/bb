@@ -1,12 +1,14 @@
 <template>
   <UDashboardPanel>
     <template #header>
-      <UDashboardNavbar :title="$t('pages.dashboard.analytics')" icon="i-heroicons-chart-bar" />
+      <UDashboardNavbar :toggle="false" :title="$t('pages.dashboard.analytics')" icon="i-heroicons-chart-bar" />
     </template>
 
-    <div class="p-6">
-      <UEmpty icon="i-heroicons-chart-bar" :title="$t('pages.dashboard.analytics')" description="" />
-    </div>
+    <template #body>
+      <UContainer>
+        <UEmpty icon="i-heroicons-chart-bar" :title="$t('pages.dashboard.analytics')" description="" />
+      </UContainer>
+    </template>
   </UDashboardPanel>
 </template>
 

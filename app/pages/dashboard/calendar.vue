@@ -1,7 +1,7 @@
 <template>
-  <UDashboardPanel>
+  <UDashboardPanel :ui="{ body: 'flex-1 overflow-hidden p-0' }">
     <template #header>
-      <UDashboardNavbar :title="$t('nav.calendar')" icon="i-heroicons-calendar-days">
+      <UDashboardNavbar :toggle="false" :title="$t('nav.calendar')" icon="i-heroicons-calendar-days">
         <template #right>
           <UButton
             variant="ghost"
@@ -15,6 +15,7 @@
       </UDashboardNavbar>
     </template>
 
+    <template #body>
     <div class="h-full overflow-hidden">
       <NuxtCalendar
         :events="calendarEvents"
@@ -155,6 +156,7 @@
     </div>
 
     <CheckoutQuickCheckoutModal @success="fetchBookings" />
+    </template>
   </UDashboardPanel>
 </template>
 
@@ -249,7 +251,7 @@ const bookingMap = computed(() => {
 
 // Initialize notesMap when bookings are loaded; clean up stale entries
 watch(bookings, (newBookings) => {
-  const currentIds = new Set(newBookings.map(b => b.id))
+  const currentIds = new Set(newBookings.map((b) => b.id))
   for (const key of Object.keys(notesMap)) {
     if (!currentIds.has(key)) {
       delete notesMap[key]
