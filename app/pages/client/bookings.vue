@@ -150,7 +150,7 @@
                       color="primary"
                       variant="ghost"
                       size="sm"
-                      :to="localePath(`/master/${booking.profiles?.username}`)"
+                      @click="openReviewModal(booking)"
                     >
                       {{ $t('pages.client.bookingsPage.leaveReview') }}
                     </UButton>
@@ -191,6 +191,13 @@
         </div>
       </template>
     </UModal>
+
+    <ReviewsReviewModal
+      v-if="reviewBookingId"
+      v-model:open="reviewModalOpen"
+      :booking-id="reviewBookingId"
+      @submitted="refresh"
+    />
   </main>
 </template>
 
@@ -278,6 +285,14 @@ function formatPrice(price?: number | null): string {
 const cancelModalOpen = ref(false)
 const cancelLoading = ref(false)
 const bookingToCancel = ref<Booking | null>(null)
+
+const reviewModalOpen = ref(false)
+const reviewBookingId = ref<string | null>(null)
+
+function openReviewModal(booking: Booking) {
+  reviewBookingId.value = booking.id
+  reviewModalOpen.value = true
+}
 
 function openCancelModal(booking: Booking) {
   bookingToCancel.value = booking
