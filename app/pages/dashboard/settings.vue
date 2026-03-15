@@ -521,7 +521,7 @@ async function saveProfile() {
       if (v) contacts[k] = v
     }
 
-    await $fetch('/api/master/profile', {
+    const updated = await $fetch<typeof profileData.value>('/api/master/profile', {
       method: 'PATCH',
       body: {
         full_name: profileState.full_name,
@@ -534,6 +534,8 @@ async function saveProfile() {
         work_hours: profileState.work_hours,
       },
     })
+    // Sync cache so watch doesn't overwrite form with stale data
+    if (updated) cache.profileData = updated as typeof cache.profileData
     toast.add({ title: t('profileEdit.toast.saved'), color: 'success' })
   } catch (err: unknown) {
     const message = (err as { data?: { message?: string } })?.data?.message
@@ -570,6 +572,13 @@ async function handleAvatarUpload(event: Event) {
       body: fd,
     })
     profileState.avatar_url = url
+    // Auto-save avatar URL immediately — don't require manual Save click
+    await $fetch('/api/master/profile', {
+      method: 'PATCH',
+      body: { avatar_url: url },
+    })
+    if (cache.profileData) cache.profileData.avatar_url = url
+    toast.add({ title: t('profileEdit.avatar'), color: 'success' })
   } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
   } finally {
