@@ -102,10 +102,9 @@ async function loadReviews(append = false) {
   else reviewsLoadingMore.value = true
 
   try {
-    const res = await $fetch<ReviewsResponse>(
-      `/api/masters/${props.master.username}/reviews`,
-      { query: { limit: REVIEWS_LIMIT, offset: reviewsOffset.value } },
-    )
+    const res = await $fetch<ReviewsResponse>(`/api/masters/${props.master.username}/reviews`, {
+      query: { limit: REVIEWS_LIMIT, offset: reviewsOffset.value },
+    })
     if (append) {
       reviews.value = [...reviews.value, ...res.data]
     } else {

@@ -72,6 +72,35 @@
       "blockTime": "Заблокировать время"
     }
   },
+  "analytics": {
+    "period": {
+      "week": "Неделя",
+      "month": "Месяц",
+      "quarter": "Квартал"
+    },
+    "kpi": {
+      "revenue": "Выручка",
+      "bookings": "Записей",
+      "avgCheck": "Средний чек",
+      "newClients": "Новых клиентов"
+    },
+    "charts": {
+      "revenue": "Выручка",
+      "bookings": "Записей",
+      "topServices": "Популярные услуги",
+      "paymentMethods": "Способы оплаты",
+      "bookingSources": "Источники записей",
+      "newVsRepeat": "Клиенты",
+      "new": "Новые",
+      "repeat": "Повторные",
+      "noData": "Нет данных за период"
+    },
+    "sources": {
+      "online": "Онлайн",
+      "offline": "Офлайн",
+      "telegram": "Telegram"
+    }
+  },
   "pages": {
     "home": {
       "title": "BeautyBook",

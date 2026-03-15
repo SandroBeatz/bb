@@ -72,6 +72,35 @@
       "blockTime": "Убакытты бөгөттөө"
     }
   },
+  "analytics": {
+    "period": {
+      "week": "Жума",
+      "month": "Ай",
+      "quarter": "Чейрек"
+    },
+    "kpi": {
+      "revenue": "Киреше",
+      "bookings": "Жазылуулар",
+      "avgCheck": "Орточо сумма",
+      "newClients": "Жаңы кардарлар"
+    },
+    "charts": {
+      "revenue": "Киреше",
+      "bookings": "Жазылуулар",
+      "topServices": "Популярдуу кызматтар",
+      "paymentMethods": "Төлөм ыкмалары",
+      "bookingSources": "Жазылуу булактары",
+      "newVsRepeat": "Кардарлар",
+      "new": "Жаңы",
+      "repeat": "Кайталанган",
+      "noData": "Мезгил үчүн маалымат жок"
+    },
+    "sources": {
+      "online": "Онлайн",
+      "offline": "Офлайн",
+      "telegram": "Telegram"
+    }
+  },
   "pages": {
     "home": {
       "title": "BeautyBook",

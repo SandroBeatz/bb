@@ -41,9 +41,7 @@ export default defineEventHandler(async (event) => {
 
   // Compute priceFrom for each master
   let result = (data ?? []).map((m) => {
-    const activePrices = (m.services ?? [])
-      .filter((s) => s.is_active)
-      .map((s) => s.price)
+    const activePrices = (m.services ?? []).filter((s) => s.is_active).map((s) => s.price)
     const priceFrom = activePrices.length > 0 ? Math.min(...activePrices) : null
     return {
       id: m.id,

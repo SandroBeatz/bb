@@ -4,7 +4,10 @@ export default defineEventHandler(async (event) => {
   const { booking_id, rating, comment } = await readBody(event)
 
   if (!booking_id || typeof rating !== 'number' || rating < 1 || rating > 5) {
-    throw createError({ statusCode: 400, message: 'Invalid data: booking_id and rating (1–5) are required' })
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid data: booking_id and rating (1–5) are required',
+    })
   }
 
   const supabase = useServerSupabase()
@@ -25,7 +28,10 @@ export default defineEventHandler(async (event) => {
   }
 
   if (booking.status !== 'completed') {
-    throw createError({ statusCode: 422, message: 'Booking must be completed before leaving a review' })
+    throw createError({
+      statusCode: 422,
+      message: 'Booking must be completed before leaving a review',
+    })
   }
 
   // Check for existing review on this booking
