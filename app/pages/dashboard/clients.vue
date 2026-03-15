@@ -183,7 +183,9 @@ const cache = useDashboardCache()
 const { clients, clientsLoading, clientsReady } = storeToRefs(cache)
 
 const search = ref('')
-const loading = computed(() => !clientsReady.value || (clientsLoading.value && !clients.value.length))
+const loading = computed(
+  () => !clientsReady.value || (clientsLoading.value && !clients.value.length),
+)
 
 const slideoverOpen = ref(false)
 const selectedClient = ref<ClientItem | null>(null)

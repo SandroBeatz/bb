@@ -35,8 +35,8 @@ export default defineEventHandler(async (event) => {
   const response = await fetch(`${supabaseUrl}/storage/v1/object/avatars/${filename}`, {
     method: 'POST',
     headers: {
-      'apikey': anonKey,
-      'Authorization': `Bearer ${anonKey}`,
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
       'Content-Type': contentType,
       'x-upsert': 'true',
     },

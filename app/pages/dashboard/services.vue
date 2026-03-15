@@ -160,7 +160,9 @@ const toast = useToast()
 const cache = useDashboardCache()
 const { services, servicesLoading, servicesReady } = storeToRefs(cache)
 
-const loading = computed(() => !servicesReady.value || (servicesLoading.value && !services.value.length))
+const loading = computed(
+  () => !servicesReady.value || (servicesLoading.value && !services.value.length),
+)
 
 const formModalOpen = ref(false)
 const editingService = ref<Service | null>(null)

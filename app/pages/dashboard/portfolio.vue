@@ -6,10 +6,9 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 const { t } = useI18n()
 const toast = useToast()
 
-const {
-  data: items,
-  pending,
-} = await useAsyncData<PortfolioItem[]>('master-portfolio', () => $fetch('/api/master/portfolio'))
+const { data: items, pending } = await useAsyncData<PortfolioItem[]>('master-portfolio', () =>
+  $fetch('/api/master/portfolio'),
+)
 
 const portfolio = ref<PortfolioItem[]>(items.value ?? [])
 watch(items, (val) => {
