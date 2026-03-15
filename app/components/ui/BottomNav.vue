@@ -23,27 +23,43 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { isSignedIn } = useAuth()
+const { profile } = useProfile()
 
-const navItems = computed(() => [
-  {
-    to: localePath('/'),
-    icon: 'i-heroicons-home',
-    label: t('nav.home'),
-  },
-  {
-    to: localePath('/catalog'),
-    icon: 'i-heroicons-magnifying-glass',
-    label: t('nav.catalog'),
-  },
-  {
-    to: isSignedIn.value ? localePath('/client/bookings') : localePath('/sign-in'),
-    icon: 'i-heroicons-calendar-days',
-    label: t('nav.bookings'),
-  },
-  {
-    to: isSignedIn.value ? localePath('/dashboard') : localePath('/sign-in'),
-    icon: 'i-heroicons-user',
-    label: t('nav.profile'),
-  },
-])
+const isMaster = computed(() => profile.value?.role === 'master')
+
+const navItems = computed(() => {
+  if (!isSignedIn.value) {
+    return [
+      { to: localePath('/'), icon: 'i-heroicons-home', label: t('nav.home') },
+      { to: localePath('/catalog'), icon: 'i-heroicons-magnifying-glass', label: t('nav.catalog') },
+      { to: localePath('/sign-in'), icon: 'i-heroicons-calendar-days', label: t('nav.bookings') },
+      { to: localePath('/sign-in'), icon: 'i-heroicons-user', label: t('nav.profile') },
+    ]
+  }
+
+  if (isMaster.value) {
+    return [
+      { to: localePath('/'), icon: 'i-heroicons-home', label: t('nav.home') },
+      { to: localePath('/dashboard'), icon: 'i-heroicons-squares-2x2', label: t('nav.dashboard') },
+      {
+        to: localePath('/dashboard/calendar'),
+        icon: 'i-heroicons-calendar-days',
+        label: t('nav.calendar'),
+      },
+      { to: localePath('/settings'), icon: 'i-heroicons-user', label: t('nav.profile') },
+    ]
+  }
+
+  // Client
+  return [
+    { to: localePath('/'), icon: 'i-heroicons-home', label: t('nav.home') },
+    { to: localePath('/catalog'), icon: 'i-heroicons-magnifying-glass', label: t('nav.catalog') },
+    {
+      to: localePath('/client/bookings'),
+      icon: 'i-heroicons-calendar-days',
+      label: t('nav.bookings'),
+    },
+    { to: localePath('/settings'), icon: 'i-heroicons-user', label: t('nav.profile') },
+  ]
+})
 </script>
