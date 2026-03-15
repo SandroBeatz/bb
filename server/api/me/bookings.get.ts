@@ -4,7 +4,9 @@ export default defineEventHandler(async (event) => {
   const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('bookings')
-    .select('*, services(name, price), profiles!master_id(full_name, username, avatar_url)')
+    .select(
+      '*, services(name, price), profiles!master_id(full_name, username, avatar_url), reviews(id)',
+    )
     .eq('client_id', userId)
     .order('starts_at', { ascending: false })
 
