@@ -9,9 +9,9 @@ bun dev             # Start dev server
 bun run build       # Production build
 bun run preview     # Preview production build
 bun run generate    # Static site generation
-bun run lint        # Biome lint + autofix
-bun run format      # Biome format + autofix
-bun run check       # Biome lint + format + autofix (use this)
+bun run check       # Biome lint + format + autofix (use this before committing)
+bun run lint        # Biome lint only
+bun run format      # Biome format only
 ```
 
 ## Environment
@@ -24,91 +24,133 @@ Copy `.env.example` to `.env` and fill in:
 
 ## Architecture
 
-**BeautyBook** is a Nuxt 4 full-stack marketplace for beauty professionals. Supports three access modes: web, Telegram Mini App (TMA), and a Telegram bot.
+**BeautyBook** — Nuxt 4 full-stack marketplace for beauty professionals. Three access modes: web, Telegram Mini App (TMA), and a Telegram bot.
 
-### Directory structure (Nuxt 4)
+### Directory structure
 
 ```
-app/                  ← srcDir (Nuxt 4 default)
-  app.vue
-  assets/css/main.css ← Tailwind v4 + Nuxt UI v3 imports
-  pages/
-  components/
-  composables/
-  stores/
+app/                  ← srcDir (Nuxt 4)
+  assets/css/main.css ← Tailwind v4 + Nuxt UI v3 theme
+  components/         ← Auto-imported, pathPrefix: false (see below)
+  composables/        ← Auto-imported
+  layouts/
+    default.vue       ← Public pages: AppHeader + UMain + AppFooter + BottomNav
+    dashboard.vue     ← Master workspace: UDashboardGroup + UDashboardSidebar
   middleware/
+    auth.ts           ← Requires any authenticated Clerk user
+    master-only.ts    ← Requires role === 'master' in Supabase profiles
+    client-only.ts
+  pages/
+  plugins/
+    fullcalendar.client.ts  ← Ensures FullCalendar never loads server-side
+  stores/
   types/
-server/               ← Nitro API routes, stays at root
+    index.ts          ← App-level types (Booking, BookingStatus, etc.)
+    database.types.ts ← Supabase schema — authoritative source of truth
+server/               ← Nitro API routes
+  api/
+    masters/          ← Public endpoints (no auth)
+    master/           ← Authenticated master-only endpoints
+    me/               ← Current user profile & client bookings
+    telegram/         ← TMA init data validation
+  utils/
+    auth.ts           ← requireAuth(event): string — throws 401
+    requireMaster.ts  ← requireMaster(event): Profile — throws 401/403
+    supabase.ts       ← useServerSupabase() — service role client
+    slots.ts          ← generateSlots() — time slot calculation
 bot/                  ← Grammy Telegram bot
-supabase/migrations/
-nuxt.config.ts
-biome.json
+supabase/migrations/  ← SQL migrations (apply manually via Supabase dashboard)
 ```
 
 ### Routing
 
-File-based routing via `app/pages/`:
 - `/` — landing page
-- `/dashboard/*` — master workspace: calendar, services, portfolio, clients, analytics
+- `/dashboard/*` — master workspace (middleware: `auth`, layout: `dashboard`)
 - `/master/[username]` — public master profile; `/master/[username]/book` — booking flow
 - `/client/bookings` — client's appointment history
-- `/tma/*` — Telegram Mini App variants of master/booking pages
+- `/tma/*` — Telegram Mini App pages
 - `/admin` — admin dashboard
-
-Route protection via `app/middleware/`:
-- `auth.ts` — requires any authenticated user (Clerk)
-- `master-only.ts` — checks Clerk auth + `profiles.role === 'master'` in Supabase
 
 ### Data layer
 
-- **Supabase** is the database. `app/types/database.types.ts` is the authoritative schema reference.
+- **Supabase** is the database. `app/types/database.types.ts` is the authoritative schema.
 - Key tables: `profiles` (role: master/client/admin), `master_profiles`, `services`, `bookings`, `payment_types`, `payment_records`, `portfolio_items`, `reviews`.
-- In server API routes, use `useServerSupabase()` (service role key). In browser code, use `useSupabaseClient()`.
-- **Clerk** handles authentication. User identity flows from Clerk → Supabase `profiles` table.
+- Server API routes: use `useServerSupabase()` (service role). Browser code: use `useSupabaseClient()`.
+- **Clerk** handles authentication. Clerk user ID maps 1:1 to `profiles.id`.
+- All server routes requiring auth call `requireAuth(event)` or `requireMaster(event)` from `server/utils/`.
 
-### API routes (Nitro)
+### State management
 
-Organized under `server/api/`:
-- `masters/` — public endpoints (list, profile, available slots, book)
-- `master/` — authenticated master-only endpoints (services CRUD, bookings, analytics, checkout, payment-types)
-- `me/` — current user profile & client bookings
-- `telegram/validate` — validates Telegram Mini App init data
+**Pinia stores** (`app/stores/`):
+- `useDashboardCache` — central cache for the master dashboard. Holds bookings, analytics, services, clients, profile. Each resource has `fetch*()`, `*Loading`, `*Ready` flags. Dashboard pages call `cache.fetch*()` in `onMounted` and read from `storeToRefs(cache)`.
+- `useBookingStore` — public booking flow state
+- `useMasterStore` — public master profile state
+- `useQuickCheckout` — Pinia store (not a composable) managing the checkout slideover for completing sessions
 
-### State & composables
+**Composables** (`app/composables/`):
+- `useCalendarSettings` — `useCookie`-backed calendar preferences (defaultView, slotDuration). SSR-safe, persisted 1 year.
+- `useBooking`, `useMaster` — wrap store actions with loading states
+- `useTelegramApp` — detects TMA context via `@tma.js/sdk`, client-only (`onMounted`)
+- `useProfile` — fetches and caches the current user's profile on sign-in (called in `app.vue`)
 
-- **Pinia stores** (`app/stores/`): `useBookingStore`, `useMasterStore`
-- **Composables** (`app/composables/`): `useBooking`, `useMaster`, `useQuickCheckout`, `useTelegramApp`
+### Component auto-import — critical rule
 
-### Telegram integration
+`nuxt.config.ts` sets `components: [{ path: '~/components', pathPrefix: false }]`. This means **component names come from the filename only, not the folder path**:
 
-- `bot/` — Grammy bot with command handlers
-- `app/composables/useTelegramApp.ts` + `@tma.js/sdk` — detects TMA context
-- TMA pages under `app/pages/tma/`
+```
+components/Calendar/CalendarView.client.vue  →  <CalendarView>   ✓
+components/Calendar/BookingPopover.vue       →  <BookingPopover> ✓
+components/checkout/QuickCheckoutModal.vue   →  <QuickCheckoutModal> ✓
+```
+
+Always verify auto-import names in `.nuxt/components.d.ts`. After adding/renaming components, run `bun run postinstall` to regenerate.
+
+### API routes pattern
+
+Every master-only endpoint follows this pattern:
+
+```ts
+export default defineEventHandler(async (event) => {
+  const { id: masterId } = await requireMaster(event)  // auth + role check
+  const supabase = useServerSupabase()
+  // ... query
+})
+```
+
+Public master endpoints use `requireAuth(event)` only. The `GET /api/master/bookings` accepts `?from=&to=&status=` query params for filtered fetching.
 
 ### Forms & validation
 
-Zod schemas with `vee-validate` + `@vee-validate/zod`. Define schemas with `z.object(...)`, pass to `useForm({ validationSchema })`.
+Zod schemas with `vee-validate` + `@vee-validate/zod`. Define with `z.object(...)`, pass to `useForm({ validationSchema })`. Use `<UForm :schema :state @submit>` with `<UFormField name>` children.
 
-### UI
+### i18n
 
-`@nuxt/ui` v3 with Tailwind CSS v4. Styles are CSS-first — configure via `@theme` in `app/assets/css/main.css`. All pages are wrapped in `<UApp>` in `app/app.vue`.
+Two locales: `ru` (default, no URL prefix) and `ky` (`/ky/` prefix). Locale files: `app/locales/ru.json`, `app/locales/ky.json`. Always add keys to **both** files. Access with `useI18n()` → `t('key')`.
+
+### Telegram integration
+
+- `bot/` — Grammy bot, `console.log` allowed (Biome override)
+- `app/composables/useTelegramApp.ts` — detects TMA, client-only
+- TMA pages under `app/pages/tma/`
+
+---
+
+## UI
+
+`@nuxt/ui` v3 with Tailwind CSS v4. Styles configured via `@theme` in `app/assets/css/main.css`. All pages wrapped in `<UApp>` in `app/app.vue`.
 
 **CRITICAL: Always use Nuxt UI components — never write raw HTML alternatives.**
 
-#### Layout components (mandatory)
-- **`UHeader`** — sticky top header with `#title`, `#left`, `#right`, `#body` (mobile) slots. Use `UNavigationMenu` in center slot for nav links.
-- **`UMain`** — main content wrapper (auto-sized relative to `--ui-header-height`). Use in `default` layout.
-- **`UFooter`** — footer with `#left`, `#right` slots. Use `UNavigationMenu` in center for links.
-- **`UDashboardGroup`** — root wrapper for dashboard. Uses `fixed inset-0`. Must contain `UDashboardSidebar` + content.
-- **`UDashboardSidebar`** — resizable/collapsible sidebar with `#header`, `#footer` slots. Always use `resizable collapsible` props.
-- **`UDashboardPanel`** — main dashboard content area with `#header` slot for `UDashboardNavbar`.
-- **`UDashboardNavbar`** — top navbar inside `UDashboardPanel`. Use `title` and `icon` props.
+### Layout components
 
-#### Layout files
-- `app/layouts/default.vue` — public pages: `AppHeader` + `UMain` + `AppFooter` + `BottomNav`
-- `app/layouts/dashboard.vue` — master workspace: `UDashboardGroup` + `UDashboardSidebar`
+- **`UDashboardGroup`** — root wrapper for dashboard (`fixed inset-0`). Contains `UDashboardSidebar` + content.
+- **`UDashboardSidebar`** — always use `resizable collapsible` props.
+- **`UDashboardPanel`** — main content area with `#header` slot for `UDashboardNavbar`.
+- **`UDashboardNavbar`** — top bar inside panel; use `title`, `icon`, `#right` slot.
+- **`UHeader`** / **`UMain`** / **`UFooter`** — for `default` layout pages.
 
-#### Dashboard pages pattern
+### Dashboard page pattern
+
 ```vue
 <template>
   <UDashboardPanel>
@@ -123,69 +165,56 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 </script>
 ```
 
-#### Key components
-- **`UNavigationMenu`** — use for all nav lists (horizontal in header, vertical in sidebar with `orientation="vertical"`)
-- **`UButton`** — all buttons; use `variant`, `color`, `size` props instead of custom CSS classes
-- **`USkeleton`** — loading states (not custom `animate-pulse` divs)
+### Key components
+
+- **`UButton`** — all buttons; use `variant`, `color`, `size` props
+- **`USkeleton`** — loading states
 - **`UEmpty`** — empty states
 - **`UUser`** — user display with avatar + name
-- **`UDropdownMenu`** — contextual menus
-- **`UCard`** — content cards
-- **`UTable`** — data tables
-- **`UModal`** / **`USlideover`** — overlays
-- **`UForm`** + **`UFormField`** — forms with validation
+- **`UNavigationMenu`** — nav lists (horizontal in header, `orientation="vertical"` in sidebar)
+- **`USlideover`** / **`UModal`** — overlays
+- **`UForm`** + **`UFormField`** — forms with Zod validation
+- **`UCard`**, **`UTable`**, **`UDropdownMenu`**, **`UBadge`**, **`UToggle`**
 
-Use the MCP server `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs when needed.
+Use `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs when needed.
 
-#### Calendar — FullCalendar (`@fullcalendar/vue3`)
+### Calendar — FullCalendar (`@fullcalendar/vue3`)
 
-**Never use `nuxt-calendar`, `@samk-dev/nuxt-vcalendar`, or `<VCalendar>` — use FullCalendar exclusively.**
+**Never use `nuxt-calendar`, `@samk-dev/nuxt-vcalendar`, or `<VCalendar>`.**
 
-FullCalendar uses browser-only APIs. Always wrap in a `.client.vue` component (see `app/components/Calendar/View.client.vue`) and use `<ClientOnly>` in pages.
+FullCalendar uses browser-only APIs. The wrapper component `app/components/Calendar/CalendarView.client.vue` handles all FullCalendar imports, plugin registration, CSS overrides, slot hover logic, and settings binding. The `.client.vue` suffix prevents SSR rendering.
 
-Docs: https://fullcalendar.io/docs/vue
-
-**Required packages:** `@fullcalendar/vue3`, `@fullcalendar/core`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`, `@fullcalendar/interaction`
-
-**Plugin file** `app/plugins/fullcalendar.client.ts` must exist (enforces client-only loading).
-
-**Usage pattern in pages:**
+**Usage in pages:**
 ```vue
 <ClientOnly>
   <CalendarView
     :events="calendarEvents"
     :locale="locale"
     @event-click="handleEventClick"
+    @date-click="handleDateClick"
     @dates-set="handleDatesSet"
   />
-  <template #fallback>
-    <USkeleton class="h-full w-full rounded-lg" />
-  </template>
+  <template #fallback><USkeleton class="h-full w-full" /></template>
 </ClientOnly>
 ```
 
-**Event schema** (pass to `events` prop):
+**Event schema:**
 ```ts
 {
   id: string,
   title: string,
-  start: string,           // ISO string from DB
+  start: string,        // ISO string (from DB)
   end: string,
-  backgroundColor: string, // status-based color
+  backgroundColor: string,
   borderColor: string,
   textColor: '#ffffff',
   extendedProps: { status, clientName, ... }
 }
 ```
 
-**`datesSet` callback** fires on initial render and every navigation — use it to fetch bookings for the visible range only:
-```ts
-function handleDatesSet(info: { startStr: string; endStr: string }) {
-  fetchBookings({ from: info.startStr, to: info.endStr })
-}
-```
+**`datesSet` callback fires on initial render and every navigation** — use it to fetch bookings for the visible range only (`?from=&to=`).
 
-**`eventClick` → `USlideover` pattern** (never use built-in FullCalendar popups):
+**`eventClick` → `USlideover` pattern:**
 ```ts
 function handleEventClick(info: { event: { id: string } }) {
   selectedBooking.value = bookingMap.value.get(info.event.id)
@@ -193,10 +222,18 @@ function handleEventClick(info: { event: { id: string } }) {
 }
 ```
 
-The `CalendarView.client.vue` wrapper component is in `app/components/Calendar/CalendarView.client.vue` and handles all FullCalendar imports and CSS overrides. Use it — do not import FullCalendar directly in page files.
+Calendar preferences (default view, slot duration) are stored in a cookie via `useCalendarSettings()`. Do not hardcode these values in `CalendarView.client.vue`.
 
-**Important**: This project uses `pathPrefix: false` in nuxt.config.ts components config. Component names are based **only on the filename**, not the folder. Example: `Calendar/CalendarView.client.vue` → `<CalendarView>`, `Calendar/BookingPopover.vue` → `<BookingPopover>`. Always verify auto-import names in `.nuxt/components.d.ts`.
+---
 
-### Code quality
+## Code quality
 
-Biome v2 handles linting and formatting (`biome.json` at root). Vue file support is experimental (`html.experimentalFullSupportEnabled`). Run `bun run check` before committing.
+**Biome v2** handles linting and formatting. Config: `biome.json`. Key rules:
+- `noUnusedVariables` / `noUnusedImports` — **error**
+- `noExplicitAny` — error
+- `noConsole` — warn (disabled for `server/**` and `bot/**`)
+- Single quotes, 2-space indent, 100-char line width, trailing commas
+
+**Known Biome limitation**: Vue `<script setup>` variables used only in the template are incorrectly flagged as unused (Biome's experimental Vue support doesn't track template references). These are false positives — the code is correct.
+
+`console.log` is allowed in `server/` and `bot/` via Biome override. Avoid it in `app/`.
