@@ -47,8 +47,9 @@ supabase/migrations/
 - `/onboarding` — role selection after sign-up
 
 Route protection is in `app/middleware/`, not in page components:
-- `auth.ts` — requires sign-in; redirects unsigned users to `/sign-in`; also checks for a role and redirects roleless users to `/onboarding`
-- `master-only.ts` — additionally checks `profiles.role === 'master'` in Supabase
+- `auth.ts` — requires sign-in; redirects unsigned users to `/sign-in`; redirects roleless users to `/onboarding`; also enforces role routing (clients accessing `dashboard/*` → `/client`, masters accessing `client/*` → `/dashboard`)
+- `master-only.ts` — additionally checks `profiles.role === 'master'` in Supabase; redirects others to `/client`
+- `client-only.ts` — checks `profiles.role === 'client'` in Supabase; redirects others to `/dashboard`
 
 ### Authentication & data
 
@@ -84,17 +85,17 @@ Route protection is in `app/middleware/`, not in page components:
 
 ### Server route pattern
 
-```ts
-export default defineEventHandler(async (event) => {
-  const { userId } = useAuth()            // Clerk
-  if (!userId.value) throw createError({ statusCode: 401 })
+Master-only routes use `requireMaster` (returns profile or throws 401/403). Public routes or user routes use `requireAuth` (returns userId or throws 401). Both are in `server/utils/`.
 
-  const supabase = useServerSupabase()    // service role
+```ts
+// Master-only route
+export default defineEventHandler(async (event) => {
+  const { id: masterId } = await requireMaster(event)  // auth + role check
+  const supabase = useServerSupabase()
   const { data, error } = await supabase
-    .from('table')
-    .select(...)
-    .eq('master_id', userId.value)
-    .single()
+    .from('services')
+    .select('*')
+    .eq('master_id', masterId)
   if (error) throw createError({ statusCode: 500, message: error.message })
   return data
 })
@@ -185,35 +186,60 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 Use the MCP server `mcp__nuxt-ui-remote__get-documentation-page` to look up component APIs.
 
-### Calendar — `nuxt-calendar`
+### Component auto-imports
 
-**Always use `<NuxtCalendar>` — never use `@samk-dev/nuxt-vcalendar` or `<VCalendar>`.**
+`nuxt.config.ts` sets `pathPrefix: false`, so component names are based **only on the filename**, not the folder path. `Calendar/CalendarView.client.vue` → `<CalendarView>`, not `<CalendarCalendarView>`. Verify auto-import names in `.nuxt/components.d.ts` when unsure.
 
-Docs: https://nuxtcalendar.com/docs/getting-started/installation
+### Calendar — FullCalendar
+
+**Always use FullCalendar (`@fullcalendar/vue3`) — never use `nuxt-calendar`, `@samk-dev/nuxt-vcalendar`, or `<VCalendar>`.**
+
+FullCalendar uses browser-only APIs. Always wrap in a `.client.vue` component (use the existing `app/components/Calendar/CalendarView.client.vue` wrapper) and use `<ClientOnly>` in pages.
 
 ```vue
-<template>
-  <div class="h-full">
-    <NuxtCalendar :events="events" />
-  </div>
-</template>
-
-<script setup lang="ts">
-const events = ref([
-  {
-    id: 1,
-    title: 'Appointment',
-    start: new Date(),
-    end: new Date(Date.now() + 3600000),
-    description: 'Client booking',
-  },
-])
-</script>
+<!-- In a page -->
+<ClientOnly>
+  <CalendarView
+    :events="calendarEvents"
+    :locale="locale"
+    @event-click="handleEventClick"
+    @dates-set="handleDatesSet"
+  />
+  <template #fallback>
+    <USkeleton class="h-full w-full rounded-lg" />
+  </template>
+</ClientOnly>
 ```
 
-Event shape: `{ id, title, start: Date, end: Date, description?: string }`.
-Config in `nuxt.config.ts` under `nuxtCalendar: { timeFormat: '24h', weekStartsOn: 1 }`.
+Event schema passed to `:events`:
+```ts
+{
+  id: string,
+  title: string,
+  start: string,            // ISO string from DB
+  end: string,
+  backgroundColor: string,  // status-based color
+  borderColor: string,
+  textColor: '#ffffff',
+  extendedProps: { status, clientName, ... }
+}
+```
+
+`datesSet` fires on initial render and every navigation — use it to fetch bookings for the visible range:
+```ts
+function handleDatesSet(info: { startStr: string; endStr: string }) {
+  fetchBookings({ from: info.startStr, to: info.endStr })
+}
+```
+
+Use `eventClick` + `USlideover` for booking details (never use FullCalendar's built-in popups):
+```ts
+function handleEventClick(info: { event: { id: string } }) {
+  selectedBooking.value = bookingMap.value.get(info.event.id)
+  isSlideoverOpen.value = true
+}
+```
 
 ### Code quality
 
-Biome v2 (`biome.json` at root) handles linting and formatting with experimental Vue support (`html.experimentalFullSupportEnabled`). Run `bun run check` before committing.
+Biome v2 (`biome.json` at root) handles linting and formatting with experimental Vue support. Code style: **single quotes**, **no semicolons**, **trailing commas everywhere**, 2-space indent, 100-char line width. `noExplicitAny` and `noUnusedImports` are errors. `console` is a warning in app code but allowed in `server/` and `bot/`. Run `bun run check` before committing.
