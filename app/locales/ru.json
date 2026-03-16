@@ -263,15 +263,46 @@
       }
     },
     "onboarding": {
-      "title": "Как вы будете использовать BeautyBook?",
-      "subtitle": "Выберите роль — вы сможете изменить её позже в настройках профиля",
-      "master": {
-        "title": "Я мастер",
-        "description": "Принимаю клиентов, веду записи и управляю своим расписанием"
+      "stepOf": "Шаг {current} из {total}",
+      "step1": {
+        "title": "Как вас знают клиенты?",
+        "subtitle": "Название вашего бизнеса и персональный адрес страницы",
+        "nameLabel": "Название бизнеса",
+        "namePlaceholder": "Например: Anna Beauty, Студия Маникюра",
+        "usernameLabel": "Адрес страницы",
+        "usernamePlaceholder": "anna_beauty",
+        "usernameAvailable": "Доступен",
+        "usernameTaken": "Уже занят",
+        "usernameChecking": "Проверяем...",
+        "validation": {
+          "nameRequired": "Введите название",
+          "usernameRequired": "Введите адрес страницы",
+          "usernameFormat": "Только строчные буквы, цифры, _ и -",
+          "usernameMinLength": "Минимум 3 символа",
+          "usernameTaken": "Этот адрес уже занят"
+        }
       },
-      "client": {
-        "title": "Я клиент",
-        "description": "Ищу мастеров и записываюсь на процедуры онлайн"
+      "step2": {
+        "title": "Добавьте фото или логотип",
+        "subtitle": "Клиенты увидят его на вашей страничке",
+        "uploadButton": "Загрузить фото",
+        "skip": "Пропустить"
+      },
+      "step3": {
+        "title": "Чем вы занимаетесь?",
+        "subtitle": "Выберите одну или несколько специализаций"
+      },
+      "step4": {
+        "title": "Ваш рабочий график",
+        "subtitle": "Укажите дни и часы работы",
+        "dayOff": "Выходной"
+      },
+      "step5": {
+        "title": "Почти готово!",
+        "subtitle": "Проверьте данные и создайте свой BeautyBook",
+        "createBtn": "Создать свой BeautyBook",
+        "specializations": "Специализации",
+        "workSchedule": "График работы"
       }
     },
     "signIn": {

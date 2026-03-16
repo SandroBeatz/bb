@@ -263,15 +263,46 @@
       }
     },
     "onboarding": {
-      "title": "BeautyBook'ту кантип колдонобуз?",
-      "subtitle": "Ролуңузду тандаңыз — аны кийин профиль жөндөөлөрүндө өзгөртө аласыз",
-      "master": {
-        "title": "Мен мастермин",
-        "description": "Кардарларды кабыл алам, жазылууларды жүргүзөм жана иш графигимди башкарам"
+      "stepOf": "{current} / {total} кадам",
+      "step1": {
+        "title": "Кардарлар сизди кантип таанышат?",
+        "subtitle": "Бизнесиңиздин аталышы жана баракчаңыздын дареги",
+        "nameLabel": "Бизнестин аталышы",
+        "namePlaceholder": "Мисалы: Anna Beauty, Маникюр студиясы",
+        "usernameLabel": "Баракча дареги",
+        "usernamePlaceholder": "anna_beauty",
+        "usernameAvailable": "Жеткиликтүү",
+        "usernameTaken": "Мурунтан алынган",
+        "usernameChecking": "Текшерилүүдө...",
+        "validation": {
+          "nameRequired": "Аталышты киргизиңиз",
+          "usernameRequired": "Баракча дарегин киргизиңиз",
+          "usernameFormat": "Кичине тамгалар, цифралар, _ жана - гана",
+          "usernameMinLength": "Минимум 3 символ",
+          "usernameTaken": "Бул дарек мурунтан алынган"
+        }
       },
-      "client": {
-        "title": "Мен кардармын",
-        "description": "Мастерлерди издеп, процедураларга онлайн жазылам"
+      "step2": {
+        "title": "Сүрөт же логотип кошуу",
+        "subtitle": "Кардарлар аны баракчаңызда көрүшөт",
+        "uploadButton": "Сүрөт жүктөө",
+        "skip": "Өткөрүп жибер"
+      },
+      "step3": {
+        "title": "Эмне менен алектенесиз?",
+        "subtitle": "Бир же бирнече адистикти тандаңыз"
+      },
+      "step4": {
+        "title": "Иш графигиңиз",
+        "subtitle": "Иш күндөрүн жана сааттарын белгилеңиз",
+        "dayOff": "Эс алуу"
+      },
+      "step5": {
+        "title": "Дээрлик даяр!",
+        "subtitle": "Маалыматты текшерип, BeautyBook'уңузду түзүңүз",
+        "createBtn": "Өз BeautyBook'умду түзүү",
+        "specializations": "Адистиктер",
+        "workSchedule": "Иш графиги"
       }
     },
     "signIn": {
