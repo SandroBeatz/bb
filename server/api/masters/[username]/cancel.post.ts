@@ -5,10 +5,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Master ID is required' })
   }
 
-  const body = await readBody<{ phone: string }>(event)
+  const body = await readBody<{ phone: string; bookingId: string; reason?: string }>(event)
 
   if (!body?.phone) {
     throw createError({ statusCode: 400, message: 'phone is required' })
+  }
+
+  if (!body?.bookingId) {
+    throw createError({ statusCode: 400, message: 'bookingId is required' })
   }
 
   const supabase = useServerSupabase()
@@ -25,32 +29,30 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'No bookings found for this phone number' })
   }
 
-  const now = new Date().toISOString()
-
-  const { data: bookings } = await supabase
+  // Verify the booking belongs to this client and master
+  const { data: booking } = await supabase
     .from('bookings')
-    .select('id, starts_at, ends_at, status, services(name)')
+    .select('id, status')
+    .eq('id', body.bookingId)
     .eq('master_id', masterId)
     .eq('client_id', client.id)
     .in('status', ['pending', 'confirmed'])
-    .gte('starts_at', now)
-    .order('starts_at', { ascending: true })
+    .single()
 
-  if (!bookings || bookings.length === 0) {
-    throw createError({ statusCode: 404, message: 'No upcoming bookings found' })
+  if (!booking) {
+    throw createError({ statusCode: 404, message: 'Booking not found' })
   }
 
-  // Cancel the next upcoming booking
-  const bookingToCancel = bookings[0]
+  const updateData: { status: string; notes?: string } = { status: 'cancelled' }
+  if (body.reason?.trim()) {
+    updateData.notes = body.reason.trim()
+  }
 
-  const { error } = await supabase
-    .from('bookings')
-    .update({ status: 'cancelled' })
-    .eq('id', bookingToCancel.id)
+  const { error } = await supabase.from('bookings').update(updateData).eq('id', booking.id)
 
   if (error) {
     throw createError({ statusCode: 500, message: error.message })
   }
 
-  return { cancelled: true, booking: bookingToCancel }
+  return { cancelled: true }
 })

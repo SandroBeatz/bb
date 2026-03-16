@@ -48,7 +48,7 @@ export function generateSlots(
   existingBookings: Booking[],
   date: string, // YYYY-MM-DD
   serviceDuration: number,
-  bufferMinutes = 10,
+  bufferMinutes = 0,
 ): TimeSlot[] {
   if (!workHours || !date) return []
 
