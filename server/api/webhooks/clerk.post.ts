@@ -86,18 +86,16 @@ export default defineEventHandler(async (event) => {
     }
 
     // Create the Clerk profile
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(
-        {
-          id,
-          full_name: fullName || '',
-          avatar_url: image_url || null,
-          phone,
-          email,
-        },
-        { onConflict: 'id' },
-      )
+    const { error } = await supabase.from('profiles').upsert(
+      {
+        id,
+        full_name: fullName || '',
+        avatar_url: image_url || null,
+        phone,
+        email,
+      },
+      { onConflict: 'id' },
+    )
 
     if (error) {
       console.error('[clerk webhook] Error creating profile:', error.message)

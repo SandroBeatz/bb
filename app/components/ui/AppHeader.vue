@@ -92,6 +92,7 @@ const localePath = useLocalePath()
 const { isSignedIn, isLoaded } = useAuth()
 const { user } = useUser()
 const clerk = useClerk()
+const { profile } = useProfile()
 
 // Cache user data in cookie — survives page refresh, eliminates auth flash
 const userCookie = useCookie<{ imageUrl: string; name: string } | null>('bb_u', {
@@ -162,27 +163,51 @@ const mobileNavItems = computed<NavigationMenuItem[]>(() => [
   },
 ])
 
-const userMenuItems = computed(() => [
-  [
-    {
-      label: t('nav.dashboard'),
-      icon: 'i-heroicons-squares-2x2',
-      to: localePath('/dashboard'),
-    },
-    {
-      label: t('nav.settings'),
-      icon: 'i-heroicons-cog-6-tooth',
-      to: localePath('/settings'),
-    },
-  ],
-  [
-    {
-      label: t('nav.signOut'),
-      icon: 'i-heroicons-arrow-right-on-rectangle',
-      onSelect: () => handleSignOut(),
-    },
-  ],
-])
+const userMenuItems = computed(() => {
+  const role = profile.value?.role
+  const mainItems =
+    role === 'client'
+      ? [
+          {
+            label: t('nav.myBookings'),
+            icon: 'i-heroicons-calendar-days',
+            to: localePath('/client/bookings'),
+          },
+          {
+            label: t('nav.myMasters'),
+            icon: 'i-heroicons-user-group',
+            to: localePath('/client/masters'),
+          },
+          {
+            label: t('nav.clientSettings'),
+            icon: 'i-heroicons-cog-6-tooth',
+            to: localePath('/client/settings'),
+          },
+        ]
+      : [
+          {
+            label: t('nav.dashboard'),
+            icon: 'i-heroicons-squares-2x2',
+            to: localePath('/dashboard'),
+          },
+          {
+            label: t('nav.settings'),
+            icon: 'i-heroicons-cog-6-tooth',
+            to: localePath('/dashboard/settings'),
+          },
+        ]
+
+  return [
+    mainItems,
+    [
+      {
+        label: t('nav.signOut'),
+        icon: 'i-heroicons-arrow-right-on-rectangle',
+        onSelect: () => handleSignOut(),
+      },
+    ],
+  ]
+})
 
 async function handleSignOut() {
   userCookie.value = null

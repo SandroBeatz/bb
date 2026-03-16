@@ -8,6 +8,8 @@ interface ProfileUpdate {
   username?: string
   avatar_url?: string | null
   telegram_id?: string | null
+  phone?: string | null
+  email?: string | null
 }
 
 const profile = ref<{
@@ -17,6 +19,8 @@ const profile = ref<{
   username: string | null
   avatar_url: string | null
   telegram_id: string | null
+  phone: string | null
+  email: string | null
   created_at: string
 } | null>(null)
 

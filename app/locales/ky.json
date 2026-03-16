@@ -17,7 +17,11 @@
     "profile": "Профиль",
     "menu": "Меню",
     "master": "Мастер",
-    "masterRole": "Сулуулук мастери"
+    "masterRole": "Сулуулук мастери",
+    "myBookings": "Менин жазылууларым",
+    "myMasters": "Менин мастерлерим",
+    "clientSettings": "Жөндөөлөр",
+    "myProfile": "Менин профилим"
   },
   "common": {
     "save": "Сактоо",
@@ -186,6 +190,28 @@
       "myBookingsDesc": "Жазылууларыңызды көрүү жана башкаруу",
       "findMasters": "Мастер табуу",
       "findMastersDesc": "Сулуулук мастерлеринин каталогу",
+      "myMasters": "Менин мастерлерим",
+      "myMastersDesc": "Барган мастерлериңиз",
+      "settings": "Жөндөөлөр",
+      "settingsDesc": "Профилди түзөтүү",
+      "mastersPage": {
+        "title": "Менин мастерлерим",
+        "empty": "Сиз али эч бир мастерге жазылган жоксуз",
+        "emptyHint": "Каталогдон мастер таап, жазылыңыз",
+        "viewProfile": "Профиль",
+        "bookAgain": "Жазылуу",
+        "lastVisit": "Акыркы визит",
+        "visits": "{count} визит"
+      },
+      "settingsPage": {
+        "title": "Профиль жөндөөлөрү",
+        "profileSection": "Жеке маалыматтар",
+        "phone": "Телефон",
+        "phonePlaceholder": "+996 XXX XXX XXX",
+        "email": "Email",
+        "emailPlaceholder": "you{'@'}example.com",
+        "saved": "Профиль сакталды"
+      },
       "bookingsPage": {
         "tabs": {
           "upcoming": "Келерки",

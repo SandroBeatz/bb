@@ -129,6 +129,7 @@ const localePath = useLocalePath()
 const { isSignedIn } = useAuth()
 const { user } = useUser()
 const clerk = useClerk()
+const { profile } = useProfile()
 
 const sidebarCollapsed = ref(false)
 const mobileMenuOpen = ref(false)
@@ -198,6 +199,11 @@ const sidebarItems = computed<NavigationMenuItem[][]>(() => [
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',
       to: localePath('/dashboard/settings'),
+    },
+    {
+      label: t('nav.myProfile'),
+      icon: 'i-heroicons-eye',
+      to: profile.value?.username ? localePath(`/master/${profile.value.username}`) : undefined,
     },
   ],
 ])

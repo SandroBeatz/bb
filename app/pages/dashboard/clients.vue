@@ -260,9 +260,7 @@ const filteredClients = computed(() => {
   if (!search.value.trim()) return clients.value
   const q = search.value.toLowerCase()
   return clients.value.filter(
-    (c) =>
-      c.full_name.toLowerCase().includes(q) ||
-      (c.phone && c.phone.toLowerCase().includes(q)),
+    (c) => c.full_name.toLowerCase().includes(q) || (c.phone && c.phone.toLowerCase().includes(q)),
   )
 })
 
@@ -277,7 +275,11 @@ async function createClient() {
   try {
     const client = await $fetch('/api/master/clients', {
       method: 'POST',
-      body: { full_name: newClientForm.full_name.trim(), phone: newClientForm.phone.trim() || undefined, email: newClientForm.email.trim() || undefined },
+      body: {
+        full_name: newClientForm.full_name.trim(),
+        phone: newClientForm.phone.trim() || undefined,
+        email: newClientForm.email.trim() || undefined,
+      },
     })
     cache.clients.unshift(client as ClientItem)
     addClientOpen.value = false

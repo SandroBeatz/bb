@@ -59,10 +59,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // Create master-client link
-  const { error: linkError } = await supabase.from('master_clients').upsert(
-    { master_id: masterId, client_id: clientId },
-    { onConflict: 'master_id,client_id' },
-  )
+  const { error: linkError } = await supabase
+    .from('master_clients')
+    .upsert({ master_id: masterId, client_id: clientId }, { onConflict: 'master_id,client_id' })
 
   if (linkError) {
     console.error('[clients] master_clients upsert error:', linkError)

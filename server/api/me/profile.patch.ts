@@ -1,20 +1,17 @@
 export default defineEventHandler(async (event) => {
   const userId = requireAuth(event)
 
-  const body =
-    await readBody<
-      Partial<{
-        full_name: string
-        username: string
-        avatar_url: string | null
-        telegram_id: string | null
-      }>
-    >(event)
+  const body = await readBody<Record<string, unknown>>(event)
+
+  const allowed = ['full_name', 'username', 'avatar_url', 'telegram_id', 'phone', 'email']
+  const sanitized = Object.fromEntries(
+    Object.entries(body).filter(([key]) => allowed.includes(key)),
+  )
 
   const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('profiles')
-    .update(body)
+    .update(sanitized)
     .eq('id', userId)
     .select()
     .single()

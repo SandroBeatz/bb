@@ -141,9 +141,7 @@ const filtered = computed(() => {
   const q = query.value.toLowerCase().trim()
   if (!q) return clients.value.slice(0, 10)
   return clients.value.filter(
-    (c) =>
-      c.full_name.toLowerCase().includes(q) ||
-      (c.phone && c.phone.toLowerCase().includes(q)),
+    (c) => c.full_name.toLowerCase().includes(q) || (c.phone && c.phone.toLowerCase().includes(q)),
   )
 })
 

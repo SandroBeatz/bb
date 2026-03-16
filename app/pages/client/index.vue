@@ -37,6 +37,40 @@
           </div>
         </div>
       </UCard>
+
+      <!-- My masters -->
+      <UCard
+        as="div"
+        class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+        @click="navigateTo(localePath('/client/masters'))"
+      >
+        <div class="flex items-center gap-4">
+          <div class="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <UIcon name="i-heroicons-user-group" class="size-6 text-primary" />
+          </div>
+          <div>
+            <p class="font-semibold text-highlighted">{{ $t('pages.client.myMasters') }}</p>
+            <p class="text-sm text-muted">{{ $t('pages.client.myMastersDesc') }}</p>
+          </div>
+        </div>
+      </UCard>
+
+      <!-- Settings -->
+      <UCard
+        as="div"
+        class="cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+        @click="navigateTo(localePath('/client/settings'))"
+      >
+        <div class="flex items-center gap-4">
+          <div class="flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <UIcon name="i-heroicons-cog-6-tooth" class="size-6 text-primary" />
+          </div>
+          <div>
+            <p class="font-semibold text-highlighted">{{ $t('pages.client.settings') }}</p>
+            <p class="text-sm text-muted">{{ $t('pages.client.settingsDesc') }}</p>
+          </div>
+        </div>
+      </UCard>
     </div>
   </UContainer>
 </template>

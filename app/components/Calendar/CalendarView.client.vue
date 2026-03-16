@@ -52,7 +52,11 @@ function onSlotHover(e: MouseEvent) {
   const target = e.target as Element
 
   // Don't show label over events, toolbar, or header
-  if (target.closest('.fc-event') || target.closest('.fc-toolbar') || target.closest('.fc-col-header')) {
+  if (
+    target.closest('.fc-event') ||
+    target.closest('.fc-toolbar') ||
+    target.closest('.fc-col-header')
+  ) {
     hoveredTime.value = ''
     return
   }

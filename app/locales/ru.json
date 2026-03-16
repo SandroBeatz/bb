@@ -17,7 +17,11 @@
     "profile": "Профиль",
     "menu": "Меню",
     "master": "Мастер",
-    "masterRole": "Мастер красоты"
+    "masterRole": "Мастер красоты",
+    "myBookings": "Мои записи",
+    "myMasters": "Мои мастера",
+    "clientSettings": "Настройки",
+    "myProfile": "Мой профиль"
   },
   "common": {
     "save": "Сохранить",
@@ -186,6 +190,28 @@
       "myBookingsDesc": "Просмотр и управление вашими записями",
       "findMasters": "Найти мастера",
       "findMastersDesc": "Каталог мастеров красоты",
+      "myMasters": "Мои мастера",
+      "myMastersDesc": "Мастера, у которых вы были",
+      "settings": "Настройки",
+      "settingsDesc": "Редактировать профиль",
+      "mastersPage": {
+        "title": "Мои мастера",
+        "empty": "Вы ещё не записывались ни к одному мастеру",
+        "emptyHint": "Найдите мастера в каталоге и запишитесь",
+        "viewProfile": "Профиль",
+        "bookAgain": "Записаться",
+        "lastVisit": "Последний визит",
+        "visits": "{count} визитов"
+      },
+      "settingsPage": {
+        "title": "Настройки профиля",
+        "profileSection": "Личные данные",
+        "phone": "Телефон",
+        "phonePlaceholder": "+996 XXX XXX XXX",
+        "email": "Email",
+        "emailPlaceholder": "you{'@'}example.com",
+        "saved": "Профиль сохранён"
+      },
       "bookingsPage": {
         "tabs": {
           "upcoming": "Предстоящие",

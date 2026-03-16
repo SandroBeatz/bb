@@ -468,8 +468,8 @@
 
 <script setup lang="ts">
 import { z } from 'zod'
-import type { Database } from '~/types/database.types'
 import type { CalendarView, SlotDuration } from '~/composables/useCalendarSettings'
+import type { Database } from '~/types/database.types'
 
 type PaymentType = Database['public']['Tables']['payment_types']['Row']
 

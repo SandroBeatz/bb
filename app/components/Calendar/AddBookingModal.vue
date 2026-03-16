@@ -105,9 +105,7 @@ const serviceOptions = computed(() =>
     })),
 )
 
-const isFormValid = computed(
-  () => form.clientId && form.serviceId && form.date && form.time,
-)
+const isFormValid = computed(() => form.clientId && form.serviceId && form.date && form.time)
 
 watch(isOpen, async (opened) => {
   if (!opened) return
