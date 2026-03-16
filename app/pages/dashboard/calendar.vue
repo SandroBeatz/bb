@@ -129,7 +129,7 @@ const bookingMap = computed(() => {
 const calendarEvents = computed<CalendarEvent[]>(() =>
   bookings.value.map((b) => ({
     id: b.id,
-    title: [b.services?.name, b.profiles?.full_name].filter(Boolean).join(' · '),
+    title: [b.services?.name, b.clients?.name].filter(Boolean).join(' · '),
     start: b.starts_at,
     end: b.ends_at,
     backgroundColor: STATUS_COLORS[b.status]?.background ?? '#9CA3AF',
@@ -137,7 +137,7 @@ const calendarEvents = computed<CalendarEvent[]>(() =>
     textColor: '#ffffff',
     extendedProps: {
       status: b.status,
-      clientName: b.profiles?.full_name ?? '',
+      clientName: b.clients?.name ?? '',
       servicePrice: b.services?.price ?? null,
       source: b.source,
     },

@@ -105,6 +105,21 @@
       "telegram": "Telegram"
     }
   },
+  "settings": {
+    "notifications": {
+      "title": "Уведомления",
+      "subtitle": "Email и Telegram уведомления о новых записях",
+      "comingSoon": "Скоро появится",
+      "comingSoonHint": "Уведомления о новых записях будут доступны в следующем обновлении"
+    },
+    "tma": {
+      "title": "Telegram Mini App",
+      "subtitle": "Принимайте записи прямо в Telegram",
+      "description": "Создайте Telegram-бота и подключите Mini App для клиентов",
+      "descriptionHint": "Клиенты смогут записываться через Telegram без перехода на сайт",
+      "upgradeBtn": "Доступно на тарифе Pro"
+    }
+  },
   "pages": {
     "home": {
       "title": "BeautyBook",
@@ -505,13 +520,13 @@
     "preferredServices": "Услуги",
     "addClient": "Добавить клиента",
     "added": "Клиент добавлен",
+    "notes": "Заметки",
+    "notesPlaceholder": "Заметки о клиенте...",
     "form": {
       "name": "Имя",
       "namePlaceholder": "Имя и фамилия",
       "phone": "Телефон",
-      "phonePlaceholder": "+7 000 000 00 00",
-      "email": "Email",
-      "emailPlaceholder": "client{'@'}example.com"
+      "phonePlaceholder": "+7 000 000 00 00"
     }
   },
   "masterCard": {

@@ -105,6 +105,21 @@
       "telegram": "Telegram"
     }
   },
+  "settings": {
+    "notifications": {
+      "title": "Билдирмелер",
+      "subtitle": "Жаңы жазылуулар жөнүндө email жана Telegram билдирмелери",
+      "comingSoon": "Жакында чыгат",
+      "comingSoonHint": "Жаңы жазылуулар жөнүндө билдирмелер кийинки жаңыртууда жеткиликтүү болот"
+    },
+    "tma": {
+      "title": "Telegram Mini App",
+      "subtitle": "Telegram аркылуу жазылууларды кабыл алыңыз",
+      "description": "Telegram-бот түзүп, кардарлар үчүн Mini App туташтырыңыз",
+      "descriptionHint": "Кардарлар сайтка кирбей эле Telegram аркылуу жаза алышат",
+      "upgradeBtn": "Pro тарифинде жеткиликтүү"
+    }
+  },
   "pages": {
     "home": {
       "title": "BeautyBook",
@@ -505,13 +520,13 @@
     "preferredServices": "Кызматтар",
     "addClient": "Кардар кошуу",
     "added": "Кардар кошулду",
+    "notes": "Эскертмелер",
+    "notesPlaceholder": "Кардар жөнүндө эскертмелер...",
     "form": {
       "name": "Аты",
       "namePlaceholder": "Аты-жөнү",
       "phone": "Телефон",
-      "phonePlaceholder": "+996 000 000 000",
-      "email": "Email",
-      "emailPlaceholder": "kardar{'@'}example.com"
+      "phonePlaceholder": "+996 000 000 000"
     }
   },
   "masterCard": {

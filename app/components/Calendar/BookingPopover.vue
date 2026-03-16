@@ -14,7 +14,7 @@
       <div class="flex items-center gap-1.5">
         <UIcon name="i-heroicons-user" class="size-3.5 shrink-0 text-muted" />
         <p class="text-sm text-muted truncate">
-          {{ booking.profiles?.full_name ?? '—' }}
+          {{ booking.clients?.name ?? '—' }}
         </p>
       </div>
       <div v-if="booking.services?.price" class="flex items-center gap-1.5">
@@ -148,7 +148,7 @@ import type { Booking, BookingStatus } from '~/types'
 
 type BookingWithDetails = Booking & {
   services?: { name: string; price: number; duration_minutes: number } | null
-  profiles?: { full_name: string; avatar_url: string | null } | null
+  clients?: { name: string; phone: string } | null
 }
 
 const props = defineProps<{

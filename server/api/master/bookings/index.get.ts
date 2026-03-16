@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const supabase = useServerSupabase()
   let queryBuilder = supabase
     .from('bookings')
-    .select('*, services(name, price, duration_minutes), profiles!client_id(full_name, avatar_url)')
+    .select('*, services(name, price, duration_minutes), clients!client_id(name, phone)')
     .eq('master_id', masterId)
     .order('starts_at', { ascending: true })
 

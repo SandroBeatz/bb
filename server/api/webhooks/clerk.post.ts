@@ -64,28 +64,6 @@ export default defineEventHandler(async (event) => {
       ? normalizePhone(phone_numbers[0].phone_number)
       : null
 
-    // Check if an offline profile exists with matching phone or email — merge if so
-    let offlineId: string | null = null
-    if (phone) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('phone', phone)
-        .not('id', 'like', 'user_%')
-        .maybeSingle()
-      if (data) offlineId = data.id
-    }
-    if (!offlineId && email) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .not('id', 'like', 'user_%')
-        .maybeSingle()
-      if (data) offlineId = data.id
-    }
-
-    // Create the Clerk profile
     const { error } = await supabase.from('profiles').upsert(
       {
         id,
@@ -100,16 +78,6 @@ export default defineEventHandler(async (event) => {
     if (error) {
       console.error('[clerk webhook] Error creating profile:', error.message)
       throw createError({ statusCode: 500, message: 'Failed to create profile' })
-    }
-
-    // Merge offline profile if found
-    if (offlineId) {
-      try {
-        await mergeOfflineProfile(supabase, offlineId, id)
-        console.log(`[clerk webhook] Merged offline profile ${offlineId} → ${id}`)
-      } catch (mergeErr) {
-        console.error('[clerk webhook] Merge error:', mergeErr)
-      }
     }
   }
 

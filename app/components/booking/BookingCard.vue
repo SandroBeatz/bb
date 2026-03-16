@@ -64,7 +64,7 @@ import type { Booking } from '~/types'
 
 type BookingWithDetails = Booking & {
   services?: { name: string; price: number; duration_minutes: number } | null
-  profiles?: { full_name: string; avatar_url: string | null } | null
+  clients?: { name: string; phone: string } | null
 }
 
 const props = defineProps<{
@@ -82,7 +82,7 @@ const confirming = ref(false)
 const cancelling = ref(false)
 
 const serviceName = computed(() => props.booking.services?.name ?? '—')
-const clientName = computed(() => props.booking.profiles?.full_name ?? '—')
+const clientName = computed(() => props.booking.clients?.name ?? '—')
 const servicePrice = computed(() => props.booking.services?.price)
 
 const isCompletable = computed(() => props.booking.status === 'confirmed')

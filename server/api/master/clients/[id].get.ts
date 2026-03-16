@@ -8,6 +8,19 @@ export default defineEventHandler(async (event) => {
 
   const supabase = useServerSupabase()
 
+  // Verify this client belongs to this master
+  const { data: client, error: clientError } = await supabase
+    .from('clients')
+    .select('id, name, phone, notes, created_at')
+    .eq('id', clientId)
+    .eq('master_id', masterId)
+    .single()
+
+  if (clientError || !client) {
+    throw createError({ statusCode: 404, message: 'Client not found' })
+  }
+
+  // Booking history for this client
   const { data: bookings, error } = await supabase
     .from('bookings')
     .select(
@@ -27,15 +40,5 @@ export default defineEventHandler(async (event) => {
     return { ...b, payment_records: Array.isArray(raw) ? raw : raw ? [raw] : [] }
   })
 
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url')
-    .eq('id', clientId)
-    .single()
-
-  if (profileError || !profile) {
-    throw createError({ statusCode: 404, message: 'Client not found' })
-  }
-
-  return { profile, bookings: normalized }
+  return { client, bookings: normalized }
 })
