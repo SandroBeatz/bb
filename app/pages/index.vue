@@ -18,9 +18,9 @@
       <UButton
         color="primary"
         size="lg"
-        @click="navigateTo(localePath('/catalog'))"
+        @click="navigateTo(localePath(isSignedIn ? '/dashboard' : '/sign-up'))"
       >
-        {{ t('pages.home.hero.cta') }}
+        {{ t('pages.home.forMasters.cta') }}
       </UButton>
     </div>
   </section>
@@ -35,7 +35,7 @@
         <!-- Step 1 -->
         <div class="flex-1 flex flex-col items-center text-center px-4">
           <div class="w-12 h-12 flex items-center justify-center rounded-full bg-muted mb-4">
-            <UIcon name="i-heroicons-magnifying-glass" class="text-3xl text-primary" />
+            <UIcon name="i-heroicons-user-plus" class="text-3xl text-primary" />
           </div>
           <h3 class="font-semibold text-base mb-2">
             {{ t('pages.home.howItWorks.step1.title') }}
@@ -53,7 +53,7 @@
         <!-- Step 2 -->
         <div class="flex-1 flex flex-col items-center text-center px-4">
           <div class="w-12 h-12 flex items-center justify-center rounded-full bg-muted mb-4">
-            <UIcon name="i-heroicons-calendar-days" class="text-3xl text-primary" />
+            <UIcon name="i-heroicons-link" class="text-3xl text-primary" />
           </div>
           <h3 class="font-semibold text-base mb-2">
             {{ t('pages.home.howItWorks.step2.title') }}
@@ -71,7 +71,7 @@
         <!-- Step 3 -->
         <div class="flex-1 flex flex-col items-center text-center px-4">
           <div class="w-12 h-12 flex items-center justify-center rounded-full bg-muted mb-4">
-            <UIcon name="i-heroicons-check-circle" class="text-3xl text-primary" />
+            <UIcon name="i-heroicons-calendar-days" class="text-3xl text-primary" />
           </div>
           <h3 class="font-semibold text-base mb-2">
             {{ t('pages.home.howItWorks.step3.title') }}
@@ -84,73 +84,7 @@
     </div>
   </section>
 
-  <!-- Top Masters Section -->
-  <section class="py-16 px-6 bg-elevated">
-    <div class="max-w-5xl mx-auto">
-      <div class="flex items-end justify-between mb-8 gap-4">
-        <div>
-          <h2 class="font-serif text-3xl font-light">
-            {{ t('pages.home.topMasters.title') }}
-          </h2>
-          <p class="text-muted mt-1 text-sm">
-            {{ t('pages.home.topMasters.subtitle') }}
-          </p>
-        </div>
-        <UButton
-          variant="ghost"
-          color="primary"
-          trailing-icon="i-heroicons-arrow-right"
-          @click="navigateTo(localePath('/catalog'))"
-        >
-          {{ t('pages.home.topMasters.viewAll') }}
-        </UButton>
-      </div>
-
-      <!-- Loading skeleton -->
-      <template v-if="mastersPending">
-        <div class="flex gap-4 overflow-x-auto pb-2">
-          <USkeleton
-            v-for="i in DISPLAY_LIMIT"
-            :key="i"
-            class="w-44 flex-shrink-0 aspect-[4/5] rounded-2xl"
-          />
-        </div>
-      </template>
-
-      <!-- Masters: horizontal scroll on mobile, 4-column grid on desktop -->
-      <div
-        v-else-if="topMasters?.length"
-        class="overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:overflow-visible md:snap-none md:mx-0 md:px-0"
-      >
-        <div class="flex gap-4 md:grid md:grid-cols-4">
-          <div
-            v-for="master in topMasters"
-            :key="master.id"
-            class="w-44 flex-shrink-0 snap-start md:w-auto md:flex-shrink-0"
-          >
-            <MasterCard
-              :master="{
-                username: master.username ?? '',
-                name: master.full_name ?? '',
-                avatar: master.avatar_url,
-                specialty: master.master_profiles?.[0]?.specializations?.[0] ?? null,
-                rating: master.master_profiles?.[0]?.rating ?? null,
-                city: master.master_profiles?.[0]?.city ?? null,
-              }"
-            />
-          </div>
-        </div>
-      </div>
-
-      <UEmpty
-        v-else
-        icon="i-heroicons-user-group"
-        :title="t('pages.catalog.empty')"
-      />
-    </div>
-  </section>
-
-  <!-- For Masters Section -->
+  <!-- For Masters CTA Section -->
   <section class="py-16 px-6 bg-muted">
     <div class="max-w-3xl mx-auto text-center">
       <h2 class="font-serif text-3xl font-light mb-4">
@@ -185,7 +119,7 @@
       <UButton
         color="primary"
         size="lg"
-        @click="handleMasterCta"
+        @click="navigateTo(localePath(isSignedIn ? '/dashboard' : '/sign-up'))"
       >
         {{ t('pages.home.forMasters.cta') }}
       </UButton>
@@ -194,26 +128,9 @@
 </template>
 
 <script setup lang="ts">
-interface TopMasterItem {
-  id: string
-  full_name: string | null
-  username: string | null
-  avatar_url: string | null
-  master_profiles:
-    | {
-        city: string | null
-        specializations: string[]
-        rating: number | null
-        subscription_tier: string | null
-      }[]
-    | null
-}
-
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { isSignedIn } = useAuth()
-
-const DISPLAY_LIMIT = 8
 
 useSeoMeta({
   title: computed(() => t('pages.home.title')),
@@ -222,13 +139,4 @@ useSeoMeta({
   ogDescription: computed(() => t('pages.home.subtitle')),
   ogType: 'website',
 })
-
-const { data: topMasters, pending: mastersPending } = await useAsyncData('top-masters', () =>
-  $fetch<TopMasterItem[]>('/api/masters/top', { query: { limit: DISPLAY_LIMIT } }),
-)
-
-function handleMasterCta() {
-  navigateTo(localePath(isSignedIn.value ? '/dashboard' : '/sign-up'))
-}
 </script>
-

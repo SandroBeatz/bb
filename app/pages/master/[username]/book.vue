@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import type { Service } from '~/types'
 
-definePageMeta({ middleware: 'auth' })
+definePageMeta({})
 
 const route = useRoute()
 const username = route.params.username as string
@@ -53,6 +53,6 @@ onMounted(() => {
 
 async function onSuccess() {
   toast.add({ title: t('pages.booking.created'), color: 'success' })
-  await navigateTo(localePath('/client/bookings'))
+  await navigateTo(localePath(`/master/${username}`))
 }
 </script>

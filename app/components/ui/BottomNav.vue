@@ -23,7 +23,6 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { isSignedIn } = useAuth()
-const { profile } = useProfile()
 
 const navItems = computed(() => [
   {
@@ -32,23 +31,9 @@ const navItems = computed(() => [
     label: t('nav.home'),
   },
   {
-    to: localePath('/catalog'),
-    icon: 'i-heroicons-magnifying-glass',
-    label: t('nav.catalog'),
-  },
-  {
-    to: isSignedIn.value ? localePath('/client/bookings') : localePath('/sign-in'),
-    icon: 'i-heroicons-calendar-days',
-    label: t('nav.bookings'),
-  },
-  {
-    to: isSignedIn.value
-      ? profile.value?.role === 'client'
-        ? localePath('/client/settings')
-        : localePath('/dashboard')
-      : localePath('/sign-in'),
+    to: isSignedIn.value ? localePath('/dashboard') : localePath('/sign-in'),
     icon: 'i-heroicons-user',
-    label: t('nav.profile'),
+    label: isSignedIn.value ? t('nav.dashboard') : t('nav.signIn'),
   },
 ])
 </script>

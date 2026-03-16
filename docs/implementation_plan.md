@@ -6,24 +6,25 @@
 
 ---
 
-## Фаза 0: Подготовка и рефакторинг (зависимости для всего)
+## Фаза 0: Подготовка и рефакторинг (зависимости для всего) ✅
 
-### 0.1 Миграция БД: таблица `clients`
-- Создать таблицу `clients` (id, master_id, phone, name, telegram_id, telegram_username, notes, created_at)
-- UNIQUE(master_id, phone)
-- Добавить `cover_url` в `master_profiles`
-- Мигрировать данные из `master_clients` → `clients`
-- Обновить FK в `bookings.client_id` → `clients.id`
-- Удалить таблицу `reviews` (или пометить deprecated)
+### 0.1 Миграция БД: таблица `clients` ✅
+- ✅ Создать таблицу `clients` (id, master_id, phone, name, telegram_id, telegram_username, notes, created_at)
+- ✅ UNIQUE(master_id, phone)
+- ✅ Добавить `cover_url` в `master_profiles`
+- ✅ Мигрировать данные из `master_clients` → `clients`
+- ✅ Обновить FK в `bookings.client_id` → `clients.id`
+- ✅ Удалить таблицу `reviews` (или пометить deprecated) — помечена deprecated
+- Миграция: `supabase/migrations/009_clients_table.sql`
 
-### 0.2 Удалить клиентские страницы и каталог
-- Удалить `/catalog`, `/client/*` pages
-- Удалить `client-only.ts` middleware
-- Удалить `master-redirect.global.ts`
-- Удалить `/api/masters/index.get.ts`, `/api/masters/top.get.ts`
-- Удалить `/api/reviews.post.ts`, `/api/masters/[username]/reviews.get.ts`
-- Удалить компоненты `reviews/ReviewModal.vue`
-- Обновить `auth.ts` middleware — убрать роутинг для клиентов
+### 0.2 Удалить клиентские страницы и каталог ✅
+- ✅ Удалить `/catalog`, `/client/*` pages
+- ✅ Удалить `client-only.ts` middleware
+- ✅ Удалить `master-redirect.global.ts`
+- ✅ Удалить `/api/masters/index.get.ts`, `/api/masters/top.get.ts`
+- ✅ Удалить `/api/reviews.post.ts`, `/api/masters/[username]/reviews.get.ts`
+- ✅ Удалить компоненты `reviews/ReviewModal.vue`
+- ✅ Обновить `auth.ts` middleware — убрать роутинг для клиентов
 
 ---
 
