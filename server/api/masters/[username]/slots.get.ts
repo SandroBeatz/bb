@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const masterId = getRouterParam(event, 'id')
+  const masterId = getRouterParam(event, 'username')
   const query = getQuery(event)
   const date = query.date as string | undefined
 
@@ -26,7 +26,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Master not found' })
   }
 
-  const workHours = masterData.work_hours as Record<string, { start: number; end: number } | null>
+  const workHours = masterData.work_hours as Record<
+    string,
+    { start: string | number; end: string | number; off?: boolean } | null
+  >
 
   const serviceId = query.service_id as string | undefined
   let durationMinutes = 60

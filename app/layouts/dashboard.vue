@@ -10,22 +10,38 @@
       :default-size="22"
       :max-size="30"
     >
-      <!-- Logo -->
+      <!-- Logo + My Page quick link -->
       <template #header>
-        <NuxtLink :to="localePath('/')" class="flex items-center transition-opacity hover:opacity-75">
-          <img
-            v-if="!sidebarCollapsed"
-            src="~/assets/img/bb-logo.svg"
-            alt="BeautyBook"
-            class="h-7 w-auto"
-          />
-          <img
-            v-else
-            src="~/assets/img/favicon/favicon.svg"
-            alt="BB"
-            class="size-7"
-          />
-        </NuxtLink>
+        <div class="flex items-center justify-between w-full">
+          <NuxtLink :to="localePath('/')" class="flex items-center transition-opacity hover:opacity-75">
+            <img
+              v-if="!sidebarCollapsed"
+              src="~/assets/img/bb-logo.svg"
+              alt="BeautyBook"
+              class="h-7 w-auto"
+            />
+            <img
+              v-else
+              src="~/assets/img/favicon/favicon.svg"
+              alt="BB"
+              class="size-7"
+            />
+          </NuxtLink>
+          <UTooltip
+            v-if="profile?.username"
+            :text="t('nav.myProfile')"
+            :delay-duration="300"
+          >
+            <UButton
+              :to="localePath(`/master/${profile.username}`)"
+              icon="i-heroicons-arrow-top-right-on-square"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              :class="sidebarCollapsed ? 'hidden' : ''"
+            />
+          </UTooltip>
+        </div>
       </template>
 
       <!-- Navigation -->
@@ -37,7 +53,7 @@
         class="w-full"
       />
 
-      <!-- User footer -->
+      <!-- User dropdown at bottom -->
       <template #footer>
         <template v-if="isSignedIn && user">
           <UDropdownMenu :items="userMenuItems">
@@ -48,9 +64,13 @@
               :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-start gap-2 px-2'"
             >
               <UAvatar :src="user.imageUrl" :alt="user.fullName ?? ''" size="sm" />
-              <span v-if="!sidebarCollapsed" class="min-w-0 truncate font-sans text-sm font-medium text-highlighted">
-                {{ user.fullName ?? user.firstName }}
-              </span>
+              <div v-if="!sidebarCollapsed" class="min-w-0 flex-1 text-left">
+                <p class="truncate font-sans text-sm font-medium text-highlighted leading-tight">
+                  {{ user.fullName ?? user.firstName }}
+                </p>
+                <p class="truncate text-xs text-muted leading-tight">{{ t('nav.masterRole') }}</p>
+              </div>
+              <UIcon v-if="!sidebarCollapsed" name="i-heroicons-chevron-up-down" class="size-4 text-muted shrink-0" />
             </UButton>
           </UDropdownMenu>
         </template>
@@ -98,12 +118,23 @@
           :alt="user?.fullName ?? ''"
           size="md"
         />
-        <div class="min-w-0">
+        <div class="min-w-0 flex-1">
           <p class="truncate font-semibold text-highlighted">
             {{ user?.fullName ?? user?.firstName ?? t('nav.master') }}
           </p>
           <p class="text-sm text-muted">{{ t('nav.masterRole') }}</p>
         </div>
+        <!-- My page quick link -->
+        <UButton
+          v-if="profile?.username"
+          :to="localePath(`/master/${profile.username}`)"
+          icon="i-heroicons-arrow-top-right-on-square"
+          variant="ghost"
+          color="neutral"
+          size="sm"
+          :label="t('nav.myProfile')"
+          @click="mobileMenuOpen = false"
+        />
       </div>
 
       <!-- Nav items -->
@@ -117,6 +148,18 @@
         />
       </div>
 
+      <!-- Sign out -->
+      <div class="border-t border-default p-3">
+        <UButton
+          variant="ghost"
+          color="neutral"
+          icon="i-heroicons-arrow-right-on-rectangle"
+          class="w-full justify-start"
+          @click="handleSignOut"
+        >
+          {{ t('nav.signOut') }}
+        </UButton>
+      </div>
     </template>
   </UDrawer>
 </template>
@@ -193,23 +236,25 @@ const sidebarItems = computed<NavigationMenuItem[][]>(() => [
       icon: 'i-heroicons-chart-bar',
       to: localePath('/dashboard/analytics'),
     },
-  ],
-  [
     {
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',
       to: localePath('/dashboard/settings'),
-    },
-    {
-      label: t('nav.myProfile'),
-      icon: 'i-heroicons-eye',
-      to: profile.value?.username ? localePath(`/master/${profile.value.username}`) : undefined,
     },
   ],
 ])
 
 const userMenuItems = computed(() => [
   [
+    ...(profile.value?.username
+      ? [
+          {
+            label: t('nav.myProfile'),
+            icon: 'i-heroicons-arrow-top-right-on-square',
+            to: localePath(`/master/${profile.value.username}`),
+          },
+        ]
+      : []),
     {
       label: t('nav.settings'),
       icon: 'i-heroicons-cog-6-tooth',

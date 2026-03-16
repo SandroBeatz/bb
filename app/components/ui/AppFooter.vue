@@ -35,7 +35,6 @@ const localePath = useLocalePath()
 
 const footerItems = computed<NavigationMenuItem[]>(() => [
   { label: t('footer.about'), to: localePath('/about') },
-  { label: t('footer.contacts'), to: localePath('/contacts') },
-  { label: t('footer.forMasters'), to: localePath('/for-masters') },
+  { label: t('footer.contacts'), to: localePath('/contact') },
 ])
 </script>

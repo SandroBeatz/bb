@@ -14,7 +14,7 @@
       <div class="flex items-center gap-1.5">
         <UIcon name="i-heroicons-user" class="size-3.5 shrink-0 text-muted" />
         <p class="text-sm text-muted truncate">
-          {{ booking.profiles?.full_name ?? '—' }}
+          {{ booking.clients?.name ?? '—' }}
         </p>
       </div>
       <div v-if="booking.services?.price" class="flex items-center gap-1.5">
@@ -135,12 +135,57 @@
         size="sm"
         icon="i-heroicons-x-mark"
         :loading="cancelLoading"
-        @click="emit('cancelled', booking.id)"
+        @click="showCancelConfirm = true"
       >
         {{ $t('common.cancel') }}
       </UButton>
+      <UButton
+        v-if="booking.status === 'cancelled'"
+        color="error"
+        variant="ghost"
+        size="sm"
+        icon="i-heroicons-trash"
+        :loading="deleteLoading"
+        @click="showDeleteConfirm = true"
+      >
+        {{ $t('calendar.deleteBooking') }}
+      </UButton>
     </div>
   </div>
+
+  <!-- Cancel confirmation modal -->
+  <UModal v-model:open="showCancelConfirm" :title="$t('calendar.cancelConfirm.title')">
+    <template #body>
+      <p class="text-sm text-muted">{{ $t('calendar.cancelConfirm.message') }}</p>
+    </template>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="ghost" color="neutral" @click="showCancelConfirm = false">
+          {{ $t('common.no') }}
+        </UButton>
+        <UButton color="error" :loading="cancelLoading" @click="onConfirmCancel">
+          {{ $t('calendar.cancelConfirm.confirm') }}
+        </UButton>
+      </div>
+    </template>
+  </UModal>
+
+  <!-- Delete confirmation modal -->
+  <UModal v-model:open="showDeleteConfirm" :title="$t('calendar.deleteConfirm.title')">
+    <template #body>
+      <p class="text-sm text-muted">{{ $t('calendar.deleteConfirm.message') }}</p>
+    </template>
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <UButton variant="ghost" color="neutral" @click="showDeleteConfirm = false">
+          {{ $t('common.no') }}
+        </UButton>
+        <UButton color="error" :loading="deleteLoading" @click="onConfirmDelete">
+          {{ $t('calendar.deleteConfirm.confirm') }}
+        </UButton>
+      </div>
+    </template>
+  </UModal>
 </template>
 
 <script setup lang="ts">
@@ -148,23 +193,38 @@ import type { Booking, BookingStatus } from '~/types'
 
 type BookingWithDetails = Booking & {
   services?: { name: string; price: number; duration_minutes: number } | null
-  profiles?: { full_name: string; avatar_url: string | null } | null
+  clients?: { name: string; phone: string } | null
 }
 
 const props = defineProps<{
   booking: BookingWithDetails
   actionLoading?: boolean
   cancelLoading?: boolean
+  deleteLoading?: boolean
   savingNotes?: boolean
 }>()
 
 const emit = defineEmits<{
   confirmed: [id: string]
   cancelled: [id: string]
+  deleted: [id: string]
   completed: [booking: BookingWithDetails]
   notesSaved: [id: string, notes: string]
   timeUpdated: [id: string, starts_at: string, ends_at: string]
 }>()
+
+const showCancelConfirm = ref(false)
+const showDeleteConfirm = ref(false)
+
+function onConfirmCancel() {
+  showCancelConfirm.value = false
+  emit('cancelled', props.booking.id)
+}
+
+function onConfirmDelete() {
+  showDeleteConfirm.value = false
+  emit('deleted', props.booking.id)
+}
 
 const { locale } = useI18n()
 
@@ -199,7 +259,7 @@ function startEditTime() {
   const start = new Date(props.booking.starts_at)
   const end = new Date(props.booking.ends_at)
   editDate.value = start.toISOString().slice(0, 10)
-  editTime.value = `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`
+  editTime.value = `${String(start.getUTCHours()).padStart(2, '0')}:${String(start.getUTCMinutes()).padStart(2, '0')}`
   editDuration.value = Math.round((end.getTime() - start.getTime()) / 60_000)
   editingTime.value = true
 }
@@ -207,7 +267,7 @@ function startEditTime() {
 async function saveTime() {
   savingTime.value = true
   try {
-    const startsAt = new Date(`${editDate.value}T${editTime.value}:00`)
+    const startsAt = new Date(`${editDate.value}T${editTime.value}:00Z`)
     const endsAt = new Date(startsAt.getTime() + editDuration.value * 60_000)
     emit('timeUpdated', props.booking.id, startsAt.toISOString(), endsAt.toISOString())
     editingTime.value = false
@@ -220,10 +280,11 @@ async function saveTime() {
 const formattedTime = computed(() => {
   const start = new Date(props.booking.starts_at)
   const end = new Date(props.booking.ends_at)
-  const dateStr = start.toLocaleDateString(locale.value, { day: '2-digit', month: '2-digit' })
-  const startTime = start.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
-  const endTime = end.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
-  return `${dateStr} · ${startTime} – ${endTime}`
+  const day = String(start.getUTCDate()).padStart(2, '0')
+  const month = String(start.getUTCMonth() + 1).padStart(2, '0')
+  const startTime = `${String(start.getUTCHours()).padStart(2, '0')}:${String(start.getUTCMinutes()).padStart(2, '0')}`
+  const endTime = `${String(end.getUTCHours()).padStart(2, '0')}:${String(end.getUTCMinutes()).padStart(2, '0')}`
+  return `${day}.${month} · ${startTime} – ${endTime}`
 })
 
 const statusColor = computed(() => {

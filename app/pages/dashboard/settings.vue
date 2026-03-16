@@ -315,6 +315,23 @@
           {{ $t('nav.signOut') }}
         </UButton>
 
+        <!-- Notifications section (placeholder) -->
+        <UCard>
+          <template #header>
+            <div class="px-4 pt-4">
+              <h2 class="text-base font-semibold">{{ $t('settings.notifications.title') }}</h2>
+              <p class="text-sm text-muted mt-0.5">{{ $t('settings.notifications.subtitle') }}</p>
+            </div>
+          </template>
+          <div class="px-4 py-6 flex items-center gap-3">
+            <UIcon name="i-heroicons-bell-slash" class="size-8 text-muted shrink-0" />
+            <div>
+              <p class="text-sm font-medium">{{ $t('settings.notifications.comingSoon') }}</p>
+              <p class="text-xs text-muted mt-0.5">{{ $t('settings.notifications.comingSoonHint') }}</p>
+            </div>
+          </div>
+        </UCard>
+
         <!-- Payment methods section -->
         <UCard>
           <template #header>
@@ -442,6 +459,36 @@
             </UForm>
           </div>
         </UCard>
+        <!-- Telegram Mini App section -->
+        <UCard>
+          <template #header>
+            <div class="flex items-start justify-between px-4 pt-4">
+              <div>
+                <h2 class="text-base font-semibold">{{ $t('settings.tma.title') }}</h2>
+                <p class="text-sm text-muted mt-0.5">{{ $t('settings.tma.subtitle') }}</p>
+              </div>
+              <UBadge color="primary" variant="soft" size="sm">Pro</UBadge>
+            </div>
+          </template>
+          <div class="px-4 py-6 space-y-4">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border border-default">
+              <UIcon name="i-simple-icons-telegram" class="size-8 text-[#2AABEE] shrink-0 mt-0.5" />
+              <div class="space-y-1">
+                <p class="text-sm font-medium">{{ $t('settings.tma.description') }}</p>
+                <p class="text-xs text-muted">{{ $t('settings.tma.descriptionHint') }}</p>
+              </div>
+            </div>
+            <UButton
+              disabled
+              color="primary"
+              variant="soft"
+              icon="i-heroicons-lock-closed"
+            >
+              {{ $t('settings.tma.upgradeBtn') }}
+            </UButton>
+          </div>
+        </UCard>
+
       </UContainer>
     </template>
   </UDashboardPanel>

@@ -46,9 +46,11 @@
             :booking="selectedBooking"
             :action-loading="actionLoading"
             :cancel-loading="cancelLoading"
+            :delete-loading="deleteLoading"
             :saving-notes="savingNotes"
             @confirmed="confirmBooking"
             @cancelled="cancelBooking"
+            @deleted="deleteBooking"
             @completed="completeBooking"
             @notes-saved="saveNotes"
             @time-updated="updateBookingTime"
@@ -115,6 +117,7 @@ const clickedDatetime = ref<string | null>(null)
 // Per-action loading states for the currently selected booking
 const actionLoading = ref(false)
 const cancelLoading = ref(false)
+const deleteLoading = ref(false)
 const savingNotes = ref(false)
 
 // Fast lookup: booking id → booking
@@ -129,7 +132,7 @@ const bookingMap = computed(() => {
 const calendarEvents = computed<CalendarEvent[]>(() =>
   bookings.value.map((b) => ({
     id: b.id,
-    title: [b.services?.name, b.profiles?.full_name].filter(Boolean).join(' · '),
+    title: [b.services?.name, b.clients?.name].filter(Boolean).join(' · '),
     start: b.starts_at,
     end: b.ends_at,
     backgroundColor: STATUS_COLORS[b.status]?.background ?? '#9CA3AF',
@@ -137,7 +140,7 @@ const calendarEvents = computed<CalendarEvent[]>(() =>
     textColor: '#ffffff',
     extendedProps: {
       status: b.status,
-      clientName: b.profiles?.full_name ?? '',
+      clientName: b.clients?.name ?? '',
       servicePrice: b.services?.price ?? null,
       source: b.source,
     },
@@ -215,6 +218,19 @@ async function cancelBooking(id: string): Promise<void> {
     toast.add({ title: t('errors.general'), color: 'error' })
   } finally {
     cancelLoading.value = false
+  }
+}
+
+async function deleteBooking(id: string): Promise<void> {
+  deleteLoading.value = true
+  try {
+    await $fetch(`/api/master/bookings/${id}`, { method: 'DELETE' })
+    bookings.value = bookings.value.filter((b) => b.id !== id)
+    isSlideoverOpen.value = false
+  } catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  } finally {
+    deleteLoading.value = false
   }
 }
 

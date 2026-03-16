@@ -1,0 +1,905 @@
+name: Создать задачи BeautyBook v2.0
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Создать метки
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              { name: 'фаза-0-подготовка', color: 'D93F0B', description: 'Миграция БД, удаление старого кода' },
+              { name: 'фаза-1-онбординг', color: 'E99695', description: 'Онбординг мастера и авторизация' },
+              { name: 'фаза-2-лендинг', color: 'FEF2C0', description: 'Landing page и статические страницы' },
+              { name: 'фаза-3-дашборд', color: 'C2E0C6', description: 'Обновления дашборда мастера' },
+              { name: 'фаза-4-страничка', color: 'BFD4F2', description: 'Публичная страничка мастера и букинг' },
+              { name: 'фаза-5-подписки', color: 'D4C5F9', description: 'Логика подписок Free/Pro' },
+              { name: 'фаза-6-telegram', color: '0088CC', description: 'Telegram Mini App' },
+              { name: 'frontend', color: '61DAFB', description: 'Фронтенд задача' },
+              { name: 'backend', color: '68D391', description: 'Бэкенд / API задача' },
+              { name: 'database', color: '1D76DB', description: 'Изменения в базе данных' },
+              { name: 'design', color: 'F472B6', description: 'Дизайн / UI' },
+              { name: 'cleanup', color: 'CCCCCC', description: 'Удаление старого кода' },
+              { name: 'breaking-change', color: 'B60205', description: 'Ломающие изменения' },
+              { name: 'blocker', color: 'B60205', description: 'Блокирует другие задачи' },
+              { name: 'i18n', color: 'A78BFA', description: 'Мультиязычность (ru/ky)' },
+              { name: 'telegram', color: '0088CC', description: 'Telegram интеграция' },
+              { name: 'billing', color: 'FBCA04', description: 'Подписки и оплата' },
+              { name: 'booking', color: '5319E7', description: 'Букинг / записи' },
+              { name: 'clients', color: '0E8A16', description: 'Управление клиентами' },
+              { name: 'auth', color: '006B75', description: 'Авторизация и middleware' },
+              { name: 'settings', color: 'C5DEF5', description: 'Настройки' },
+              { name: 'priority-high', color: 'D93F0B', description: 'Высокий приоритет' },
+            ];
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description,
+                });
+                console.log(`✅ Метка создана: ${label.name}`);
+              } catch (e) {
+                if (e.status === 422) {
+                  console.log(`⚠️ Метка уже существует: ${label.name}`);
+                } else {
+                  console.error(`❌ Ошибка: ${label.name}: ${e.message}`);
+                }
+              }
+            }
+
+      - name: Создать milestone
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.createMilestone({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'v2.0',
+                description: 'BeautyBook v2.0 — Master-only SaaS pivot',
+                state: 'open',
+              });
+              console.log('✅ Milestone v2.0 создан');
+            } catch (e) {
+              if (e.status === 422) {
+                console.log('⚠️ Milestone v2.0 уже существует');
+              } else {
+                console.error(`❌ Ошибка: ${e.message}`);
+              }
+            }
+
+      - name: Создать задачи
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Получаем milestone number
+            const milestones = await github.rest.issues.listMilestones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+            });
+            const milestone = milestones.data.find(m => m.title === 'v2.0');
+            const milestoneNumber = milestone ? milestone.number : undefined;
+
+            const issues = [
+
+              // ============================================================
+              // ФАЗА 0 — ПОДГОТОВКА И РЕФАКТОРИНГ
+              // ============================================================
+
+              {
+                title: '[Фаза 0.1] Миграция БД: таблица clients и обновление схемы',
+                labels: ['фаза-0-подготовка', 'database', 'breaking-change', 'blocker'],
+                body: `## Цель
+            Создать новую таблицу \`clients\` для хранения клиентов мастера без регистрации на платформе. Уникальный ключ — связка \`(master_id, phone)\`.
+
+            ## Зависимости
+            Нет — это стартовая задача, от неё зависят почти все остальные.
+
+            ## Задачи
+            - [ ] Создать миграцию \`009_clients_table.sql\`:
+              - Таблица \`clients\` (id uuid PK, master_id FK → profiles.id, phone text NOT NULL, name text, telegram_id bigint, telegram_username text, notes text, created_at timestamptz)
+              - UNIQUE(master_id, phone)
+              - Индекс на (master_id, phone)
+            - [ ] Добавить \`cover_url text\` в таблицу \`master_profiles\`
+            - [ ] Мигрировать данные из \`master_clients\` → \`clients\` (backfill скрипт)
+            - [ ] Обновить \`bookings.client_id\` FK → \`clients.id\` (или добавить новый FK)
+            - [ ] Обновить \`app/types/database.types.ts\` — добавить типы для \`clients\`
+            - [ ] Пометить таблицу \`reviews\` как deprecated (не удалять данные)
+
+            ## Структура таблицы clients
+            \`\`\`sql
+            CREATE TABLE clients (
+              id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+              master_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+              phone text NOT NULL,
+              name text,
+              telegram_id bigint,
+              telegram_username text,
+              notes text,
+              created_at timestamptz DEFAULT now(),
+              UNIQUE(master_id, phone)
+            );
+            CREATE INDEX idx_clients_master_phone ON clients(master_id, phone);
+            \`\`\`
+
+            ## Acceptance Criteria
+            - Таблица \`clients\` создана и работает
+            - Существующие клиенты перенесены из \`master_clients\`
+            - \`database.types.ts\` обновлен с типами для \`clients\`
+            - Все существующие API routes продолжают работать
+
+            ## Оценка
+            1 день`,
+              },
+
+              {
+                title: '[Фаза 0.2] Удалить клиентские страницы, каталог и отзывы',
+                labels: ['фаза-0-подготовка', 'cleanup', 'breaking-change', 'blocker'],
+                body: `## Цель
+            Убрать всё, что связано с ролью «клиент» на платформе: каталог мастеров, клиентские страницы, систему отзывов.
+
+            ## Зависимости
+            Нет — можно выполнять параллельно с Фазой 0.1.
+
+            ## Задачи
+            **Удалить страницы:**
+            - [ ] \`app/pages/catalog/index.vue\`
+            - [ ] \`app/pages/client/index.vue\`
+            - [ ] \`app/pages/client/bookings.vue\`
+            - [ ] \`app/pages/client/masters.vue\`
+            - [ ] \`app/pages/client/settings.vue\`
+
+            **Удалить middleware:**
+            - [ ] \`app/middleware/client-only.ts\`
+            - [ ] \`app/middleware/master-redirect.global.ts\`
+
+            **Удалить API routes:**
+            - [ ] \`server/api/masters/index.get.ts\` (список всех мастеров)
+            - [ ] \`server/api/masters/top.get.ts\`
+            - [ ] \`server/api/reviews.post.ts\`
+            - [ ] \`server/api/masters/[username]/reviews.get.ts\`
+            - [ ] \`server/api/me/masters.get.ts\`
+            - [ ] \`server/api/me/bookings.get.ts\`
+            - [ ] \`server/api/me/bookings/[id]/cancel.patch.ts\`
+
+            **Удалить компоненты:**
+            - [ ] \`app/components/reviews/ReviewModal.vue\`
+
+            **Обновить:**
+            - [ ] \`app/middleware/auth.ts\` — убрать роутинг для клиентов
+            - [ ] Обновить i18n файлы — удалить неиспользуемые ключи
+            - [ ] Убрать ссылки на каталог/клиентов из навигации (AppHeader, BottomNav)
+            - [ ] Убрать импорты/ссылки в stores и composables
+
+            ## Acceptance Criteria
+            - Все клиентские и каталожные страницы удалены
+            - Нет broken imports/references
+            - \`bun run check\` проходит без ошибок
+            - Навигация не содержит ссылок на удалённые страницы
+
+            ## Оценка
+            0.5 дня`,
+              },
+
+              // ============================================================
+              // ФАЗА 1 — ОНБОРДИНГ И АВТОРИЗАЦИЯ
+              // ============================================================
+
+              {
+                title: '[Фаза 1.1] Переделать онбординг — 5-шаговый stepper для мастера',
+                labels: ['фаза-1-онбординг', 'frontend', 'backend', 'design'],
+                body: `## Цель
+            Онбординг теперь только для мастеров — роль \`master\` присваивается автоматически. Выбор роли убран. 5 экранов stepper.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (миграция БД), **Фаза 0.2** (удаление клиентских страниц)
+
+            ## Экраны онбординга
+            1. **Название + slug** — бизнес-имя + username (slug) с live-проверкой уникальности. Формат slug: только латиница, цифры, дефис.
+            2. **Логотип** — загрузка аватара/лого (Supabase Storage), кнопка «Пропустить»
+            3. **Специализации** — мульти-выбор чипсов: Маникюр, Педикюр, Коррекция ресниц, Тату, Макияж, Брови, Волосы, Массаж, Косметология, Другое
+            4. **График работы** — 7 дней недели, для каждого: toggle вкл/выкл + start time + end time
+            5. **Сводка** — отображение всех введённых данных + кнопка «Создать свой BeautyBook»
+
+            ## Задачи
+            - [ ] Переделать \`app/pages/onboarding.vue\` — stepper UI с прогресс-баром (5 шагов)
+            - [ ] Компонент каждого шага:
+              - Step 1: \`UInput\` для имени + \`UInput\` для slug с debounced проверкой + превью URL
+              - Step 2: \`UAvatar\` + кнопка загрузки + «Пропустить»
+              - Step 3: Grid чипсов (\`UBadge\` с toggle), мульти-выбор
+              - Step 4: 7 строк (Пн–Вс), \`UToggle\` + два \`UInput type="time"\`
+              - Step 5: Summary карточка со всеми данными + CTA
+            - [ ] Обновить \`POST /api/me/onboarding\`:
+              - Создать запись в \`profiles\` с role=master
+              - Создать запись в \`master_profiles\` (specializations, work_hours)
+              - Загрузить аватар если предоставлен
+            - [ ] Добавить API \`GET /api/me/check-username?username=xxx\` — проверка свободности slug
+            - [ ] Zod-схемы для каждого шага
+            - [ ] Обновить i18n (ru.json, ky.json) — все строки онбординга
+
+            ## Дизайн
+            - Прогресс-бар: тонкая линия сверху, 5 секций, текущая — \`bg-primary-500\`
+            - Чипсы специализаций: \`UBadge variant="soft"\`, при выборе — \`variant="solid" color="primary"\`
+            - График работы: компактная таблица, toggle слева, time inputs справа
+            - Summary: \`UCard rounded-2xl\` со всеми данными, CTA внизу
+
+            ## Acceptance Criteria
+            - Новый пользователь проходит 5 шагов и попадает в дашборд
+            - Роль \`master\` устанавливается автоматически (без выбора)
+            - Username уникальный и проверяется в реальном времени
+            - Можно пропустить загрузку аватара
+            - Все строки переведены на ru и ky
+
+            ## Оценка
+            2.5 дня`,
+              },
+
+              {
+                title: '[Фаза 1.2] Обновить auth middleware — убрать клиентскую логику',
+                labels: ['фаза-1-онбординг', 'auth', 'backend'],
+                body: `## Цель
+            Упростить auth middleware — все новые пользователи идут на онбординг, после онбординга — в дашборд. Убрать все ветки для клиентов.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.2** (удаление клиентских страниц)
+
+            ## Задачи
+            - [ ] Обновить \`app/middleware/auth.ts\`:
+              - Если нет профиля в Supabase → \`/onboarding\`
+              - Если есть профиль с role=master → пропустить (разрешить доступ)
+              - Убрать все редиректы на \`/client\`
+              - Убрать проверку role=client
+            - [ ] Упростить \`app/middleware/master-only.ts\`:
+              - Все авторизованные пользователи = мастера (после нового онбординга)
+              - Или объединить с \`auth.ts\` если логика идентична
+            - [ ] Проверить все файлы с \`definePageMeta\`:
+              - Убрать middleware: 'client-only' отовсюду
+              - Убедиться что dashboard/* используют правильный middleware
+            - [ ] Обновить \`useProfile\` composable — убрать клиентскую логику
+
+            ## Acceptance Criteria
+            - Авторизованный пользователь без профиля → \`/onboarding\`
+            - Мастер с профилем → доступ к дашборду
+            - Нет упоминаний \`client-only\` middleware в codebase
+            - \`bun run check\` проходит
+
+            ## Оценка
+            0.5 дня`,
+              },
+
+              // ============================================================
+              // ФАЗА 2 — LANDING PAGE
+              // ============================================================
+
+              {
+                title: '[Фаза 2.1] Редизайн Landing Page — ориентация на мастеров',
+                labels: ['фаза-2-лендинг', 'frontend', 'design', 'i18n'],
+                body: `## Цель
+            Полностью переделать лендинг. Теперь он ориентирован **только на мастеров**. Клиенты не заходят на лендинг — они попадают сразу на страничку мастера по ссылке.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.2** (удаление каталога и клиентских элементов)
+
+            ## Структура лендинга
+
+            **Шапка (AppHeader):**
+            - Лого BeautyBook (serif font)
+            - «Посмотреть демо» (ghost button)
+            - «Войти / Зарегистрироваться» (primary button)
+
+            **Hero секция:**
+            - Заголовок: «Ваш персональный сайт для записи клиентов» (или аналог)
+            - Подзаголовок: «Создайте свой BeautyBook за 5 минут. Делитесь ссылкой в Instagram, Telegram и WhatsApp»
+            - CTA: «Создать бесплатно» → /sign-up
+            - Фоновое изображение или иллюстрация
+
+            **Как это работает (4 шага):**
+            1. Зарегистрируйтесь
+            2. Настройте услуги и график
+            3. Поделитесь ссылкой с клиентами
+            4. Принимайте записи и управляйте бизнесом
+
+            **Преимущества:**
+            - Персональная страничка с вашими услугами
+            - Онлайн-запись 24/7
+            - Управление клиентами и записями
+            - Календарь и расписание
+            - Аналитика вашего бизнеса
+            - Telegram Mini App для ваших клиентов
+
+            **Тарифы:**
+            - Free (0 сом): до 30 записей/мес, базовый функционал
+            - Pro (TBD сом): без ограничений, аналитика, напоминания, TMA
+
+            **CTA финальный:**
+            - «Создать свой BeautyBook» → /sign-up
+
+            **Футер (AppFooter):**
+            - О сервисе → /about
+            - Связаться с нами → /contact
+            - Смена языка (ru/ky)
+            - Смена темы (light/dark)
+
+            ## Задачи
+            - [ ] Переделать \`app/pages/index.vue\` — полный редизайн
+            - [ ] Обновить \`app/components/ui/AppHeader.vue\`:
+              - Убрать ссылку на каталог
+              - Добавить «Посмотреть демо»
+              - «Войти / Зарегистрироваться» для гостей
+            - [ ] Обновить \`app/components/ui/AppFooter.vue\`:
+              - О сервисе, Контакты
+              - Переключатель языка и темы
+            - [ ] Обновить i18n (ru.json, ky.json) — все строки лендинга
+            - [ ] SSR + мета-теги для SEO
+
+            ## Дизайн
+            - Hero: gradient фон или фото с overlay, текст белый
+            - h1: \`font-serif text-4xl md:text-5xl font-light\`
+            - Шаги: 4 иконки + подписи, горизонтально на десктопе, вертикально на мобиле
+            - Тарифы: два \`UCard\`, Pro с \`ring-2 ring-primary\` и бейджем «Рекомендуем»
+            - CTA: \`UButton color="primary" size="xl"\`
+
+            ## Acceptance Criteria
+            - Лендинг ориентирован на мастеров, нет каталога/поиска
+            - Все секции отображаются корректно на mobile и desktop
+            - Переводы на ru и ky
+            - SSR работает, мета-теги корректны
+
+            ## Оценка
+            2 дня`,
+              },
+
+              {
+                title: '[Фаза 2.2] Статические страницы: About и Contact',
+                labels: ['фаза-2-лендинг', 'frontend', 'i18n'],
+                body: `## Цель
+            Добавить страницы «О сервисе» и «Связаться с нами» для футера.
+
+            ## Зависимости
+            - Блокирован: **Фаза 2.1** (лендинг — чтобы футер с ссылками был готов)
+
+            ## Задачи
+            - [ ] Создать \`app/pages/about.vue\`:
+              - Описание BeautyBook
+              - Для кого (мастера красоты)
+              - Как работает
+              - Команда (опционально)
+            - [ ] Создать \`app/pages/contact.vue\`:
+              - Email для связи
+              - Telegram канал/чат поддержки
+              - Простая форма обратной связи (опционально, через Resend)
+            - [ ] Добавить ссылки в футер
+            - [ ] i18n для обеих страниц (ru, ky)
+
+            ## Acceptance Criteria
+            - Обе страницы доступны и стилизованы
+            - Ссылки в футере работают
+            - Переводы на оба языка
+
+            ## Оценка
+            0.5 дня`,
+              },
+
+              // ============================================================
+              // ФАЗА 3 — ОБНОВЛЕНИЯ ДАШБОРДА
+              // ============================================================
+
+              {
+                title: '[Фаза 3.1] Обновить layout дашборда — навигация и user dropdown',
+                labels: ['фаза-3-дашборд', 'frontend', 'design'],
+                body: `## Цель
+            Перенести user dropdown и «Моя страничка» в верхний правый угол. Обновить навигацию sidebar.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.2** (удаление клиентской навигации)
+
+            ## Задачи
+            - [ ] Обновить \`app/layouts/dashboard.vue\`:
+
+              **Sidebar навигация (desktop):**
+              - Кабинет (\`i-heroicons-home\`)
+              - Календарь (\`i-heroicons-calendar-days\`)
+              - Услуги (\`i-heroicons-scissors\`)
+              - Портфолио (\`i-heroicons-photo\`)
+              - Клиенты (\`i-heroicons-users\`)
+              - Аналитика (\`i-heroicons-chart-bar\`)
+              - Настройки (\`i-heroicons-cog-6-tooth\`)
+
+              **Верхний правый угол (UDashboardNavbar #right slot):**
+              - Аватар пользователя + имя → dropdown:
+                - «Моя страничка» → открывает /master/[username] в новой вкладке
+                - «Настройки» → /dashboard/settings
+                - Разделитель
+                - «Выйти» → Clerk sign out
+
+              **Убрать:**
+              - User footer из sidebar
+              - Навигацию для клиентов
+
+            - [ ] Обновить mobile bottom nav (5 пунктов max):
+              - Кабинет, Календарь, Услуги, Клиенты, Меню (drawer с остальным)
+            - [ ] Mobile drawer: Портфолио, Аналитика, Настройки, Моя страничка, Выйти
+
+            ## Дизайн
+            - Sidebar: \`UDashboardSidebar resizable collapsible\`
+            - Навигация: \`UNavigationMenu orientation="vertical"\`
+            - Dropdown: \`UDropdownMenu\` с аватаром как trigger
+            - Bottom nav: sticky, 5 иконок, активный — \`text-primary\`
+
+            ## Acceptance Criteria
+            - User dropdown в правом верхнем углу на всех страницах дашборда
+            - «Моя страничка» открывает публичную страницу мастера
+            - Навигация соответствует новой спеке
+            - Mobile и desktop версии работают корректно
+
+            ## Оценка
+            1 день`,
+              },
+
+              {
+                title: '[Фаза 3.2] Переделать страницу клиентов под новую модель данных',
+                labels: ['фаза-3-дашборд', 'frontend', 'backend', 'clients'],
+                body: `## Цель
+            Клиенты теперь хранятся в таблице \`clients\` с уникальным ключом — номер телефона. Обновить UI и API.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (таблица \`clients\` должна существовать)
+
+            ## Задачи
+            **Frontend — \`app/pages/dashboard/clients.vue\`:**
+            - [ ] Таблица/список клиентов:
+              - Колонки: имя, телефон, telegram username, кол-во визитов, последний визит
+              - Поиск по имени и телефону (debounced input)
+            - [ ] Клик на клиента → slideover с деталями:
+              - Полная информация (имя, телефон, telegram, заметки)
+              - Кнопка «Редактировать»
+              - История визитов (список букингов этого клиента)
+            - [ ] Форма редактирования клиента:
+              - Поля: имя, телефон, заметки
+              - Zod-валидация
+            - [ ] Кнопка «Добавить клиента» — ручное добавление
+            - [ ] Empty state: «У вас пока нет клиентов. Они появятся после первой записи»
+
+            **Backend — API endpoints:**
+            - [ ] Обновить \`GET /api/master/clients\`:
+              - Из таблицы \`clients\` WHERE master_id = текущий мастер
+              - JOIN с bookings для подсчёта визитов и последнего визита
+              - Поиск: \`?search=\` по name и phone (ILIKE)
+            - [ ] Обновить \`POST /api/master/clients\` — добавить клиента вручную
+            - [ ] Обновить \`GET /api/master/clients/[id]\` — детали + история букингов
+            - [ ] Создать \`PATCH /api/master/clients/[id]\` — обновить имя, телефон, заметки
+
+            **Store:**
+            - [ ] Обновить \`dashboardCache.ts\` — методы для клиентов из новой таблицы
+            - [ ] Обновить \`ClientPicker.vue\` — поиск по таблице \`clients\`
+
+            ## Acceptance Criteria
+            - Клиенты отображаются из таблицы \`clients\`
+            - Поиск и редактирование работают
+            - История визитов показывается корректно
+            - Ручное добавление клиента сохраняет в \`clients\`
+
+            ## Оценка
+            2 дня`,
+              },
+
+              {
+                title: '[Фаза 3.3] Обновить страницу настроек мастера — 5 секций',
+                labels: ['фаза-3-дашборд', 'frontend', 'backend', 'settings'],
+                body: `## Цель
+            Разделить настройки на 5 логических секций вместо единой формы.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (cover_url в master_profiles), **Фаза 0.2**
+
+            ## Секции настроек
+
+            **1. Настройки профиля:**
+            - Имя бизнеса, slug (username) с проверкой уникальности
+            - Аватар — загрузка/изменение
+            - Обложка (cover_url) — загрузка/изменение
+            - Контакты: WhatsApp, Telegram, Instagram, телефон
+            - Bio (textarea)
+            - Город
+
+            **2. Настройки календаря:**
+            - Вид по умолчанию (день/неделя/месяц) — уже реализовано через \`useCalendarSettings\`
+            - Длительность слота (15/30/45/60 мин)
+            - График работы (дни + часы) — редактирование
+
+            **3. Настройки уведомлений (placeholder):**
+            - Toggle: Email-уведомления о новых записях
+            - Toggle: Telegram-уведомления
+            - (Функционал будет реализован позже, пока только UI)
+
+            **4. Способы оплаты:**
+            - Перенести функционал из \`/settings/payment-types\`
+            - CRUD методов оплаты inline на этой странице
+            - Список с toggle active/inactive, drag-reorder
+            - Добавление новых
+
+            **5. Telegram Mini App (Pro only):**
+            - Пошаговая инструкция:
+              1. Создайте бота через @BotFather
+              2. Отправьте /newapp и выберите вашего бота
+              3. Укажите URL: \`https://beautybook.app/tma/master/{your_id}\`
+              4. Готово! Ваша ссылка: \`https://t.me/{bot}/app\`
+            - Для Free-пользователей: заблокировано с upsell баннером
+
+            ## Задачи
+            - [ ] Переделать \`app/pages/dashboard/settings.vue\` — 5 секций с якорями
+            - [ ] API endpoint для загрузки обложки (\`cover_url\`)
+            - [ ] Удалить отдельную страницу \`/settings/payment-types\` — объединить в основные настройки
+            - [ ] Обновить i18n
+
+            ## Дизайн
+            - Секции разделены \`border-b border-default\` с \`py-8\`
+            - Заголовок секции: \`text-lg font-semibold\` + описание \`text-sm text-muted\`
+            - Якорная навигация (опционально): sticky sidebar с ссылками на секции
+
+            ## Acceptance Criteria
+            - Все 5 секций отображаются и работают
+            - Способы оплаты перенесены из отдельной страницы
+            - TMA секция показывает инструкцию (для Pro) или upsell (для Free)
+            - Загрузка обложки работает
+
+            ## Оценка
+            2 дня`,
+              },
+
+              // ============================================================
+              // ФАЗА 4 — СТРАНИЧКА МАСТЕРА И БУКИНГ
+              // ============================================================
+
+              {
+                title: '[Фаза 4.1] Редизайн странички мастера — mobile-first для клиентов',
+                labels: ['фаза-4-страничка', 'frontend', 'design', 'priority-high'],
+                body: `## Цель
+            Страничка мастера — **главная ценность продукта**. Это то, что видят клиенты по ссылке. Полный редизайн с mobile-first подходом.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (cover_url в master_profiles)
+
+            ## Структура страницы (сверху вниз)
+
+            **1. Обложка:**
+            - \`cover_url\` из master_profiles
+            - Если нет — красивый gradient фон (на основе primary color)
+            - aspect-ratio 16:9, max-height 200px на мобиле
+
+            **2. Аватар + Название:**
+            - Аватар: круглый, 80px, перекрывает нижний край обложки
+            - Название бизнеса: \`text-xl font-semibold\`
+            - Специализации: бейджи (\`UBadge variant="soft" size="xs"\`)
+
+            **3. График работы на сегодня:**
+            - Если рабочий день: «Сегодня: 09:00 – 18:00» с зелёной точкой
+            - Если выходной: «Сегодня выходной» с красной точкой
+            - Компактный блок под аватаром
+
+            **4. Табы:**
+            - \`UTabs\` underline style, 4 таба:
+
+            **Таб «Запись» (default):**
+            - Кнопка «Записаться» — primary, крупная, full-width, главный CTA
+            - Кнопка «Отменить запись» — outline, серая
+            - Кнопка «Написать в WhatsApp» — зелёная (если WhatsApp указан в контактах)
+
+            **Таб «Услуги»:**
+            - Список услуг: карточки с названием, описанием, ценой, длительностью
+            - Кнопка «Записаться» на каждой услуге → переход к букингу с предвыбранной услугой
+
+            **Таб «Портфолио»:**
+            - Сетка фото 3 колонки, клик → lightbox
+
+            **Таб «Обо мне»:**
+            - Bio мастера
+            - Контакты (WhatsApp, Telegram, Instagram)
+            - Город
+            - Полный график работы (все дни недели)
+
+            ## Задачи
+            - [ ] Переделать \`app/pages/master/[username].vue\` — полный редизайн
+            - [ ] Компоненты для табов (переиспользуемые):
+              - \`MasterBookingTab.vue\` — CTA кнопки
+              - \`MasterServicesTab.vue\` — список услуг
+              - \`MasterPortfolioTab.vue\` — сетка портфолио (переиспользовать PortfolioGrid)
+              - \`MasterAboutTab.vue\` — bio + контакты + график
+            - [ ] SSR + мета-теги для SEO (title, description, og:image = cover или аватар)
+            - [ ] Убрать отзывы полностью со страницы
+            - [ ] Обработка «выходного дня» — корректное отображение
+
+            ## Дизайн
+            - Mobile-first: оптимизировано для ширины 375px
+            - Обложка: \`object-cover\`, скруглённые нижние углы \`rounded-b-2xl\`
+            - Аватар: \`ring-4 ring-white\` (чтобы выделялся на обложке), \`-mt-10\` для перекрытия
+            - Кнопка «Записаться»: \`UButton color="primary" size="xl" block\`, с иконкой \`i-heroicons-calendar-plus\`
+            - WhatsApp кнопка: \`UButton color="success" variant="soft" block\`
+            - Табы: sticky при скролле
+
+            ## Acceptance Criteria
+            - Страничка красиво выглядит на мобильном (375px, 390px, 414px)
+            - Все 4 таба работают и отображают данные
+            - Кнопки CTA видны, понятны и работают
+            - Выходной день корректно показывается
+            - SSR работает, мета-теги присутствуют
+
+            ## Оценка
+            3 дня`,
+              },
+
+              {
+                title: '[Фаза 4.2] Форма бронирования — клиент по номеру телефона',
+                labels: ['фаза-4-страничка', 'frontend', 'backend', 'booking', 'design'],
+                body: `## Цель
+            Клиент записывается **без регистрации** — вводит номер телефона, система ищет в базе и подставляет имя. Максимально быстрый и простой flow.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (таблица \`clients\`), **Фаза 4.1** (страничка мастера)
+
+            ## Flow бронирования
+
+            **Шаг 1 — Идентификация клиента:**
+            - Поле телефона (маска ввода: +996 XXX XXX XXX)
+            - Debounced поиск (300ms) после ввода полного номера
+            - Если найден → показать имя клиента, «Здравствуйте, {имя}!»
+            - Если не найден → показать поле для ввода имени
+
+            **Шаг 2 — Выбор услуги:**
+            - Список услуг мастера (radio selection)
+            - Если пришёл с таба «Услуги» — услуга предвыбрана
+
+            **Шаг 3 — Выбор даты и времени:**
+            - Календарь (только рабочие дни доступны)
+            - Сетка слотов для выбранной даты
+            - Занятые слоты задизейблены
+
+            **Шаг 4 — Подтверждение:**
+            - Summary: мастер, услуга, дата, время, цена
+            - Данные клиента (имя, телефон)
+            - Кнопка «Подтвердить запись»
+            - После подтверждения: успех-экран с деталями
+
+            ## Задачи
+            **Frontend:**
+            - [ ] Переделать \`app/pages/master/[username]/book.vue\` — 4-шаговый wizard
+            - [ ] Компонент маски телефона (или использовать \`v-maska\`)
+            - [ ] Debounced поиск клиента по телефону
+            - [ ] Выбор даты: использовать BookingCalendar или inline calendar
+            - [ ] Выбор слота: сетка кнопок (3 колонки)
+            - [ ] Success screen после бронирования
+
+            **Backend — новые/обновлённые API:**
+            - [ ] \`POST /api/masters/[id]/lookup-client\`:
+              - Body: { phone }
+              - Поиск в \`clients\` WHERE master_id AND phone
+              - Response: { found: boolean, name?: string }
+            - [ ] Обновить \`POST /api/masters/[id]/book\`:
+              - Body: { phone, name, service_id, starts_at }
+              - Найти или создать клиента в \`clients\`
+              - Создать booking с client_id
+              - Проверить лимит Free-подписки
+              - Не требует авторизации!
+
+            **Страница отмены:**
+            - [ ] Создать \`app/pages/master/[username]/cancel.vue\`:
+              - Ввод телефона → поиск активных записей
+              - Показать список записей с кнопкой «Отменить»
+              - Подтверждение отмены
+            - [ ] API: \`POST /api/masters/[id]/cancel\`:
+              - Body: { phone, booking_id }
+              - Проверить что booking принадлежит клиенту с этим phone
+              - Изменить статус на cancelled
+
+            ## Дизайн
+            - Wizard: прогресс-бар сверху (4 шага)
+            - Поле телефона: крупное, \`size="xl"\`, маска ввода
+            - «Здравствуйте, {имя}!»: зелёный бейдж (\`UBadge color="success"\`)
+            - Слоты: \`rounded-lg min-h-[44px]\`, 3 колонки, занятые — \`opacity-30\`
+            - Success screen: иконка checkmark + «Вы записаны!» + детали
+            - Кнопка «Назад»: \`variant="ghost"\` в header
+
+            ## Acceptance Criteria
+            - Клиент записывается по номеру телефона без регистрации
+            - Повторный клиент автоматически распознаётся по номеру
+            - Новый клиент сохраняется в таблицу \`clients\`
+            - Отмена записи по номеру телефона работает
+            - Букинг не требует авторизации
+            - Flow работает быстро (< 3 тапов до подтверждения)
+
+            ## Оценка
+            3 дня`,
+              },
+
+              {
+                title: '[Фаза 4.3] API для публичного бронирования — rate limiting и безопасность',
+                labels: ['фаза-4-страничка', 'backend', 'booking'],
+                body: `## Цель
+            Обеспечить безопасность публичных API endpoints для бронирования (без авторизации).
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (таблица \`clients\`)
+
+            ## Задачи
+            - [ ] Rate limiting на публичные endpoints:
+              - \`POST /api/masters/[id]/lookup-client\` — max 10 req/min per IP
+              - \`POST /api/masters/[id]/book\` — max 5 req/min per IP
+              - \`POST /api/masters/[id]/cancel\` — max 5 req/min per IP
+            - [ ] Валидация телефона:
+              - Формат: международный или локальный (regex)
+              - Zod-схема для phone
+            - [ ] Защита от abuse:
+              - Нельзя создать >3 записей с одного телефона за день у одного мастера
+              - Нельзя отменить чужую запись (проверка phone ↔ booking)
+            - [ ] Логирование подозрительной активности (console.log в server)
+
+            ## Acceptance Criteria
+            - Rate limiting работает на всех публичных booking endpoints
+            - Телефон валидируется на сервере
+            - Нельзя забронировать >3 раз за день
+            - Нельзя отменить чужую запись
+
+            ## Оценка
+            1 день`,
+              },
+
+              // ============================================================
+              // ФАЗА 5 — ПОДПИСКИ
+              // ============================================================
+
+              {
+                title: '[Фаза 5.1] Логика подписок Free / Pro — лимиты и upsell',
+                labels: ['фаза-5-подписки', 'frontend', 'backend', 'billing'],
+                body: `## Цель
+            Реализовать логику ограничений Free-подписки (30 записей/мес) и upsell для Pro.
+
+            ## Зависимости
+            - Блокирован: **Фаза 0.1** (\`subscription_tier\` уже есть в \`master_profiles\`)
+
+            ## Лимиты
+
+            | Фича | Free | Pro |
+            |---|---|---|
+            | Записей в месяц | 30 | Без ограничений |
+            | Базовая аналитика | ✅ | ✅ |
+            | Улучшенная аналитика | ❌ | ✅ |
+            | Напоминания клиентам | ❌ | ✅ |
+            | Telegram Mini App | ❌ | ✅ |
+
+            ## Задачи
+            **Backend:**
+            - [ ] Создать \`server/utils/subscription.ts\`:
+              - \`checkBookingLimit(masterId)\` — подсчёт записей за текущий месяц (status != cancelled)
+              - \`isProFeatureAvailable(masterId, feature)\` — проверка доступности Pro-фич
+              - \`getSubscriptionInfo(masterId)\` — tier, usage, limit, daysLeft
+            - [ ] Добавить проверку лимита в \`POST /api/masters/[id]/book\`:
+              - Если Free и ≥30 → вернуть 403 с сообщением и upsell
+            - [ ] API endpoint \`GET /api/master/subscription\` — текущий тариф, использование
+
+            **Frontend:**
+            - [ ] В дашборде (главная): показать прогресс-бар «X / 30 записей в этом месяце» для Free
+            - [ ] Upsell-баннер при приближении к лимиту (25+):
+              - «Осталось {N} записей в этом месяце. Перейдите на Pro для безлимитных записей»
+              - Кнопка «Подробнее о Pro»
+            - [ ] В настройках: секция «Подписка» — текущий тариф, дата окончания (для Pro)
+            - [ ] Заблокировать Pro-фичи для Free с upsell overlay:
+              - Улучшенная аналитика → показать preview + блюр + «Доступно в Pro»
+              - TMA инструкция → «Доступно в Pro»
+
+            ## Дизайн
+            - Прогресс-бар: тонкий, \`bg-primary\`, под navbar в дашборде
+            - Upsell-баннер: \`UCard\` с gradient фоном, иконка + текст + CTA
+            - Блюр overlay для Pro-фич: \`backdrop-blur-sm\` + центрированная карточка с CTA
+
+            ## Acceptance Criteria
+            - Free мастер не может создать >30 записей/мес (403 с понятным сообщением)
+            - Показывается текущее использование в дашборде
+            - Upsell-баннер появляется при 25+ записях
+            - Pro-фичи заблокированы для Free с upsell UI
+
+            ## Оценка
+            2 дня`,
+              },
+
+              // ============================================================
+              // ФАЗА 6 — TELEGRAM MINI APP
+              // ============================================================
+
+              {
+                title: '[Фаза 6.1] Обновить Telegram Mini App — общие компоненты и автозаполнение',
+                labels: ['фаза-6-telegram', 'frontend', 'backend', 'telegram'],
+                body: `## Цель
+            TMA должна использовать те же компоненты, что и веб-версия странички мастера. Данные из Telegram подтягиваются автоматически.
+
+            ## Зависимости
+            - Блокирован: **Фаза 4.1** (страничка мастера), **Фаза 4.2** (форма бронирования)
+
+            ## Задачи
+            **Frontend:**
+            - [ ] Обновить \`/tma/master/[id]\`:
+              - Переиспользовать компоненты из \`/master/[username]\` (MasterBookingTab, MasterServicesTab и т.д.)
+              - Без AppHeader/AppFooter (TMA предоставляет свой chrome)
+              - Использовать Telegram MainButton API для CTA
+              - Использовать Telegram BackButton API для навигации
+            - [ ] Обновить \`/tma/book/[masterId]\`:
+              - Booking wizard в compact режиме (меньше отступы)
+              - Автозаполнение из initData:
+                - \`first_name + last_name\` → имя клиента
+                - \`phone_number\` (если доступен через requestContact) → телефон
+              - Если телефон не доступен из Telegram → ввод вручную
+            - [ ] Обновить \`useTelegramApp\` composable:
+              - Метод для запроса контактных данных (\`requestContact\`)
+              - Передача telegram_id и telegram_username при создании клиента
+
+            **Backend:**
+            - [ ] Обновить \`POST /api/masters/[id]/book\`:
+              - Принимать опциональные \`telegram_id\` и \`telegram_username\`
+              - Сохранять в таблицу \`clients\`
+            - [ ] Обновить \`POST /api/telegram/validate\` если нужно
+
+            **Инструкция для мастера (в настройках, Pro only):**
+            - [ ] Пошаговая инструкция с скриншотами:
+              1. Откройте @BotFather в Telegram
+              2. Отправьте /newbot и создайте бота
+              3. Отправьте /newapp → выберите бота → укажите URL
+              4. URL: \`https://beautybook.app/tma/master/{your_id}\`
+              5. Готово! Ваша ссылка: \`https://t.me/{bot_username}/app\`
+            - [ ] Поле для ввода bot token (для уведомлений)
+
+            **Уведомления:**
+            - [ ] При новом букинге через TMA — уведомление мастеру через Bot API
+            - [ ] Формат: «Новая запись! {Имя клиента} записался на {услуга} на {дата} в {время}»
+
+            ## Acceptance Criteria
+            - TMA открывает страничку мастера с теми же компонентами что и web
+            - Данные из Telegram (имя) подтягиваются автоматически
+            - Букинг работает внутри TMA
+            - Инструкция в настройках понятна
+            - Уведомления мастеру приходят
+
+            ## Оценка
+            3 дня`,
+              },
+
+            ];
+
+            // Создаём issues последовательно
+            for (let i = 0; i < issues.length; i++) {
+              const issue = issues[i];
+              try {
+                const created = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: issue.title,
+                  labels: issue.labels,
+                  body: issue.body,
+                  milestone: milestoneNumber,
+                });
+                console.log(`✅ #${created.data.number}: ${issue.title}`);
+              } catch (e) {
+                console.error(`❌ Ошибка при создании "${issue.title}": ${e.message}`);
+              }
+            }
+
+            console.log('\n📋 Все задачи созданы!');
+            console.log('\nПорядок выполнения:');
+            console.log('  1. Фаза 0.1 + 0.2 (параллельно) — подготовка');
+            console.log('  2. Фаза 1.2 + 3.1 (параллельно) — auth + layout');
+            console.log('  3. Фаза 1.1 — онбординг');
+            console.log('  4. Фаза 2.1 — лендинг');
+            console.log('  5. Фаза 3.2 + 3.3 + 2.2 (параллельно) — клиенты, настройки, static');
+            console.log('  6. Фаза 4.1 — страничка мастера');
+            console.log('  7. Фаза 4.2 + 4.3 (параллельно) — букинг');
+            console.log('  8. Фаза 5.1 — подписки');
+            console.log('  9. Фаза 6.1 — TMA');

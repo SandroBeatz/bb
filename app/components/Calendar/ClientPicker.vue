@@ -7,8 +7,8 @@
     >
       <UIcon name="i-heroicons-user-circle" class="size-4 shrink-0 text-muted" />
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium leading-none">{{ selectedClient.full_name }}</p>
-        <p v-if="selectedClient.phone" class="text-xs text-muted mt-0.5">{{ selectedClient.phone }}</p>
+        <p class="text-sm font-medium leading-none">{{ selectedClient.name }}</p>
+        <p class="text-xs text-muted mt-0.5">{{ selectedClient.phone }}</p>
       </div>
       <UButton
         icon="i-heroicons-x-mark"
@@ -47,7 +47,7 @@
           >
             <UIcon name="i-heroicons-user-circle" class="size-4 shrink-0 text-muted" />
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium truncate">{{ client.full_name }}</p>
+              <p class="text-sm font-medium truncate">{{ client.name }}</p>
               <p class="text-xs text-muted">
                 <span v-if="client.phone">{{ client.phone }} · </span>{{ client.visit_count }} {{ $t('calendar.clientPicker.visits') }}
               </p>
@@ -109,9 +109,9 @@
 <script setup lang="ts">
 interface Client {
   id: string
-  full_name: string
-  phone: string | null
-  avatar_url: string | null
+  name: string
+  phone: string
+  notes: string | null
   visit_count: number
   last_visit: string | null
   total_amount: number
@@ -141,7 +141,7 @@ const filtered = computed(() => {
   const q = query.value.toLowerCase().trim()
   if (!q) return clients.value.slice(0, 10)
   return clients.value.filter(
-    (c) => c.full_name.toLowerCase().includes(q) || (c.phone && c.phone.toLowerCase().includes(q)),
+    (c) => c.name.toLowerCase().includes(q) || c.phone.toLowerCase().includes(q),
   )
 })
 
@@ -201,7 +201,7 @@ async function createClient() {
   try {
     const client = await $fetch<Client>('/api/master/clients', {
       method: 'POST',
-      body: { full_name: newName.value.trim(), phone: newPhone.value.trim() || undefined },
+      body: { name: newName.value.trim(), phone: newPhone.value.trim() },
     })
     clients.value.unshift(client)
     select(client)

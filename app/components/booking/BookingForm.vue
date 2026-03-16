@@ -11,9 +11,9 @@
   </Transition>
 
   <!-- Wizard UI -->
-  <div class="flex flex-col min-h-[calc(100vh-var(--ui-header-height,64px))]">
+  <div class="flex flex-col min-h-screen">
     <!-- Sticky top: progress bar + step header -->
-    <div class="sticky top-[var(--ui-header-height,64px)] z-10 bg-[var(--ui-bg)]">
+    <div class="sticky top-0 z-10 bg-[var(--ui-bg)]">
       <!-- Thin progress line -->
       <div class="h-1 bg-[var(--ui-border)]">
         <div
@@ -122,12 +122,11 @@
         </div>
       </div>
 
-      <!-- Step 4: Confirmation -->
+      <!-- Step 4: Contact info + Confirmation -->
       <div v-else-if="store.currentStep === 4" class="space-y-4">
         <!-- Summary card -->
         <UCard class="rounded-2xl">
           <div class="p-5 space-y-4">
-            <!-- Master row -->
             <div class="flex items-center gap-3">
               <UAvatar :src="masterAvatar ?? undefined" :alt="masterName" size="md" />
               <p class="font-semibold">{{ masterName }}</p>
@@ -155,18 +154,41 @@
           </div>
         </UCard>
 
-        <!-- Contact form -->
+        <!-- Contact form with phone lookup -->
         <UForm ref="confirmFormRef" :schema="confirmSchema" :state="confirmState" class="space-y-4" @submit="onSubmit">
-          <UFormField :label="$t('pages.booking.name')" name="name" required>
-            <UInput v-model="confirmState.name" size="lg" class="w-full" :placeholder="$t('pages.booking.namePlaceholder')" />
-          </UFormField>
           <UFormField :label="$t('pages.booking.phone')" name="phone" required>
+            <div class="relative">
+              <UInput
+                v-model="confirmState.phone"
+                type="tel"
+                size="lg"
+                class="w-full"
+                :placeholder="$t('pages.booking.phonePlaceholder')"
+                @blur="lookupClient"
+              />
+              <span
+                v-if="lookupLoading"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted"
+              >
+                {{ $t('pages.booking.lookingUp') }}
+              </span>
+            </div>
+          </UFormField>
+
+          <div v-if="clientFound !== null" class="rounded-lg px-3 py-2 text-sm"
+            :class="clientFound ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'"
+          >
+            <span v-if="clientFound">{{ $t('pages.booking.clientFound', { name: confirmState.name }) }}</span>
+            <span v-else>{{ $t('pages.booking.clientNotFound') }}</span>
+          </div>
+
+          <UFormField :label="$t('pages.booking.name')" name="name" required>
             <UInput
-              v-model="confirmState.phone"
-              type="tel"
+              v-model="confirmState.name"
               size="lg"
               class="w-full"
-              :placeholder="$t('pages.booking.phonePlaceholder')"
+              :placeholder="$t('pages.booking.namePlaceholder')"
+              :disabled="clientFound === true"
             />
           </UFormField>
         </UForm>
@@ -216,15 +238,15 @@ const emit = defineEmits<{
 }>()
 
 const { t, locale } = useI18n()
-const { user } = useUser()
 const toast = useToast()
 const store = useBookingStore()
 const submitting = ref(false)
 const slotsLoading = ref(false)
 const showSuccess = ref(false)
+const lookupLoading = ref(false)
+const clientFound = ref<boolean | null>(null)
 const confirmFormRef = useTemplateRef<{ submit: () => void }>('confirmFormRef')
 
-// Duration of success animation before redirecting (ms)
 const SUCCESS_ANIMATION_DURATION = 1800
 
 const stepTitles = computed(() => [
@@ -236,22 +258,10 @@ const stepTitles = computed(() => [
 
 const stepTitle = computed(() => stepTitles.value[store.currentStep - 1] ?? '')
 
-// Confirm form state and schema
 const confirmState = reactive({
-  name: user.value?.fullName ?? user.value?.firstName ?? '',
+  name: '',
   phone: '',
 })
-
-// Pre-fill name when user data becomes available
-watch(
-  () => user.value,
-  (u) => {
-    if (u && !confirmState.name) {
-      confirmState.name = u.fullName ?? u.firstName ?? ''
-    }
-  },
-  { immediate: true },
-)
 
 const confirmSchema = z.object({
   name: z.string().min(1, t('pages.booking.validation.nameRequired')),
@@ -261,7 +271,6 @@ const confirmSchema = z.object({
     .regex(/^\+?[\d\s\-()]{7,}$/, t('pages.booking.validation.phoneInvalid')),
 })
 
-// Computed: whether current step can proceed
 const canProceed = computed(() => {
   switch (store.currentStep) {
     case 1:
@@ -277,8 +286,28 @@ const canProceed = computed(() => {
   }
 })
 
-// Slots are generated with UTC hours by the server (work_hours stored as UTC ints)
-// so display in UTC to match the master's configured schedule
+async function lookupClient() {
+  const phone = confirmState.phone.trim()
+  if (!phone || phone.length < 7) return
+
+  lookupLoading.value = true
+  clientFound.value = null
+  try {
+    const result = await $fetch<{ found: boolean; name?: string }>(
+      `/api/masters/${props.masterId}/lookup-client`,
+      { method: 'POST', body: { phone } },
+    )
+    clientFound.value = result.found
+    if (result.found && result.name) {
+      confirmState.name = result.name
+    }
+  } catch {
+    clientFound.value = false
+  } finally {
+    lookupLoading.value = false
+  }
+}
+
 function formatSlotTime(iso: string): string {
   const d = new Date(iso)
   const h = String(d.getUTCHours()).padStart(2, '0')
@@ -286,7 +315,6 @@ function formatSlotTime(iso: string): string {
   return `${h}:${m}`
 }
 
-// Format selected date for display using the active i18n locale
 const formattedDate = computed(() => {
   if (!store.selectedDate) return ''
   return store.selectedDate.toLocaleDateString(locale.value, {
@@ -296,7 +324,6 @@ const formattedDate = computed(() => {
   })
 })
 
-// Load slots when entering step 3
 watch(
   () => store.currentStep,
   async (step) => {
@@ -309,10 +336,15 @@ watch(
         slotsLoading.value = false
       }
     }
+    // Reset lookup state when navigating to step 4
+    if (step === 4) {
+      clientFound.value = null
+      confirmState.name = ''
+      confirmState.phone = ''
+    }
   },
 )
 
-// Also reload slots if date changes while on step 3
 watch(
   () => store.selectedDate,
   async (date) => {
@@ -333,7 +365,6 @@ function handleNext() {
   store.nextStep()
 }
 
-// Trigger the UForm submit via template ref
 function triggerSubmit() {
   confirmFormRef.value?.submit()
 }
@@ -346,9 +377,10 @@ async function onSubmit() {
       masterId: props.masterId,
       serviceId: store.selectedService.id,
       startsAt: store.selectedSlot,
+      clientName: confirmState.name,
+      clientPhone: confirmState.phone,
     })
     showSuccess.value = true
-    // Wait for animation then emit success
     await new Promise((resolve) => setTimeout(resolve, SUCCESS_ANIMATION_DURATION))
     emit('success')
   } catch {
@@ -360,7 +392,6 @@ async function onSubmit() {
 </script>
 
 <style scoped>
-/* Checkmark SVG animation */
 .checkmark {
   width: 80px;
   height: 80px;
@@ -388,7 +419,6 @@ async function onSubmit() {
   }
 }
 
-/* Fade transition for success overlay */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;

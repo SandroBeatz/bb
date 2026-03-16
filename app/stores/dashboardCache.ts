@@ -6,7 +6,7 @@ type Service = Database['public']['Tables']['services']['Row']
 
 export type BookingWithDetails = Booking & {
   services?: { name: string; price: number; duration_minutes: number } | null
-  profiles?: { full_name: string; avatar_url: string | null } | null
+  clients?: { name: string; phone: string } | null
 }
 
 export type DashboardAnalytics = {
@@ -21,14 +21,10 @@ export type DashboardAnalytics = {
 
 export type ClientItem = {
   id: string
-  full_name: string
-  avatar_url: string | null
-  phone: string | null
-  email: string | null
-  display_name: string | null
+  name: string
+  phone: string
   notes: string | null
-  invitation_status: string
-  added_at: string
+  created_at: string
   visit_count: number
   last_visit: string | null
   total_amount: number

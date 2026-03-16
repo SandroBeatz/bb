@@ -101,12 +101,12 @@ const bookingInfo = computed<BookingInfo | null>(() => {
   if (!store.booking) return null
   const b = store.booking as typeof store.booking & {
     services?: { name: string; price: number } | null
-    profiles?: { full_name: string } | null
+    clients?: { name: string } | null
   }
   return {
     id: b.id,
     serviceName: b.services?.name ?? '',
-    clientName: b.profiles?.full_name ?? '',
+    clientName: b.clients?.name ?? '',
     price: b.services?.price ?? 0,
   }
 })

@@ -92,7 +92,6 @@ const localePath = useLocalePath()
 const { isSignedIn, isLoaded } = useAuth()
 const { user } = useUser()
 const clerk = useClerk()
-const { profile } = useProfile()
 
 // Cache user data in cookie — survives page refresh, eliminates auth flash
 const userCookie = useCookie<{ imageUrl: string; name: string } | null>('bb_u', {
@@ -136,21 +135,11 @@ const cachedUser = computed(() =>
 )
 
 const navItems = computed<NavigationMenuItem[]>(() => [
-  { label: t('nav.catalog'), to: localePath('/catalog') },
-  { label: t('nav.forMasters'), to: localePath('/for-masters') },
+  { label: t('footer.about'), to: localePath('/about') },
+  { label: t('footer.contacts'), to: localePath('/contact') },
 ])
 
 const mobileNavItems = computed<NavigationMenuItem[]>(() => [
-  {
-    label: t('nav.catalog'),
-    icon: 'i-heroicons-magnifying-glass',
-    to: localePath('/catalog'),
-  },
-  {
-    label: t('nav.forMasters'),
-    icon: 'i-heroicons-star',
-    to: localePath('/for-masters'),
-  },
   {
     label: t('footer.about'),
     icon: 'i-heroicons-information-circle',
@@ -159,46 +148,24 @@ const mobileNavItems = computed<NavigationMenuItem[]>(() => [
   {
     label: t('footer.contacts'),
     icon: 'i-heroicons-envelope',
-    to: localePath('/contacts'),
+    to: localePath('/contact'),
   },
 ])
 
 const userMenuItems = computed(() => {
-  const role = profile.value?.role
-  const mainItems =
-    role === 'client'
-      ? [
-          {
-            label: t('nav.myBookings'),
-            icon: 'i-heroicons-calendar-days',
-            to: localePath('/client/bookings'),
-          },
-          {
-            label: t('nav.myMasters'),
-            icon: 'i-heroicons-user-group',
-            to: localePath('/client/masters'),
-          },
-          {
-            label: t('nav.clientSettings'),
-            icon: 'i-heroicons-cog-6-tooth',
-            to: localePath('/client/settings'),
-          },
-        ]
-      : [
-          {
-            label: t('nav.dashboard'),
-            icon: 'i-heroicons-squares-2x2',
-            to: localePath('/dashboard'),
-          },
-          {
-            label: t('nav.settings'),
-            icon: 'i-heroicons-cog-6-tooth',
-            to: localePath('/dashboard/settings'),
-          },
-        ]
-
   return [
-    mainItems,
+    [
+      {
+        label: t('nav.dashboard'),
+        icon: 'i-heroicons-squares-2x2',
+        to: localePath('/dashboard'),
+      },
+      {
+        label: t('nav.settings'),
+        icon: 'i-heroicons-cog-6-tooth',
+        to: localePath('/dashboard/settings'),
+      },
+    ],
     [
       {
         label: t('nav.signOut'),

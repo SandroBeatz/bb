@@ -63,13 +63,5 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: error.message })
   }
 
-  // Auto-link client to master
-  await supabase
-    .from('master_clients')
-    .upsert(
-      { master_id: masterId, client_id: body.client_id },
-      { onConflict: 'master_id,client_id' },
-    )
-
   return booking
 })

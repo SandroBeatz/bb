@@ -116,7 +116,7 @@ watch(isOpen, async (opened) => {
   if (props.defaultDatetime) {
     const dt = new Date(props.defaultDatetime)
     form.date = dt.toISOString().slice(0, 10)
-    form.time = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`
+    form.time = `${String(dt.getUTCHours()).padStart(2, '0')}:${String(dt.getUTCMinutes()).padStart(2, '0')}`
   }
   await loadServices()
 })
@@ -137,7 +137,7 @@ async function submit() {
   conflictError.value = false
   submitting.value = true
   try {
-    const startsAt = new Date(`${form.date}T${form.time}:00`).toISOString()
+    const startsAt = new Date(`${form.date}T${form.time}:00Z`).toISOString()
     await $fetch('/api/master/bookings', {
       method: 'POST',
       body: {

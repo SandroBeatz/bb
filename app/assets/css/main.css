@@ -36,6 +36,17 @@
   --color-rose-800: #782A46;
   --color-rose-900: #65263D;
   --color-rose-950: #3C0F21;
+
+  --color-accent-50:  #F5F3FF;
+  --color-accent-100: #EDE9FE;
+  --color-accent-200: #DDD6FE;
+  --color-accent-300: #C4B5FD;
+  --color-accent-400: #A78BFA;
+  --color-accent-500: #8B5CF6;
+  --color-accent-600: #7C3AED;
+  --color-accent-700: #6D28D9;
+  --color-accent-800: #5B21B6;
+  --color-accent-900: #4C1D95;
 }
 
 /* ============================================================
