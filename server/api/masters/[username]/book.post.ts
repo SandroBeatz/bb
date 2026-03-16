@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const masterId = getRouterParam(event, 'id')
+  const masterId = getRouterParam(event, 'username')
 
   if (!masterId) {
     throw createError({ statusCode: 400, message: 'Master ID is required' })
@@ -8,13 +8,15 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<{
     service_id: string
     starts_at: string
+    client_name: string
+    client_phone: string
     notes?: string
   }>(event)
 
-  if (!body?.service_id || !body?.starts_at) {
+  if (!body?.service_id || !body?.starts_at || !body?.client_name || !body?.client_phone) {
     throw createError({
       statusCode: 400,
-      message: 'service_id and starts_at are required',
+      message: 'service_id, starts_at, client_name and client_phone are required',
     })
   }
 
@@ -50,7 +52,35 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const clientId = requireAuth(event)
+  // Find or create client by phone
+  const phone = body.client_phone.replace(/\s/g, '')
+  let clientId: string
+
+  const { data: existingClient } = await supabase
+    .from('clients')
+    .select('id')
+    .eq('master_id', masterId)
+    .eq('phone', phone)
+    .single()
+
+  if (existingClient) {
+    clientId = existingClient.id
+  } else {
+    const { data: newClient, error: clientError } = await supabase
+      .from('clients')
+      .insert({
+        master_id: masterId,
+        phone,
+        name: body.client_name,
+      })
+      .select('id')
+      .single()
+
+    if (clientError || !newClient) {
+      throw createError({ statusCode: 500, message: 'Failed to create client' })
+    }
+    clientId = newClient.id
+  }
 
   const { data: booking, error } = await supabase
     .from('bookings')

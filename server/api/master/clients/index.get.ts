@@ -74,9 +74,7 @@ export default defineEventHandler(async (event) => {
 
   if (search) {
     clients = clients.filter(
-      (c) =>
-        c.name.toLowerCase().includes(search) ||
-        c.phone.toLowerCase().includes(search),
+      (c) => c.name.toLowerCase().includes(search) || c.phone.toLowerCase().includes(search),
     )
   }
 

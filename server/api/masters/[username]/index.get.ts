@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
         specializations,
         contacts,
         work_hours,
+        cover_url,
         rating,
         subscription_tier
       )

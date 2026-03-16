@@ -21,8 +21,7 @@ export default defineEventHandler(async (event) => {
   // Get user data from Clerk to fill defaults
   const clerkUser = await clerkClient(event).users.getUser(userId)
   const fullName =
-    body.full_name?.trim() ||
-    [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ')
+    body.full_name?.trim() || [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ')
   const avatarUrl = body.avatar_url !== undefined ? body.avatar_url : (clerkUser.imageUrl ?? null)
 
   const supabase = useServerSupabase()
@@ -51,16 +50,14 @@ export default defineEventHandler(async (event) => {
   }
 
   // Upsert master_profiles with specializations + work hours
-  const { error: masterError } = await supabase
-    .from('master_profiles')
-    .upsert(
-      {
-        id: userId,
-        specializations: body.specializations ?? [],
-        work_hours: body.work_hours ?? {},
-      },
-      { onConflict: 'id' },
-    )
+  const { error: masterError } = await supabase.from('master_profiles').upsert(
+    {
+      id: userId,
+      specializations: body.specializations ?? [],
+      work_hours: body.work_hours ?? {},
+    },
+    { onConflict: 'id' },
+  )
 
   if (masterError) {
     throw createError({ statusCode: 500, message: masterError.message })

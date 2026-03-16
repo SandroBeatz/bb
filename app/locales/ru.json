@@ -267,6 +267,9 @@
       "dateLabel": "Дата",
       "timeLabel": "Время",
       "totalLabel": "Итого",
+      "lookingUp": "Ищем...",
+      "clientFound": "Нашли вас: {name}",
+      "clientNotFound": "Клиент не найден, введите ваше имя",
       "validation": {
         "nameRequired": "Введите ваше имя",
         "phoneRequired": "Введите номер телефона",
@@ -409,9 +412,27 @@
     "signUp": {
       "title": "Создать аккаунт"
     },
+    "cancelBooking": {
+      "title": "Отменить запись",
+      "subtitle": "Введите номер телефона, чтобы найти вашу запись",
+      "phone": "Номер телефона",
+      "phonePlaceholder": "+7 (___) ___-__-__",
+      "submit": "Найти и отменить запись",
+      "noBookings": "Активных записей не найдено",
+      "success": "Запись отменена",
+      "successHint": "Мастер будет уведомлён об отмене",
+      "backToProfile": "Вернуться к профилю",
+      "validation": {
+        "phoneRequired": "Введите номер телефона"
+      }
+    },
     "masterProfile": {
       "book": "Записаться",
+      "cancelBooking": "Отменить запись",
+      "whatsapp": "Написать в WhatsApp",
+      "dayOff": "Выходной",
       "tabs": {
+        "booking": "Запись",
         "services": "Услуги",
         "portfolio": "Портфолио",
         "reviews": "Отзывы",
@@ -500,6 +521,17 @@
       "created": "Запись создана",
       "conflictError": "Это время уже занято. Выберите другое."
     },
+    "cancelConfirm": {
+      "title": "Отменить запись?",
+      "message": "Запись будет отменена. Это действие нельзя отменить.",
+      "confirm": "Да, отменить"
+    },
+    "deleteConfirm": {
+      "title": "Удалить запись?",
+      "message": "Запись будет удалена без возможности восстановления.",
+      "confirm": "Удалить"
+    },
+    "deleteBooking": "Удалить запись",
     "source": {
       "online": "Онлайн",
       "offline": "Офлайн",

@@ -94,6 +94,7 @@ const calendarOptions = computed(() => ({
     center: 'title',
     right: 'dayGridMonth,timeGridWeek,timeGridDay',
   },
+  timeZone: 'UTC',
   locale: props.locale === 'ru' ? ruLocale : undefined,
   firstDay: 1,
   slotMinTime: '07:00:00',

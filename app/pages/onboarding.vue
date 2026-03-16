@@ -307,7 +307,9 @@ function specLabel(value: string): string {
 // Time slots: 06:00 → 23:00, every 30 min (35 options)
 const timeOptions = Array.from({ length: 35 }, (_, i) => {
   const mins = 360 + i * 30
-  const h = Math.floor(mins / 60).toString().padStart(2, '0')
+  const h = Math.floor(mins / 60)
+    .toString()
+    .padStart(2, '0')
   const m = (mins % 60).toString().padStart(2, '0')
   return `${h}:${m}`
 })
@@ -390,9 +392,7 @@ async function checkUsername() {
     usernameAvailable.value = false
     usernameError.value = t('pages.onboarding.step1.validation.usernameTaken')
   } catch (e: unknown) {
-    const status =
-      (e as { status?: number }).status ??
-      (e as { statusCode?: number }).statusCode
+    const status = (e as { status?: number }).status ?? (e as { statusCode?: number }).statusCode
     if (status === 404) {
       usernameAvailable.value = true
       usernameError.value = ''

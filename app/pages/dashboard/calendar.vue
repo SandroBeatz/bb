@@ -46,9 +46,11 @@
             :booking="selectedBooking"
             :action-loading="actionLoading"
             :cancel-loading="cancelLoading"
+            :delete-loading="deleteLoading"
             :saving-notes="savingNotes"
             @confirmed="confirmBooking"
             @cancelled="cancelBooking"
+            @deleted="deleteBooking"
             @completed="completeBooking"
             @notes-saved="saveNotes"
             @time-updated="updateBookingTime"
@@ -115,6 +117,7 @@ const clickedDatetime = ref<string | null>(null)
 // Per-action loading states for the currently selected booking
 const actionLoading = ref(false)
 const cancelLoading = ref(false)
+const deleteLoading = ref(false)
 const savingNotes = ref(false)
 
 // Fast lookup: booking id → booking
@@ -215,6 +218,19 @@ async function cancelBooking(id: string): Promise<void> {
     toast.add({ title: t('errors.general'), color: 'error' })
   } finally {
     cancelLoading.value = false
+  }
+}
+
+async function deleteBooking(id: string): Promise<void> {
+  deleteLoading.value = true
+  try {
+    await $fetch(`/api/master/bookings/${id}`, { method: 'DELETE' })
+    bookings.value = bookings.value.filter((b) => b.id !== id)
+    isSlideoverOpen.value = false
+  } catch {
+    toast.add({ title: t('errors.general'), color: 'error' })
+  } finally {
+    deleteLoading.value = false
   }
 }
 
