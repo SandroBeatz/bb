@@ -63,13 +63,12 @@
             v-for="booking in todayBookings"
             :key="booking.id"
             :booking="booking"
-            @refresh="fetchData"
           />
         </div>
       </div>
     </UContainer>
 
-    <QuickCheckoutModal @success="fetchData" />
+    <QuickCheckoutModal />
     </template>
   </UDashboardPanel>
 
@@ -85,22 +84,32 @@
 </template>
 
 <script setup lang="ts">
+import { useQuery } from '@pinia/colada'
+import { analyticsQuery, bookingsQuery } from '~/composables/queries/dashboard'
+
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const cache = useDashboardCache()
-const { bookings, bookingsLoading, bookingsReady, analytics } = storeToRefs(cache)
+const { isSignedIn } = useAuth()
 
-const loading = computed(
-  () => !bookingsReady.value || (bookingsLoading.value && !bookings.value.length),
-)
+const { data: bookings, asyncStatus: bookingsStatus } = useQuery({
+  ...bookingsQuery,
+  enabled: () => import.meta.client && !!isSignedIn.value,
+})
+
+const { data: analytics } = useQuery({
+  ...analyticsQuery,
+  enabled: () => import.meta.client && !!isSignedIn.value,
+})
+
+const loading = computed(() => bookingsStatus.value === 'loading')
 
 const todayStr = new Date().toISOString().slice(0, 10)
 
 const todayBookings = computed(() => {
-  return bookings.value
+  return (bookings.value ?? [])
     .filter((b) => b.starts_at.slice(0, 10) === todayStr)
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
 })
@@ -120,11 +129,4 @@ const fabItems = computed(() => [
   ],
 ])
 
-async function fetchData() {
-  await Promise.all([cache.fetchBookings(), cache.fetchAnalytics()])
-}
-
-onMounted(() => {
-  fetchData()
-})
 </script>

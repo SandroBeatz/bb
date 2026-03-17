@@ -1,11 +1,24 @@
 import { defineStore } from 'pinia'
-import type { Booking, PaymentType } from '~/types'
+import { useMutation, useQuery, useQueryCache } from '@pinia/colada'
+import type { Booking } from '~/types'
+import { analyticsQuery, bookingsQuery, paymentTypesQuery } from '~/composables/queries/dashboard'
+
+type CheckoutPayload = {
+  bookingId: string
+  amount: number
+  paymentTypeId: string
+  note?: string
+}
 
 export const useQuickCheckout = defineStore('quickCheckout', () => {
   const isOpen = ref(false)
   const booking = ref<Booking | null>(null)
-  const paymentTypes = ref<PaymentType[]>([])
-  const loading = ref(false)
+  const queryCache = useQueryCache()
+
+  const { data: paymentTypes, asyncStatus: paymentTypesAsyncStatus } = useQuery({
+    ...paymentTypesQuery,
+    enabled: () => import.meta.client,
+  })
 
   function openCheckout(selectedBooking: Booking) {
     booking.value = selectedBooking
@@ -17,37 +30,29 @@ export const useQuickCheckout = defineStore('quickCheckout', () => {
     booking.value = null
   }
 
-  async function fetchPaymentTypes() {
-    const data = await $fetch<PaymentType[]>('/api/master/payment-types')
-    paymentTypes.value = data ?? []
-  }
-
-  async function submitCheckout(
-    bookingId: string,
-    amount: number,
-    paymentTypeId: string,
-    note?: string,
-  ) {
-    loading.value = true
-    try {
-      await $fetch(`/api/master/bookings/${bookingId}/checkout`, {
+  const { mutateAsync: submitCheckout, asyncStatus: checkoutAsyncStatus } = useMutation({
+    mutation: ({ bookingId, amount, paymentTypeId, note }: CheckoutPayload) =>
+      $fetch(`/api/master/bookings/${bookingId}/checkout`, {
         method: 'POST',
-        body: { payment_type_id: paymentTypeId, amount, note: note || null },
-      })
+        body: { payment_type_id: paymentTypeId, amount, note: note ?? null },
+      }),
+    onSuccess: () => {
       close()
-    } finally {
-      loading.value = false
-    }
-  }
+      queryCache.invalidateQueries({ key: bookingsQuery.key })
+      queryCache.invalidateQueries({ key: analyticsQuery.key })
+    },
+  })
+
+  const loading = computed(() => checkoutAsyncStatus.value === 'loading')
 
   return {
     isOpen,
     booking,
     paymentTypes,
+    paymentTypesAsyncStatus,
     loading,
     openCheckout,
     close,
-    fetchPaymentTypes,
     submitCheckout,
   }
 })
