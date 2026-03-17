@@ -32,16 +32,20 @@ const masterProfile = computed(
 const specializations = computed(() => masterProfile.value?.specializations?.join(' · ') ?? '')
 
 const todaySchedule = computed(() => {
-  const wh = masterProfile.value?.work_hours as Record<
-    string,
-    { start: string | number; end: string | number; off?: boolean } | null
-  > | undefined
+  const wh = masterProfile.value?.work_hours as
+    | Record<string, { start: string | number; end: string | number; off?: boolean } | null>
+    | undefined
   if (!wh) return null
 
   const fullDay = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
   const shortDay: Record<string, string> = {
-    sunday: 'sun', monday: 'mon', tuesday: 'tue', wednesday: 'wed',
-    thursday: 'thu', friday: 'fri', saturday: 'sat',
+    sunday: 'sun',
+    monday: 'mon',
+    tuesday: 'tue',
+    wednesday: 'wed',
+    thursday: 'thu',
+    friday: 'fri',
+    saturday: 'sat',
   }
   const day = wh[shortDay[fullDay] ?? ''] ?? wh[fullDay] ?? null
 

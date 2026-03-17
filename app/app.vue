@@ -5,17 +5,12 @@
       <NuxtPage />
     </NuxtLayout>
   </UApp>
+
+  <PiniaColadaDevtools  />
 </template>
 
 <script setup lang="ts">
-const { isSignedIn } = useAuth()
-const { fetch } = useProfile()
-
-watch(
-  isSignedIn,
-  (signed) => {
-    if (signed) fetch()
-  },
-  { immediate: true },
-)
+import { PiniaColadaDevtools } from '@pinia/colada-devtools'
+// useQuery внутри useProfile автоматически активируется при isSignedIn
+useProfile()
 </script>

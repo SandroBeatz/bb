@@ -29,6 +29,15 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
+    [
+      '@pinia/colada-nuxt',
+      {
+        queryOptions: {
+          staleTime: 30_000, // 30 сек
+          gcTime: 300_000, // 5 мин
+        },
+      },
+    ],
     '@nuxtjs/supabase',
     '@clerk/nuxt',
   ],

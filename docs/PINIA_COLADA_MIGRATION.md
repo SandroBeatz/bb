@@ -380,6 +380,7 @@ export default defineNuxtRouteMiddleware(async () => {
 
 ## Ключевые правила при миграции
 
+- **Все dashboard запросы только client-side** — `enabled: () => import.meta.client && !!isSignedIn.value`. Clerk не форвардит сессию при SSR → 401 на перезагрузке. Выноси в wrapper-composable (`useMasterProfileQuery`, etc.)
 - **`key` всегда массив** — `['master', 'bookings']`, не строка
 - **Динамические параметры = геттер в ключе:** `key: () => ['slots', date.value]`
 - **`asyncStatus === 'loading'`** вместо старого `loading.value`

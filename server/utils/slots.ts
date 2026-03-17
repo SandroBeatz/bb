@@ -20,8 +20,8 @@ const FULL_TO_SHORT: Record<string, string> = {
 
 interface WorkDayRaw {
   start: string | number // "09:00" or 9
-  end: string | number   // "18:00" or 18
-  off?: boolean          // onboarding format
+  end: string | number // "18:00" or 18
+  off?: boolean // onboarding format
 }
 
 interface Booking {
