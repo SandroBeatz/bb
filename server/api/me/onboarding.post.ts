@@ -1,4 +1,5 @@
 import { clerkClient } from '@clerk/nuxt/server'
+import { createClient } from '@supabase/supabase-js'
 
 interface OnboardingBody {
   full_name?: string
@@ -9,7 +10,11 @@ interface OnboardingBody {
 }
 
 export default defineEventHandler(async (event) => {
-  const userId = requireAuth(event)
+  const auth = event.context.auth?.()
+  const userId = auth?.userId
+  if (!userId || !auth?.sessionId) {
+    throw createError({ statusCode: 401, message: 'Authentication required' })
+  }
 
   const body = await readBody<OnboardingBody>(event)
 
@@ -24,9 +29,16 @@ export default defineEventHandler(async (event) => {
     body.full_name?.trim() || [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ')
   const avatarUrl = body.avatar_url !== undefined ? body.avatar_url : (clerkUser.imageUrl ?? null)
 
-  const supabase = useServerSupabase()
+  // Mint a Supabase-scoped JWT from Clerk (same as mobile app approach)
+  const { jwt } = await clerkClient(event).sessions.getToken(auth.sessionId, 'supabase')
 
-  // Upsert profile with role=master (all new users become masters)
+  const config = useRuntimeConfig()
+  const supabase = createClient(config.public.supabaseUrl, config.public.supabaseAnonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { headers: { Authorization: `Bearer ${jwt}` } },
+  })
+
+  // Upsert profile — RLS passes because auth.jwt() ->> 'sub' = userId
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .upsert(

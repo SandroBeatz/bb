@@ -1,0 +1,1 @@
+-- address is stored inside the contacts jsonb field, no separate column needed

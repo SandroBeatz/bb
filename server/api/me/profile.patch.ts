@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     Object.entries(body).filter(([key]) => allowed.includes(key)),
   )
 
-  const supabase = useServerSupabase()
+  const supabase = await useAuthenticatedSupabase(event)
   const { data, error } = await supabase
     .from('profiles')
     .update(sanitized)

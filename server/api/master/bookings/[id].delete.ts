@@ -1,12 +1,10 @@
 export default defineEventHandler(async (event) => {
   const bookingId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!bookingId) {
     throw createError({ statusCode: 400, message: 'Booking ID is required' })
   }
-
-  const supabase = useServerSupabase()
 
   // Only allow deleting cancelled bookings
   const { data: booking, error: fetchError } = await supabase

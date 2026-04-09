@@ -1,10 +1,8 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   const query = getQuery(event)
   const period = (query.period as string) || 'month'
-
-  const supabase = useServerSupabase()
 
   const now = new Date()
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())

@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const itemId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!itemId) {
     throw createError({ statusCode: 400, message: 'Portfolio item ID is required' })
@@ -11,8 +11,6 @@ export default defineEventHandler(async (event) => {
     service_tag?: string | null
     sort_order?: number
   }>(event)
-
-  const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('portfolio_items')
     .update({

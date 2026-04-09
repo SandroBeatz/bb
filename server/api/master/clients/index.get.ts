@@ -1,10 +1,8 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   const query = getQuery(event)
   const search = (query.search as string | undefined)?.toLowerCase()
-
-  const supabase = useServerSupabase()
 
   // Get all clients for this master from the new clients table
   const { data: clientRows, error: clientsError } = await supabase

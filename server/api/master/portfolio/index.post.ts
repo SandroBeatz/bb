@@ -8,10 +8,9 @@ const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 const MAX_PHOTOS = 20
 
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   // Check current count before uploading
-  const supabase = useServerSupabase()
   const { count, error: countError } = await supabase
     .from('portfolio_items')
     .select('id', { count: 'exact', head: true })

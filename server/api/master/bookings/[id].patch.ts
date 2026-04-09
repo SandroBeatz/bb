@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const bookingId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!bookingId) {
     throw createError({ statusCode: 400, message: 'Booking ID is required' })
@@ -30,8 +30,6 @@ export default defineEventHandler(async (event) => {
   if (body.notes !== undefined) updateData.notes = body.notes
   if (body.starts_at !== undefined) updateData.starts_at = body.starts_at
   if (body.ends_at !== undefined) updateData.ends_at = body.ends_at
-
-  const supabase = useServerSupabase()
 
   const { data, error } = await supabase
     .from('bookings')

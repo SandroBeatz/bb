@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const paymentTypeId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!paymentTypeId) {
     throw createError({
@@ -17,8 +17,6 @@ export default defineEventHandler(async (event) => {
         sort_order: number
       }>
     >(event)
-
-  const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('payment_types')
     .update(body)
