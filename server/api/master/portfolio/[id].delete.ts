@@ -1,12 +1,10 @@
 export default defineEventHandler(async (event) => {
   const itemId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!itemId) {
     throw createError({ statusCode: 400, message: 'Portfolio item ID is required' })
   }
-
-  const supabase = useServerSupabase()
 
   // Fetch item to get the storage path before deleting
   const { data: item, error: fetchError } = await supabase

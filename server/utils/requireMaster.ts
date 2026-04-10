@@ -1,13 +1,16 @@
 import type { H3Event } from 'h3'
 import type { Database } from '~/types/database.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
-/** Requires auth and role === 'master'. Returns the master's profile or throws 401/403. */
-export async function requireMaster(event: H3Event): Promise<Profile> {
+/** Requires auth and role === 'master'. Returns profile + authenticated supabase client. */
+export async function requireMaster(
+  event: H3Event,
+): Promise<{ profile: Profile; supabase: SupabaseClient<Database> }> {
   const userId = requireAuth(event)
+  const supabase = await useAuthenticatedSupabase(event)
 
-  const supabase = useServerSupabase()
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
@@ -25,5 +28,5 @@ export async function requireMaster(event: H3Event): Promise<Profile> {
     })
   }
 
-  return profile
+  return { profile, supabase }
 }

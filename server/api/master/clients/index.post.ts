@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   const body = await readBody<{ name: string; phone: string; notes?: string }>(event)
 
@@ -9,8 +9,6 @@ export default defineEventHandler(async (event) => {
   if (!body?.phone?.trim()) {
     throw createError({ statusCode: 400, message: 'phone is required' })
   }
-
-  const supabase = useServerSupabase()
   const phone = body.phone.trim()
 
   // Upsert client — UNIQUE(master_id, phone) guarantees dedup

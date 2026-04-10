@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const serviceId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!serviceId) {
     throw createError({ statusCode: 400, message: 'Service ID is required' })
@@ -16,8 +16,6 @@ export default defineEventHandler(async (event) => {
         is_active: boolean
       }>
     >(event)
-
-  const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('services')
     .update(body)

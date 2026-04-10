@@ -1,12 +1,10 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
   const clientId = getRouterParam(event, 'id')
 
   if (!clientId) {
     throw createError({ statusCode: 400, message: 'Client ID is required' })
   }
-
-  const supabase = useServerSupabase()
 
   // Verify this client belongs to this master
   const { data: client, error: clientError } = await supabase

@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const paymentTypeId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!paymentTypeId) {
     throw createError({
@@ -8,8 +8,6 @@ export default defineEventHandler(async (event) => {
       message: 'Payment type ID is required',
     })
   }
-
-  const supabase = useServerSupabase()
   const { error } = await supabase
     .from('payment_types')
     .delete()

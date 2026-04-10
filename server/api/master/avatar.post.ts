@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   // Auth enforced via Clerk — Supabase Storage runs under anon key
-  const profile = await requireMaster(event)
+  const { profile } = await requireMaster(event)
 
   const formData = await readFormData(event)
   const file = formData.get('file')

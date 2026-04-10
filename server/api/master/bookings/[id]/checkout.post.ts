@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const bookingId = getRouterParam(event, 'id')
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   if (!bookingId) {
     throw createError({ statusCode: 400, message: 'Booking ID is required' })
@@ -18,8 +18,6 @@ export default defineEventHandler(async (event) => {
       message: 'payment_type_id and amount are required',
     })
   }
-
-  const supabase = useServerSupabase()
 
   const { data: booking } = await supabase
     .from('bookings')

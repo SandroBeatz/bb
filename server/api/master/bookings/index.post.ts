@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   const body = await readBody<{
     service_id: string
@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
       message: 'service_id, starts_at, and client_id are required',
     })
   }
-
-  const supabase = useServerSupabase()
 
   const { data: service, error: serviceError } = await supabase
     .from('services')

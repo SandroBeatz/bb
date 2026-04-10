@@ -1,7 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
-
-  const supabase = useServerSupabase()
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
   const { data, error } = await supabase
     .from('services')
     .select('*')

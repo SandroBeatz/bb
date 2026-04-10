@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { id: masterId } = await requireMaster(event)
+  const { profile: { id: masterId }, supabase } = await requireMaster(event)
 
   const body = await readBody<{
     name: string
@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
       message: 'name, price and duration_minutes are required',
     })
   }
-
-  const supabase = useServerSupabase()
   const { data, error } = await supabase
     .from('services')
     .insert({

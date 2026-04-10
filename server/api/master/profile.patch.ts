@@ -33,7 +33,7 @@ const bodySchema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
-  const profile = await requireMaster(event)
+  const { profile, supabase } = await requireMaster(event)
 
   const rawBody = await readBody(event)
   const parsed = bodySchema.safeParse(rawBody)
@@ -47,8 +47,6 @@ export default defineEventHandler(async (event) => {
 
   const { full_name, username, avatar_url, bio, city, specializations, contacts, work_hours } =
     parsed.data
-
-  const supabase = useServerSupabase()
 
   // Validate username uniqueness if changed
   if (username && username !== profile.username) {
