@@ -1,4 +1,4 @@
-import { defineQueryOptions } from '@pinia/colada'
+import { defineQueryOptions, useQuery } from '@pinia/colada'
 import type { BookingWithDetails, ClientItem, DashboardAnalytics, ProfileData } from '~/stores/dashboardCache'
 import type { PaymentType } from '~/types'
 import type { Database } from '~/types/database.types'
@@ -37,3 +37,6 @@ export const paymentTypesQuery = defineQueryOptions({
   query: () => $fetch<PaymentType[]>('/api/master/payment-types'),
   staleTime: 300_000, // типы оплаты меняются очень редко
 })
+
+export const useMasterProfileQuery = () => useQuery(masterProfileQuery)
+export const usePaymentTypesQuery = () => useQuery(paymentTypesQuery)
