@@ -250,10 +250,17 @@ const periodItems = computed(() => [
 ])
 
 // ── Data fetching ─────────────────────────────────────────────────────────
-const { data, pending } = useLazyFetch('/api/master/analytics', {
-  query: { period },
-  watch: [period],
+import { useQuery } from '@pinia/colada'
+
+const { isSignedIn } = useAuth()
+
+const { data, asyncStatus } = useQuery({
+  key: () => ['master', 'analytics', period.value],
+  query: () => $fetch('/api/master/analytics', { query: { period: period.value } }),
+  enabled: () => import.meta.client && !!isSignedIn.value,
 })
+
+const pending = computed(() => asyncStatus.value === 'loading')
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function formatAmount(v: number) {

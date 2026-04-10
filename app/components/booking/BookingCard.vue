@@ -27,7 +27,7 @@
           size="sm"
           icon="i-heroicons-check"
           :loading="confirming"
-          @click="onConfirm"
+          @click="confirm"
         >
           {{ $t('common.confirm') }}
         </UButton>
@@ -50,7 +50,7 @@
           size="sm"
           icon="i-heroicons-x-mark"
           :loading="cancelling"
-          @click="onCancel"
+          @click="cancel"
         >
           {{ $t('common.cancel') }}
         </UButton>
@@ -60,7 +60,9 @@
 </template>
 
 <script setup lang="ts">
+import { useMutation, useQueryCache } from '@pinia/colada'
 import type { Booking } from '~/types'
+import { analyticsQuery, bookingsQuery } from '~/composables/queries/dashboard'
 
 type BookingWithDetails = Booking & {
   services?: { name: string; price: number; duration_minutes: number } | null
@@ -71,15 +73,39 @@ const props = defineProps<{
   booking: BookingWithDetails
 }>()
 
-const emit = defineEmits<{
-  refresh: []
-}>()
-
 const { openCheckout } = useQuickCheckout()
 const toast = useToast()
+const { t } = useI18n()
+const queryCache = useQueryCache()
 
-const confirming = ref(false)
-const cancelling = ref(false)
+const { mutate: confirm, asyncStatus: confirmStatus } = useMutation({
+  mutation: () =>
+    $fetch(`/api/master/bookings/${props.booking.id}`, {
+      method: 'PATCH',
+      body: { status: 'confirmed' },
+    }),
+  onSuccess: () => {
+    queryCache.invalidateQueries({ key: bookingsQuery.key })
+    queryCache.invalidateQueries({ key: analyticsQuery.key })
+  },
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const { mutate: cancel, asyncStatus: cancelStatus } = useMutation({
+  mutation: () =>
+    $fetch(`/api/master/bookings/${props.booking.id}`, {
+      method: 'PATCH',
+      body: { status: 'cancelled' },
+    }),
+  onSuccess: () => {
+    queryCache.invalidateQueries({ key: bookingsQuery.key })
+    queryCache.invalidateQueries({ key: analyticsQuery.key })
+  },
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const confirming = computed(() => confirmStatus.value === 'loading')
+const cancelling = computed(() => cancelStatus.value === 'loading')
 
 const serviceName = computed(() => props.booking.services?.name ?? '—')
 const clientName = computed(() => props.booking.clients?.name ?? '—')
@@ -106,7 +132,7 @@ const statusColor = computed(() => {
   }
 })
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 
 const formattedTime = computed(() => {
   const date = new Date(props.booking.starts_at)
@@ -117,36 +143,6 @@ const formattedTime = computed(() => {
     minute: '2-digit',
   })
 })
-
-async function onConfirm() {
-  confirming.value = true
-  try {
-    await $fetch(`/api/master/bookings/${props.booking.id}`, {
-      method: 'PATCH',
-      body: { status: 'confirmed' },
-    })
-    emit('refresh')
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    confirming.value = false
-  }
-}
-
-async function onCancel() {
-  cancelling.value = true
-  try {
-    await $fetch(`/api/master/bookings/${props.booking.id}`, {
-      method: 'PATCH',
-      body: { status: 'cancelled' },
-    })
-    emit('refresh')
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    cancelling.value = false
-  }
-}
 
 function onComplete() {
   openCheckout(props.booking)

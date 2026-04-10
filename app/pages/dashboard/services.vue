@@ -148,7 +148,9 @@
 </template>
 
 <script setup lang="ts">
+import { useQuery, useQueryCache } from '@pinia/colada'
 import type { Database } from '~/types/database.types'
+import { servicesQuery } from '~/composables/queries/dashboard'
 
 type Service = Database['public']['Tables']['services']['Row']
 
@@ -157,12 +159,16 @@ definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 const { t } = useI18n()
 const toast = useToast()
 
-const cache = useDashboardCache()
-const { services, servicesLoading, servicesReady } = storeToRefs(cache)
+const { isSignedIn } = useAuth()
+const queryCache = useQueryCache()
 
-const loading = computed(
-  () => !servicesReady.value || (servicesLoading.value && !services.value.length),
-)
+const { data, asyncStatus } = useQuery({
+  ...servicesQuery,
+  enabled: () => import.meta.client && !!isSignedIn.value,
+})
+
+const services = computed(() => data.value ?? [])
+const loading = computed(() => asyncStatus.value === 'loading')
 
 const formModalOpen = ref(false)
 const editingService = ref<Service | null>(null)
@@ -170,14 +176,6 @@ const editingService = ref<Service | null>(null)
 const deleteModalOpen = ref(false)
 const deletingService = ref<Service | null>(null)
 const deleteLoading = ref(false)
-
-async function fetchServices() {
-  try {
-    await cache.fetchServices()
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  }
-}
 
 function openCreateModal() {
   editingService.value = null
@@ -190,14 +188,12 @@ function openEditModal(service: Service) {
 }
 
 function onServiceSaved(saved: Service) {
-  const idx = services.value.findIndex((s) => s.id === saved.id)
-  if (idx >= 0) {
-    services.value[idx] = saved
-    toast.add({ title: t('services.toast.updated'), color: 'success' })
-  } else {
-    services.value.push(saved)
-    toast.add({ title: t('services.toast.created'), color: 'success' })
-  }
+  const isUpdate = services.value.some((s) => s.id === saved.id)
+  queryCache.invalidateQueries({ key: servicesQuery.key })
+  toast.add({
+    title: t(isUpdate ? 'services.toast.updated' : 'services.toast.created'),
+    color: 'success',
+  })
 }
 
 async function toggleActive(service: Service) {
@@ -206,8 +202,7 @@ async function toggleActive(service: Service) {
       method: 'PATCH',
       body: { is_active: !service.is_active },
     })
-    const idx = services.value.findIndex((s) => s.id === updated.id)
-    if (idx >= 0) services.value[idx] = updated
+    queryCache.invalidateQueries({ key: servicesQuery.key })
     toast.add({
       title: updated.is_active ? t('services.toast.activated') : t('services.toast.deactivated'),
       color: 'success',
@@ -226,11 +221,8 @@ async function confirmDelete() {
   if (!deletingService.value) return
   deleteLoading.value = true
   try {
-    await $fetch(`/api/master/services/${deletingService.value.id}`, {
-      method: 'DELETE',
-    })
-    const idx = services.value.findIndex((s) => s.id === deletingService.value?.id)
-    if (idx >= 0) services.value.splice(idx, 1)
+    await $fetch(`/api/master/services/${deletingService.value.id}`, { method: 'DELETE' })
+    queryCache.invalidateQueries({ key: servicesQuery.key })
     toast.add({ title: t('services.toast.deleted'), color: 'success' })
     deleteModalOpen.value = false
   } catch {
@@ -239,6 +231,4 @@ async function confirmDelete() {
     deleteLoading.value = false
   }
 }
-
-onMounted(() => fetchServices())
 </script>

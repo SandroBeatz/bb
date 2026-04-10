@@ -14,6 +14,8 @@
         "@nuxtjs/color-mode": "^4.0.0",
         "@nuxtjs/i18n": "^10.2.3",
         "@nuxtjs/supabase": "^2.0.4",
+        "@pinia/colada": "^1.0.0",
+        "@pinia/colada-nuxt": "^0.3.2",
         "@pinia/nuxt": "^0.11.3",
         "@tma.js/sdk": "^3.1.7",
         "@vee-validate/zod": "^4.15.1",
@@ -28,6 +30,7 @@
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.6",
+        "@pinia/colada-devtools": "^0.4.5",
         "@types/node": "^25.5.0",
         "typescript": "^5.9.3",
       },
@@ -481,6 +484,12 @@
     "@parcel/watcher-win32-ia32": ["@parcel/watcher-win32-ia32@2.5.6", "", { "os": "win32", "cpu": "ia32" }, "sha512-k35yLp1ZMwwee3Ez/pxBi5cf4AoBKYXj00CZ80jUz5h8prpiaQsiRPKQMxoLstNuqe2vR4RNPEAEcjEFzhEz/g=="],
 
     "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.6", "", { "os": "win32", "cpu": "x64" }, "sha512-hbQlYcCq5dlAX9Qx+kFb0FHue6vbjlf0FrNzSKdYK2APUf7tGfGxQCk2ihEREmbR6ZMc0MVAD5RIX/41gpUzTw=="],
+
+    "@pinia/colada": ["@pinia/colada@1.0.0", "", { "peerDependencies": { "pinia": "^2.2.6 || ^3.0.0", "vue": "^3.5.17" } }, "sha512-YKSybA6wusFK4CAUPzItoSgPCfScVnnnO2MSlmaaisE/L7luE77GxFyhTzipM8IbvbXh4zkCy97OE7w9WX34wA=="],
+
+    "@pinia/colada-devtools": ["@pinia/colada-devtools@0.4.5", "", {}, "sha512-YSUa5nVmtbcQG+to7qysixNcB49bxEMUo+VvkU9YFrUNFPhPVUl+tMx3Xx79J024MEV46nQkyf1+hpQ4kwSsyg=="],
+
+    "@pinia/colada-nuxt": ["@pinia/colada-nuxt@0.3.2", "", { "dependencies": { "@nuxt/kit": "^4.3.1" }, "peerDependencies": { "@pinia/colada": ">=0.21.6" } }, "sha512-ICPbRZ03g43CPKYwxkWf3yFbW8iz7L7kF5QoJw7lok7k7fkz9t0tFc3SrOgjl7B8PEiw3syD7rRtu3CeGmuJeg=="],
 
     "@pinia/nuxt": ["@pinia/nuxt@0.11.3", "", { "dependencies": { "@nuxt/kit": "^4.2.0" }, "peerDependencies": { "pinia": "^3.0.4" } }, "sha512-7WVNHpWx4qAEzOlnyrRC88kYrwnlR/PrThWT0XI1dSNyUAXu/KBv9oR37uCgYkZroqP5jn8DfzbkNF3BtKvE9w=="],
 

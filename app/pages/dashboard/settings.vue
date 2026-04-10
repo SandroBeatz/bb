@@ -514,7 +514,9 @@
 </template>
 
 <script setup lang="ts">
+import { useMutation, useQueryCache } from '@pinia/colada'
 import { z } from 'zod'
+import { masterProfileQuery, useMasterProfileQuery, usePaymentTypesQuery } from '~/composables/queries/dashboard'
 import type { CalendarView, SlotDuration } from '~/composables/useCalendarSettings'
 import type { Database } from '~/types/database.types'
 
@@ -526,8 +528,7 @@ const { t, tm } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const clerk = useClerk()
-const cache = useDashboardCache()
-const { profileData, profileLoading: profileFetching } = storeToRefs(cache)
+const queryCache = useQueryCache()
 
 // ─── Calendar settings ────────────────────────────────────────────────────────
 
@@ -582,8 +583,9 @@ interface ProfileState {
   work_hours: Record<Day, WorkDay | null>
 }
 
-const profileLoading = computed(() => profileFetching.value || !profileData.value)
-const profileSaving = ref(false)
+const { data: profileData, asyncStatus: profileFetchStatus } = useMasterProfileQuery()
+const profileLoading = computed(() => profileFetchStatus.value === 'loading' || !profileData.value)
+
 const avatarUploading = ref(false)
 const newSpecialization = ref('')
 
@@ -640,41 +642,40 @@ function populateForm(data: typeof profileData.value) {
 
 watch(profileData, populateForm, { immediate: true })
 
-async function saveProfile() {
-  profileSaving.value = true
-  try {
-    // Filter out empty contact strings
-    const contacts: Record<string, string> = {}
-    for (const [k, v] of Object.entries(profileState.contacts)) {
-      if (v) contacts[k] = v
-    }
-
-    const updated = await $fetch<typeof profileData.value>('/api/master/profile', {
-      method: 'PATCH',
-      body: {
-        full_name: profileState.full_name,
-        username: profileState.username || undefined,
-        avatar_url: profileState.avatar_url,
-        bio: profileState.bio || null,
-        city: profileState.city || null,
-        specializations: profileState.specializations,
-        contacts,
-        work_hours: profileState.work_hours,
-      },
-    })
-    // Sync cache so watch doesn't overwrite form with stale data
-    if (updated) cache.profileData = updated as typeof cache.profileData
+const { mutate: saveProfileMutate, asyncStatus: profileSavingStatus } = useMutation({
+  mutation: (body: Record<string, unknown>) =>
+    $fetch('/api/master/profile', { method: 'PATCH', body }),
+  onSuccess: (updated) => {
+    queryCache.setQueryData(masterProfileQuery.key, updated)
     toast.add({ title: t('profileEdit.toast.saved'), color: 'success' })
-  } catch (err: unknown) {
+  },
+  onError: (err: unknown) => {
     const message = (err as { data?: { message?: string } })?.data?.message
     if (message?.includes('already taken') || message?.includes('Username')) {
       toast.add({ title: t('profileEdit.validation.usernameTaken'), color: 'error' })
     } else {
       toast.add({ title: t('errors.general'), color: 'error' })
     }
-  } finally {
-    profileSaving.value = false
+  },
+})
+
+const profileSaving = computed(() => profileSavingStatus.value === 'loading')
+
+function saveProfile() {
+  const contacts: Record<string, string> = {}
+  for (const [k, v] of Object.entries(profileState.contacts)) {
+    if (v) contacts[k] = v
   }
+  saveProfileMutate({
+    full_name: profileState.full_name,
+    username: profileState.username || undefined,
+    avatar_url: profileState.avatar_url,
+    bio: profileState.bio || null,
+    city: profileState.city || null,
+    specializations: profileState.specializations,
+    contacts,
+    work_hours: profileState.work_hours,
+  })
 }
 
 async function handleAvatarUpload(event: Event) {
@@ -701,11 +702,11 @@ async function handleAvatarUpload(event: Event) {
     })
     profileState.avatar_url = url
     // Auto-save avatar URL immediately — don't require manual Save click
-    await $fetch('/api/master/profile', {
-      method: 'PATCH',
-      body: { avatar_url: url },
-    })
-    if (cache.profileData) cache.profileData.avatar_url = url
+    await $fetch('/api/master/profile', { method: 'PATCH', body: { avatar_url: url } })
+    // Sync query cache so sidebar avatar updates without refetch
+    if (profileData.value) {
+      queryCache.setQueryData(masterProfileQuery.key, { ...profileData.value, avatar_url: url })
+    }
     toast.add({ title: t('profileEdit.avatar'), color: 'success' })
   } catch {
     toast.add({ title: t('errors.general'), color: 'error' })
@@ -765,16 +766,15 @@ function toggleDay(day: Day, enabled: boolean) {
 
 const PRESETS = computed(() => tm('paymentTypes.presetValues') as string[])
 
-const paymentTypes = ref<PaymentType[]>([])
-const loading = ref(true)
+const { data: paymentTypesData, asyncStatus: ptFetchStatus } = usePaymentTypesQuery()
+const paymentTypes = computed(() => paymentTypesData.value ?? [])
+const loading = computed(() => ptFetchStatus.value === 'loading')
 
 const showAddForm = ref(false)
 const editingId = ref<string | null>(null)
-const formLoading = ref(false)
 
 const deleteModalOpen = ref(false)
 const deletingPaymentType = ref<PaymentType | null>(null)
-const deleteLoading = ref(false)
 
 const formState = reactive({ name: '' })
 
@@ -792,17 +792,6 @@ const schema = computed(() => {
       }),
   })
 })
-
-async function fetchPaymentTypes() {
-  loading.value = true
-  try {
-    paymentTypes.value = await $fetch<PaymentType[]>('/api/master/payment-types')
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    loading.value = false
-  }
-}
 
 function openAddForm() {
   editingId.value = null
@@ -826,50 +815,60 @@ function applyPreset(preset: string) {
   formState.name = preset
 }
 
-async function submitForm() {
-  formLoading.value = true
-  try {
-    if (editingId.value) {
-      const updated = await $fetch<PaymentType>(`/api/master/payment-types/${editingId.value}`, {
+const { mutate: submitPaymentType, asyncStatus: formSavingStatus } = useMutation({
+  mutation: ({ id, name, sortOrder }: { id?: string; name: string; sortOrder: number }) => {
+    if (id) {
+      return $fetch<PaymentType>(`/api/master/payment-types/${id}`, {
         method: 'PATCH',
-        body: { name: formState.name },
+        body: { name },
       })
-      const idx = paymentTypes.value.findIndex((pt) => pt.id === updated.id)
-      if (idx >= 0) paymentTypes.value[idx] = updated
-      toast.add({ title: t('paymentTypes.toast.updated'), color: 'success' })
-    } else {
-      const created = await $fetch<PaymentType>('/api/master/payment-types', {
-        method: 'POST',
-        body: { name: formState.name, sort_order: paymentTypes.value.length },
-      })
-      paymentTypes.value.push(created)
-      toast.add({ title: t('paymentTypes.toast.created'), color: 'success' })
     }
+    return $fetch<PaymentType>('/api/master/payment-types', {
+      method: 'POST',
+      body: { name, sort_order: sortOrder },
+    })
+  },
+  onSuccess: (_, vars) => {
+    toast.add({
+      title: vars.id ? t('paymentTypes.toast.updated') : t('paymentTypes.toast.created'),
+      color: 'success',
+    })
     closeForm()
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    formLoading.value = false
-  }
+    queryCache.invalidateQueries({ key: ['master', 'payment-types'] })
+  },
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const formLoading = computed(() => formSavingStatus.value === 'loading')
+
+function submitForm() {
+  submitPaymentType({
+    id: editingId.value ?? undefined,
+    name: formState.name,
+    sortOrder: paymentTypes.value.length,
+  })
 }
 
-async function toggleActive(pt: PaymentType) {
-  try {
-    const updated = await $fetch<PaymentType>(`/api/master/payment-types/${pt.id}`, {
+const { mutate: toggleActiveMutate } = useMutation({
+  mutation: ({ id, is_active }: { id: string; is_active: boolean }) =>
+    $fetch<PaymentType>(`/api/master/payment-types/${id}`, {
       method: 'PATCH',
-      body: { is_active: !pt.is_active },
-    })
-    const idx = paymentTypes.value.findIndex((p) => p.id === updated.id)
-    if (idx >= 0) paymentTypes.value[idx] = updated
+      body: { is_active },
+    }),
+  onSuccess: (updated) => {
     toast.add({
       title: updated.is_active
         ? t('paymentTypes.toast.activated')
         : t('paymentTypes.toast.deactivated'),
       color: 'success',
     })
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  }
+    queryCache.invalidateQueries({ key: ['master', 'payment-types'] })
+  },
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+function toggleActive(pt: PaymentType) {
+  toggleActiveMutate({ id: pt.id, is_active: !pt.is_active })
 }
 
 function openDeleteModal(pt: PaymentType) {
@@ -877,25 +876,21 @@ function openDeleteModal(pt: PaymentType) {
   deleteModalOpen.value = true
 }
 
-async function confirmDelete() {
-  if (!deletingPaymentType.value) return
-  deleteLoading.value = true
-  try {
-    await $fetch(`/api/master/payment-types/${deletingPaymentType.value.id}`, {
-      method: 'DELETE',
-    })
-    paymentTypes.value = paymentTypes.value.filter((pt) => pt.id !== deletingPaymentType.value?.id)
+const { mutate: deletePaymentType, asyncStatus: deletingStatus } = useMutation({
+  mutation: (id: string) =>
+    $fetch(`/api/master/payment-types/${id}`, { method: 'DELETE' }),
+  onSuccess: () => {
     toast.add({ title: t('paymentTypes.toast.deleted'), color: 'success' })
     deleteModalOpen.value = false
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    deleteLoading.value = false
-  }
-}
-
-onMounted(() => {
-  cache.fetchProfile()
-  fetchPaymentTypes()
+    queryCache.invalidateQueries({ key: ['master', 'payment-types'] })
+  },
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
 })
+
+const deleteLoading = computed(() => deletingStatus.value === 'loading')
+
+function confirmDelete() {
+  if (!deletingPaymentType.value) return
+  deletePaymentType(deletingPaymentType.value.id)
+}
 </script>

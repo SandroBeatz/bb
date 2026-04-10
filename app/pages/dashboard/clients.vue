@@ -210,6 +210,9 @@
 </template>
 
 <script setup lang="ts">
+import { useQuery, useQueryCache } from '@pinia/colada'
+import { clientsQuery } from '~/composables/queries/dashboard'
+
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
 type ClientItem = {
@@ -236,13 +239,18 @@ type ClientBooking = {
 const { t, locale } = useI18n()
 const toast = useToast()
 
-const cache = useDashboardCache()
-const { clients, clientsLoading, clientsReady } = storeToRefs(cache)
+const { isSignedIn } = useAuth()
+const queryCache = useQueryCache()
+
+const { data, asyncStatus } = useQuery({
+  ...clientsQuery,
+  enabled: () => import.meta.client && !!isSignedIn.value,
+})
+
+const clients = computed(() => data.value ?? [])
 
 const search = ref('')
-const loading = computed(
-  () => !clientsReady.value || (clientsLoading.value && !clients.value.length),
-)
+const loading = computed(() => asyncStatus.value === 'loading')
 
 const slideoverOpen = ref(false)
 const selectedClient = ref<ClientItem | null>(null)
@@ -250,9 +258,9 @@ const detailLoading = ref(false)
 const clientBookings = ref<ClientBooking[]>([])
 
 const filteredClients = computed(() => {
-  if (!search.value.trim()) return clients.value as ClientItem[]
+  if (!search.value.trim()) return clients.value
   const q = search.value.toLowerCase()
-  return (clients.value as ClientItem[]).filter(
+  return clients.value.filter(
     (c) => c.name.toLowerCase().includes(q) || c.phone.includes(q),
   )
 })
@@ -266,7 +274,7 @@ async function createClient() {
   if (!newClientForm.name.trim() || !newClientForm.phone.trim()) return
   addClientLoading.value = true
   try {
-    const client = await $fetch<ClientItem>('/api/master/clients', {
+    await $fetch<ClientItem>('/api/master/clients', {
       method: 'POST',
       body: {
         name: newClientForm.name.trim(),
@@ -274,7 +282,7 @@ async function createClient() {
         notes: newClientForm.notes.trim() || undefined,
       },
     })
-    ;(cache.clients as ClientItem[]).unshift(client)
+    queryCache.invalidateQueries({ key: clientsQuery.key })
     addClientOpen.value = false
     newClientForm.name = ''
     newClientForm.phone = ''
@@ -348,7 +356,4 @@ async function openClient(client: ClientItem) {
   }
 }
 
-onMounted(() => {
-  cache.fetchClients()
-})
 </script>

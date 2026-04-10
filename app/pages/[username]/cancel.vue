@@ -164,7 +164,9 @@ const username = route.params.username as string
 const localePath = useLocalePath()
 const { t, locale } = useI18n()
 
-interface MasterData { id: string }
+interface MasterData {
+  id: string
+}
 const { data: master } = await useFetch<MasterData>(`/api/masters/${username}`)
 
 interface BookingItem {

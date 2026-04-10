@@ -41,7 +41,7 @@
           </UFormField>
 
           <UAlert
-            v-if="store.paymentTypes.length === 0 && !loadingPaymentTypes"
+            v-if="(store.paymentTypes?.length ?? 0) === 0 && !loadingPaymentTypes"
             color="warning"
             variant="soft"
             icon="i-heroicons-exclamation-triangle"
@@ -65,7 +65,7 @@
               size="lg"
               class="flex-1"
               :loading="store.loading"
-              :disabled="store.paymentTypes.length === 0"
+              :disabled="(store.paymentTypes?.length ?? 0) === 0"
             >
               {{ $t('checkout.confirm') }}
             </UButton>
@@ -95,7 +95,7 @@ const toast = useToast()
 
 const store = useQuickCheckout()
 
-const loadingPaymentTypes = ref(false)
+const loadingPaymentTypes = computed(() => store.paymentTypesAsyncStatus === 'loading')
 
 const bookingInfo = computed<BookingInfo | null>(() => {
   if (!store.booking) return null
@@ -112,7 +112,7 @@ const bookingInfo = computed<BookingInfo | null>(() => {
 })
 
 const paymentTypeOptions = computed(() =>
-  store.paymentTypes.filter((pt) => pt.is_active).map((pt) => ({ label: pt.name, value: pt.id })),
+  (store.paymentTypes ?? []).filter((pt) => pt.is_active).map((pt) => ({ label: pt.name, value: pt.id })),
 )
 
 const schema = z.object({
@@ -131,17 +131,13 @@ const formState = reactive(defaultState())
 
 watch(
   () => store.isOpen,
-  async (open) => {
+  (open) => {
     if (open) {
       Object.assign(formState, defaultState())
       if (bookingInfo.value) {
         formState.amount = bookingInfo.value.price
       }
-      if (store.paymentTypes.length === 0) {
-        loadingPaymentTypes.value = true
-        await store.fetchPaymentTypes()
-        loadingPaymentTypes.value = false
-      }
+      // paymentTypes auto-fetched by useQuery; set default if already cached
       if (paymentTypeOptions.value.length > 0) {
         formState.paymentTypeId = paymentTypeOptions.value[0]?.value ?? ''
       }
@@ -149,15 +145,22 @@ watch(
   },
 )
 
+// Set default payment type when query resolves (cache miss on open)
+watch(paymentTypeOptions, (options) => {
+  if (store.isOpen && options.length > 0 && !formState.paymentTypeId) {
+    formState.paymentTypeId = options[0]?.value ?? ''
+  }
+})
+
 async function onSubmit() {
   if (!bookingInfo.value) return
   try {
-    await store.submitCheckout(
-      bookingInfo.value.id,
-      Number(formState.amount),
-      formState.paymentTypeId,
-      formState.note || undefined,
-    )
+    await store.submitCheckout({
+      bookingId: bookingInfo.value.id,
+      amount: Number(formState.amount),
+      paymentTypeId: formState.paymentTypeId,
+      note: formState.note || undefined,
+    })
     toast.add({ title: t('checkout.success'), color: 'success' })
     emit('success')
   } catch {

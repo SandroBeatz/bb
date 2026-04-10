@@ -71,7 +71,9 @@
 </template>
 
 <script setup lang="ts">
+import { useMutation, useQueryCache } from '@pinia/colada'
 import type { Booking, BookingStatus } from '~/types'
+import { analyticsQuery, bookingsQuery } from '~/composables/queries/dashboard'
 
 definePageMeta({ middleware: 'auth', layout: 'dashboard' })
 
@@ -101,6 +103,7 @@ const STATUS_COLORS: Record<BookingStatus, { background: string; border: string 
 const { t, locale } = useI18n()
 const toast = useToast()
 const { openCheckout } = useQuickCheckout()
+const queryCache = useQueryCache()
 
 const loading = ref(false)
 const bookings = ref<BookingWithDetails[]>([])
@@ -114,11 +117,29 @@ const selectedBooking = ref<BookingWithDetails | null>(null)
 const isNewSlotModalOpen = ref(false)
 const clickedDatetime = ref<string | null>(null)
 
-// Per-action loading states for the currently selected booking
-const actionLoading = ref(false)
-const cancelLoading = ref(false)
-const deleteLoading = ref(false)
 const savingNotes = ref(false)
+
+// ── Booking mutations ─────────────────────────────────────────────────────
+const { mutateAsync: confirmMutation, asyncStatus: confirmAsyncStatus } = useMutation({
+  mutation: (id: string) =>
+    $fetch(`/api/master/bookings/${id}`, { method: 'PATCH', body: { status: 'confirmed' } }),
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const { mutateAsync: cancelMutation, asyncStatus: cancelAsyncStatus } = useMutation({
+  mutation: (id: string) =>
+    $fetch(`/api/master/bookings/${id}`, { method: 'PATCH', body: { status: 'cancelled' } }),
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const { mutateAsync: deleteMutation, asyncStatus: deleteAsyncStatus } = useMutation({
+  mutation: (id: string) => $fetch(`/api/master/bookings/${id}`, { method: 'DELETE' }),
+  onError: () => toast.add({ title: t('errors.general'), color: 'error' }),
+})
+
+const actionLoading = computed(() => confirmAsyncStatus.value === 'loading')
+const cancelLoading = computed(() => cancelAsyncStatus.value === 'loading')
+const deleteLoading = computed(() => deleteAsyncStatus.value === 'loading')
 
 // Fast lookup: booking id → booking
 const bookingMap = computed(() => {
@@ -189,49 +210,26 @@ function handleDateClick(info: { dateStr: string }) {
 }
 
 async function confirmBooking(id: string): Promise<void> {
-  actionLoading.value = true
-  try {
-    await $fetch(`/api/master/bookings/${id}`, {
-      method: 'PATCH',
-      body: { status: 'confirmed' },
-    })
-    await fetchBookings(currentRange.value ?? undefined)
-    const updated = bookingMap.value.get(id)
-    if (updated) selectedBooking.value = updated
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    actionLoading.value = false
-  }
+  await confirmMutation(id)
+  queryCache.invalidateQueries({ key: bookingsQuery.key })
+  await fetchBookings(currentRange.value ?? undefined)
+  const updated = bookingMap.value.get(id)
+  if (updated) selectedBooking.value = updated
 }
 
 async function cancelBooking(id: string): Promise<void> {
-  cancelLoading.value = true
-  try {
-    await $fetch(`/api/master/bookings/${id}`, {
-      method: 'PATCH',
-      body: { status: 'cancelled' },
-    })
-    await fetchBookings(currentRange.value ?? undefined)
-    isSlideoverOpen.value = false
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    cancelLoading.value = false
-  }
+  await cancelMutation(id)
+  queryCache.invalidateQueries({ key: bookingsQuery.key })
+  queryCache.invalidateQueries({ key: analyticsQuery.key })
+  await fetchBookings(currentRange.value ?? undefined)
+  isSlideoverOpen.value = false
 }
 
 async function deleteBooking(id: string): Promise<void> {
-  deleteLoading.value = true
-  try {
-    await $fetch(`/api/master/bookings/${id}`, { method: 'DELETE' })
-    bookings.value = bookings.value.filter((b) => b.id !== id)
-    isSlideoverOpen.value = false
-  } catch {
-    toast.add({ title: t('errors.general'), color: 'error' })
-  } finally {
-    deleteLoading.value = false
-  }
+  await deleteMutation(id)
+  queryCache.invalidateQueries({ key: bookingsQuery.key })
+  bookings.value = bookings.value.filter((b) => b.id !== id)
+  isSlideoverOpen.value = false
 }
 
 function completeBooking(booking: BookingWithDetails): void {
